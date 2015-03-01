@@ -16,8 +16,19 @@
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
     </Window.Resources>
     <Grid>
-        <Canvas>
-            <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100" Canvas.Top="150"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="900"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <GroupBox Margin="20" Grid.Column="0" Grid.Row="0" Height="75">
+            <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
+        </GroupBox>
+        <Canvas Grid.Column="0" Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100"
                           helpers:SizeObserver.Observe="True"
                           helpers:SizeObserver.ObservedWidth="{Binding ViewportWidth, Mode=OneWayToSource}"
                           helpers:SizeObserver.ObservedHeight="{Binding ViewportHeight, Mode=OneWayToSource}">
@@ -34,7 +45,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100" Canvas.Top="150"
+            <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100"
                       helpers:SizeObserver.Observe="True"
                       helpers:SizeObserver.ObservedWidth="{Binding ViewportWidth, Mode=OneWayToSource}"
                       helpers:SizeObserver.ObservedHeight="{Binding ViewportHeight, Mode=OneWayToSource}">
@@ -68,7 +79,16 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <Button Width="100" Height="25" Content="Render me!" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding Click}"/>
         </Canvas>
+        <StackPanel Grid.Column="1" Grid.Row="0" Margin="20">
+            <StackPanel Orientation="Horizontal" Margin="20">
+                <TextBlock Text="L: "/>
+                <TextBox Width="100" Text="{Binding L}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20">
+                <TextBlock Text="V: "/>
+                <TextBox Width="100" Text="{Binding V}"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>

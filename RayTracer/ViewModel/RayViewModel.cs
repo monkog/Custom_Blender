@@ -121,16 +121,9 @@ namespace RayTracer.ViewModel
             Meshes = new ObservableCollection<ShapeBase>();
 
             Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
-            CreateNewCube();
         }
         #endregion .ctor
         #region Private Methods
-        private void CreateNewCube()
-        {
-            var cube = new Cube(100, 100, 100, 40);
-            Meshes.Add(cube);
-        }
-
         private void Render()
         {
             Matrix3D viewMatrix = Transformations.ViewMatrix(Camera);
@@ -165,13 +158,14 @@ namespace RayTracer.ViewModel
         }
         #endregion Private Methods
 
-        private ICommand _click;
+        private ICommand _addTorusCommand;
 
-        public ICommand Click { get { return _click ?? (_click = new DelegateCommand(ClickExecuted)); } }
+        public ICommand AddTorusCommand { get { return _addTorusCommand ?? (_addTorusCommand = new DelegateCommand(AddTorusExecuted)); } }
 
-        private void ClickExecuted()
+        private void AddTorusExecuted()
         {
-            Render();
+            var cube = new Cube(100, 100, 100, 40);
+            Meshes.Add(cube);
         }
     }
 }
