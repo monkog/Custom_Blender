@@ -24,7 +24,15 @@ namespace RayTracer.Helpers
 
         public double LengthSquared { get { return _x * _x + _y * _y + _z * _z + _a * _a; } }
 
-        public Vector4 Normalized { get { return this / _a; } }
+        public Vector4 Normalized
+        {
+            get
+            {
+                if (_a == 0)
+                    return this;
+                return this/_a;
+            }
+        }
 
         public double Dot(Vector4 vector)
         {

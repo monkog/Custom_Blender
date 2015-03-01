@@ -5,11 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:RayTracer.ViewModel"
         xmlns:helpers="clr-namespace:RayTracer.Helpers"
+        xmlns:converters="clr-namespace:RayTracer.Helpers.Converters"
         mc:Ignorable="d"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1333" d:DesignHeight="768">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
     </d:Window.DataContext>
+    <Window.Resources>
+        <converters:TransformedPoint x:Key="TransformedPoint"/>
+        <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
+    </Window.Resources>
     <Grid>
         <Canvas>
             <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100" Canvas.Top="150"
@@ -42,11 +47,11 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ItemsControl ItemsSource="{Binding Vertices}">
+                        <ItemsControl ItemsSource="{Binding TransformedVertices}">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="FrameworkElement">
-                                    <Setter Property="Canvas.Left" Value="{Binding X}" />
-                                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                                    <Setter Property="Canvas.Left" Value="{Binding X, Converter={StaticResource ReducedValueConverter}, ConverterParameter=3}" />
+                                    <Setter Property="Canvas.Top" Value="{Binding Y, Converter={StaticResource ReducedValueConverter}, ConverterParameter=3}" />
                                 </Style>
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemsPanel>
@@ -56,14 +61,14 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="Point">
-                                    <Ellipse Width="5" Height="5" Fill="LightCoral"/>
+                                    <Ellipse Width="6" Height="6" Fill="LightCoral"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <!--<Button Width="100" Height="25" Content="Render me!" HorizontalAlignment="Left" VerticalAlignment="Top"/>-->
+            <Button Width="100" Height="25" Content="Render me!" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding Click}"/>
         </Canvas>
     </Grid>
 </Window>

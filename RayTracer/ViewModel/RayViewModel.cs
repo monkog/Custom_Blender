@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading;
+using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using RayTracer.Model.Shapes;
 using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
+using Microsoft.Practices.Prism.Commands;
 
 namespace RayTracer.ViewModel
 {
@@ -19,19 +22,19 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// The camera target
         /// </summary>
-        private readonly Vector3D _cameraTarget = new Vector3D(0, 0, 0);
+        private readonly Vector3D _cameraTarget = new Vector3D(0, 0.5, 0.5);
         /// <summary>
         /// The camera position
         /// </summary>
-        private readonly Vector3D _cameraPosition = new Vector3D(0, 0, 10);
+        private readonly Vector3D _cameraPosition = new Vector3D(3, 0.5, 0.5);
         /// <summary>
         /// The near plane
         /// </summary>
-        private readonly double _near = 0.1;
+        private readonly double _near = 1;
         /// <summary>
         /// The far plane
         /// </summary>
-        private readonly double _far = 10;
+        private readonly double _far = 100;
         /// <summary>
         /// The field of view
         /// </summary>
@@ -119,13 +122,12 @@ namespace RayTracer.ViewModel
 
             Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
             CreateNewCube();
-            //Render();
         }
         #endregion .ctor
         #region Private Methods
         private void CreateNewCube()
         {
-            var cube = new Cube(100, 50, 10, 20);
+            var cube = new Cube(100, 100, 100, 40);
             Meshes.Add(cube);
         }
 
@@ -136,12 +138,13 @@ namespace RayTracer.ViewModel
 
             foreach (ShapeBase mesh in Meshes)
             {
-                for (int i = 0; i < mesh.Vertices.Count; i++)
-                {
-                    var vertex = mesh.Vertices[i];
-                    vertex = Transformations.TransformPoint(vertex, viewMatrix);
-                    mesh.Vertices[i] = Transformations.TransformPoint(vertex, projectionMatrix).Normalized;
-                }
+                mesh.Transform = viewMatrix * projectionMatrix;
+                //for (int i = 0; i < mesh.Vertices.Count; i++)
+                //{
+                //    var vertex = mesh.Vertices[i];
+                //    vertex = Transformations.TransformPoint(vertex, viewMatrix);
+                //    mesh.Vertices[i] = Transformations.TransformPoint(vertex, projectionMatrix).Normalized;
+                //}
 
                 //foreach (Triangle triangle in mesh.m_triangles)
                 //{
@@ -160,7 +163,15 @@ namespace RayTracer.ViewModel
 
             }
         }
-
         #endregion Private Methods
+
+        private ICommand _click;
+
+        public ICommand Click { get { return _click ?? (_click = new DelegateCommand(ClickExecuted)); } }
+
+        private void ClickExecuted()
+        {
+            Render();
+        }
     }
 }

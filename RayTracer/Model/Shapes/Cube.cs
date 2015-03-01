@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using RayTracer.Helpers;
@@ -21,6 +23,7 @@ namespace RayTracer.Model.Shapes
             Width = Height = Depth = size;
             SetVertices();
             SetEdges();
+            TransformVertices();
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="Cube"/> class.
@@ -44,10 +47,10 @@ namespace RayTracer.Model.Shapes
         {
             Vertices.Add(new Vector4(X, Y, Z, 0));
             Vertices.Add(new Vector4(X + Width, Y, Z, 0));
-            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 0));
             Vertices.Add(new Vector4(X + Width, Y + Height, Z, 0));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 0));
             Vertices.Add(new Vector4(X, Y + Height, Z, 0));
+            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 0));
+            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 0));
             Vertices.Add(new Vector4(X, Y + Height, Z + Depth, 0));
             Vertices.Add(new Vector4(X, Y, Z + Depth, 0));
         }
@@ -56,12 +59,11 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private void SetEdges()
         {
-            Edges = new Polyline();
-            Edges.Points.Add(new Point(X, Y));
-            Edges.Points.Add(new Point(X + Width, Y));
-            Edges.Points.Add(new Point(X + Width, Y + Height));
-            Edges.Points.Add(new Point(X, Y + Height));
-            Edges.Points.Add(new Point(X, Y));
+            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
+            EdgesIndices.Add(new Tuple<int, int>(0, 1));
+            EdgesIndices.Add(new Tuple<int, int>(1, 2));
+            EdgesIndices.Add(new Tuple<int, int>(2, 3));
+            EdgesIndices.Add(new Tuple<int, int>(3, 0));
         }
         #endregion Private Methods
     }
