@@ -56,6 +56,7 @@
     <Compile Include="Helpers\SimpleLine.cs" />
     <Compile Include="Helpers\SizeObserver.cs" />
     <Compile Include="Helpers\Vector4.cs" />
+    <Compile Include="Model\Camera\OrthographicCamera.cs" />
     <Compile Include="Model\Camera\PerspectiveCamera.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />

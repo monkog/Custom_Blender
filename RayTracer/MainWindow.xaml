@@ -6,7 +6,7 @@
         xmlns:viewModel="clr-namespace:RayTracer.ViewModel"
         xmlns:helpers="clr-namespace:RayTracer.Helpers"
         mc:Ignorable="d"
-        Title="Torus" WindowState="Maximized">
+        Title="Torus" WindowState="Maximized" d:DesignWidth="1333" d:DesignHeight="768">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
     </d:Window.DataContext>
@@ -19,7 +19,8 @@
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Width}" 
-                                Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Height}"/>
+                                Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Height}"
+                                Background="Black"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -50,9 +51,7 @@
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <Canvas IsItemsHost="True" Background="DarkCyan" 
-                                            Width="5" 
-                                            Height="5"/>
+                                    <Canvas/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>

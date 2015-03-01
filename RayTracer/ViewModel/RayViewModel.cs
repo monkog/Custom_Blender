@@ -19,19 +19,19 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// The camera target
         /// </summary>
-        private readonly Vector3D _cameraTarget = new Vector3D(0, 0.5, 0.5);
+        private readonly Vector3D _cameraTarget = new Vector3D(0, 0, 0);
         /// <summary>
         /// The camera position
         /// </summary>
-        private readonly Vector3D _cameraPosition = new Vector3D(3, 0.5, 0.5);
+        private readonly Vector3D _cameraPosition = new Vector3D(0, 0, 10);
         /// <summary>
         /// The near plane
         /// </summary>
-        private readonly double _near = 1;
+        private readonly double _near = 0.1;
         /// <summary>
         /// The far plane
         /// </summary>
-        private readonly double _far = 100;
+        private readonly double _far = 10;
         /// <summary>
         /// The field of view
         /// </summary>
@@ -119,20 +119,20 @@ namespace RayTracer.ViewModel
 
             Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
             CreateNewCube();
-            Render();
+            //Render();
         }
         #endregion .ctor
         #region Private Methods
         private void CreateNewCube()
         {
-            var cube = new Cube(1, 1, 1, 4);
+            var cube = new Cube(100, 50, 10, 20);
             Meshes.Add(cube);
         }
 
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.CreateViewMatrix(Camera);
-            Matrix3D projectionMatrix = Transformations.CalculateProjectionMatrix(_fov, _near, _far, _ratio);
+            Matrix3D viewMatrix = Transformations.ViewMatrix(Camera);
+            Matrix3D projectionMatrix = Transformations.ProjectionMatrix(_fov, _near, _far, _ratio);
 
             foreach (ShapeBase mesh in Meshes)
             {
