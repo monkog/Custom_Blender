@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
@@ -17,7 +15,7 @@ namespace RayTracer.Model.Shapes
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
         /// <param name="size">The size of the cube.</param>
-        public Cube(double x, double y, double z, int size)
+        public Cube(double x, double y, double z, double size)
             : base(x, y, z)
         {
             Width = Height = Depth = size;
@@ -45,14 +43,14 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private void SetVertices()
         {
-            Vertices.Add(new Vector4(X, Y, Z, 0));
-            Vertices.Add(new Vector4(X + Width, Y, Z, 0));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z, 0));
-            Vertices.Add(new Vector4(X, Y + Height, Z, 0));
-            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 0));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 0));
-            Vertices.Add(new Vector4(X, Y + Height, Z + Depth, 0));
-            Vertices.Add(new Vector4(X, Y, Z + Depth, 0));
+            Vertices.Add(new Vector4(X, Y, Z, 1));
+            Vertices.Add(new Vector4(X + Width, Y, Z, 1));
+            Vertices.Add(new Vector4(X + Width, Y + Height, Z, 1));
+            Vertices.Add(new Vector4(X, Y + Height, Z, 1));
+            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 1));
+            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 1));
+            Vertices.Add(new Vector4(X, Y + Height, Z + Depth, 1));
+            Vertices.Add(new Vector4(X, Y, Z + Depth, 1));
         }
         /// <summary>
         /// Sets the edges.

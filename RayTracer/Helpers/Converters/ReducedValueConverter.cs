@@ -1,19 +1,21 @@
-﻿using System.Windows.Data;
+﻿using System;
+using System.Globalization;
+using System.Windows.Data;
 
 namespace RayTracer.Helpers.Converters
 {
     public class ReducedValueConverter:IValueConverter
     {
-        public object Convert(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double val = double.Parse(value.ToString());
             double delta = double.Parse(parameter.ToString());
             return val - delta;
         }
 
-        public object ConvertBack(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

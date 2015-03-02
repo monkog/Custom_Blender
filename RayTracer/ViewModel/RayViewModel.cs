@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.Threading;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using Microsoft.Practices.Prism.Commands;
+using RayTracer.Helpers;
 using RayTracer.Model.Shapes;
 using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
-using Microsoft.Practices.Prism.Commands;
 
 namespace RayTracer.ViewModel
 {
@@ -42,7 +42,7 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// The aspect ratio of the viewport
         /// </summary>
-        private readonly double _ratio = 1;
+        private readonly double _ratio = 1;//500 / 700;
         /// <summary>
         /// The viewport width
         /// </summary>
@@ -119,7 +119,6 @@ namespace RayTracer.ViewModel
         public RayViewModel()
         {
             Meshes = new ObservableCollection<ShapeBase>();
-
             Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
         }
         #endregion .ctor
@@ -127,45 +126,34 @@ namespace RayTracer.ViewModel
         private void Render()
         {
             Matrix3D viewMatrix = Transformations.ViewMatrix(Camera);
-            Matrix3D projectionMatrix = Transformations.ProjectionMatrix(_fov, _near, _far, _ratio);
+            Matrix3D projectionMatrix =  Transformations.ProjectionMatrix(_fov, _near, _far, _ratio);
 
             foreach (ShapeBase mesh in Meshes)
-            {
-                mesh.Transform = viewMatrix * projectionMatrix;
-                //for (int i = 0; i < mesh.Vertices.Count; i++)
-                //{
-                //    var vertex = mesh.Vertices[i];
-                //    vertex = Transformations.TransformPoint(vertex, viewMatrix);
-                //    mesh.Vertices[i] = Transformations.TransformPoint(vertex, projectionMatrix).Normalized;
-                //}
-
-                //foreach (Triangle triangle in mesh.m_triangles)
-                //{
-                //    addTriangle(mesh.color, triangle, m_canvas, transformMatrix, worldMatrix);
-
-                //    Vertex vertexA = triangle.a;
-                //    Vertex vertexB = triangle.b;
-                //    Vertex vertexC = triangle.c;
-
-                //    var pixelA = transform3D(vertexA, transformMatrix, worldMatrix);
-                //    var pixelB = transform3D(vertexB, transformMatrix, worldMatrix);
-                //    var pixelC = transform3D(vertexC, transformMatrix, worldMatrix);
-
-                //    drawTriangle(pixelA, pixelB, pixelC, mesh.color);
-                //}
-
-            }
+                mesh.Transform = projectionMatrix * viewMatrix *
+            new Matrix3D(100, 0, 0, 0
+                , 0, 100, 0, 0
+                , 0, 0, 100, 0
+                , 0, 0, 0, 0);
         }
         #endregion Private Methods
-
+        #region Commands
         private ICommand _addTorusCommand;
-
+        /// <summary>
+        /// Gets the add torus command.
+        /// </summary>
+        /// <value>
+        /// The add torus command.
+        /// </value>
         public ICommand AddTorusCommand { get { return _addTorusCommand ?? (_addTorusCommand = new DelegateCommand(AddTorusExecuted)); } }
-
+        /// <summary>
+        /// Adds the torus.
+        /// </summary>
         private void AddTorusExecuted()
         {
-            var cube = new Cube(100, 100, 100, 40);
+            var cube = new Cube(0, 0, 0, 1);
             Meshes.Add(cube);
+            Render();
         }
+        #endregion Commands
     }
 }
