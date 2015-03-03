@@ -25,19 +25,17 @@ namespace RayTracer.ViewModel
             }
         }
         #endregion Public Properties
-        #region Private Methods
+        #region Public Methods
         /// <summary>
         /// Calculates the versor of the given vector.
         /// </summary>
         /// <param name="vector">Given vector.</param>
         /// <returns>Returns the calculated versor.</returns>
-        private static Vector3D Versor(Vector3D vector)
+        public static Vector3D Versor(Vector3D vector)
         {
             double sqrt = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
-            return new Vector3D(vector.X / sqrt, vector.Y / sqrt, vector.Z / sqrt);
+            return sqrt == 0 ? vector : new Vector3D(vector.X / sqrt, vector.Y / sqrt, vector.Z / sqrt);
         }
-        #endregion Private Methods
-        #region Public Methods
         /// <summary>
         /// Calculates the projection matrix.
         /// </summary>
@@ -60,8 +58,8 @@ namespace RayTracer.ViewModel
             double farPlaneDistance)
         {
             double e = 1.0f / Math.Tan((fieldOfView / 2.0f));
-            double fn = -(farPlaneDistance + nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance); 
-            double fn2 = -(2 * farPlaneDistance * nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance); 
+            double fn = -(farPlaneDistance + nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance);
+            double fn2 = -(2 * farPlaneDistance * nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance);
             return new Matrix3D(e, 0, 0, 0,
                 0, e / aspectRatio, 0, 0,
                 0, 0, fn, fn2,

@@ -129,11 +129,7 @@ namespace RayTracer.ViewModel
             Matrix3D projectionMatrix =  Transformations.ProjectionMatrix(_fov, _near, _far, _ratio);
 
             foreach (ShapeBase mesh in Meshes)
-                mesh.Transform = projectionMatrix * viewMatrix *
-            new Matrix3D(100, 0, 0, 0
-                , 0, 100, 0, 0
-                , 0, 0, 100, 0
-                , 0, 0, 0, 0);
+                mesh.Transform = projectionMatrix * viewMatrix ;
         }
         #endregion Private Methods
         #region Commands

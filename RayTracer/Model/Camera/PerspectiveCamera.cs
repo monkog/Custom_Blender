@@ -11,49 +11,49 @@ namespace RayTracer.Model.Camera
         /// <value>
         /// Up vector.
         /// </value>
-        public Vector3D UpVector { get; private set; }
+        public Vector3D UpVector { get; set; }
         /// <summary>
         /// Gets the camera target.
         /// </summary>
         /// <value>
         /// The camera target.
         /// </value>
-        public Vector3D CameraTarget { get; private set; }
+        public Vector3D CameraTarget { get; set; }
         /// <summary>
         /// Gets the camera position.
         /// </summary>
         /// <value>
         /// The camera position.
         /// </value>
-        public Vector3D CameraPosition { get; private set; }
+        public Vector3D CameraPosition { get; set; }
         /// <summary>
         /// Gets the near plane.
         /// </summary>
         /// <value>
         /// The near plane.
         /// </value>
-        public double Near { get; private set; }
+        public double Near { get; set; }
         /// <summary>
         /// Gets the far plane.
         /// </summary>
         /// <value>
         /// The far plane.
         /// </value>
-        public double Far { get; private set; }
+        public double Far { get; set; }
         /// <summary>
         /// Gets the field of view.
         /// </summary>
         /// <value>
         /// The field of view.
         /// </value>
-        public double Fov { get; private set; }
+        public double Fov { get; set; }
         /// <summary>
         /// Gets the aspect ratio of the viewport.
         /// </summary>
         /// <value>
         /// The aspect ratio of the viewport.
         /// </value>
-        public double Ratio { get; private set; }
+        public double Ratio { get; set; }
         #endregion Public Properties
         #region .ctor
         /// <summary>
