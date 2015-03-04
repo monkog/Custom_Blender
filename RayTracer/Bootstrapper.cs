@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Microsoft.Practices.Prism.UnityExtensions;
+using Microsoft.Practices.Unity;
 
 namespace RayTracer
 {
