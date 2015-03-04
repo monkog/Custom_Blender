@@ -58,10 +58,36 @@ namespace RayTracer.Model.Shapes
         private void SetEdges()
         {
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
+            //up
             EdgesIndices.Add(new Tuple<int, int>(0, 1));
             EdgesIndices.Add(new Tuple<int, int>(1, 2));
             EdgesIndices.Add(new Tuple<int, int>(2, 3));
             EdgesIndices.Add(new Tuple<int, int>(3, 0));
+            ////back
+            EdgesIndices.Add(new Tuple<int, int>(0, 7));
+            EdgesIndices.Add(new Tuple<int, int>(7, 6));
+            EdgesIndices.Add(new Tuple<int, int>(6, 3));
+            EdgesIndices.Add(new Tuple<int, int>(3, 0));
+            ////left
+            EdgesIndices.Add(new Tuple<int, int>(0, 7));
+            EdgesIndices.Add(new Tuple<int, int>(7, 4));
+            EdgesIndices.Add(new Tuple<int, int>(4, 1));
+            EdgesIndices.Add(new Tuple<int, int>(1, 0));
+            //front
+            EdgesIndices.Add(new Tuple<int, int>(1, 2));
+            EdgesIndices.Add(new Tuple<int, int>(2, 5));
+            EdgesIndices.Add(new Tuple<int, int>(5, 4));
+            EdgesIndices.Add(new Tuple<int, int>(4, 1));
+            //right
+            EdgesIndices.Add(new Tuple<int, int>(2, 3));
+            EdgesIndices.Add(new Tuple<int, int>(3, 6));
+            EdgesIndices.Add(new Tuple<int, int>(6, 5));
+            EdgesIndices.Add(new Tuple<int, int>(5, 2));
+            //bottom
+            EdgesIndices.Add(new Tuple<int, int>(5, 4));
+            EdgesIndices.Add(new Tuple<int, int>(4, 7));
+            EdgesIndices.Add(new Tuple<int, int>(7, 6));
+            EdgesIndices.Add(new Tuple<int, int>(6, 5));
         }
         #endregion Private Methods
     }

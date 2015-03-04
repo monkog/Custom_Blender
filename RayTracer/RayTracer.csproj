@@ -112,6 +112,7 @@
     <Compile Include="Model\Camera\OrthographicCamera.cs" />
     <Compile Include="Model\Camera\PerspectiveCamera.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
+    <Compile Include="Model\Shapes\SceneManager.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
     <Compile Include="ViewModel\RayViewModel.cs" />
     <Compile Include="ViewModel\Transformations.cs" />

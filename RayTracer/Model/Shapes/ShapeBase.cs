@@ -13,17 +13,6 @@ namespace RayTracer.Model.Shapes
     /// </summary>
     public abstract class ShapeBase : ViewModelBase
     {
-        #region Constants
-
-        private readonly Matrix3D _scaleMatrix = new Matrix3D(100, 0, 0, 0
-                                                            , 0, 100, 0, 0
-                                                            , 0, 0, 100, 0
-                                                            , 0, 0, 0, 1);
-        private readonly Matrix3D _transformMatrix = new Matrix3D(100, 0, 0, 0
-                                                                , 0, 100, 0, 0
-                                                                , 0, 0, 100, 0
-                                                                , 0, 0, 0, 1);
-        #endregion Constants
         #region Private Members
         /// <summary>
         /// The_transform
