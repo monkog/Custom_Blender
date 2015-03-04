@@ -15,34 +15,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         private ObservableCollection<ShapeBase> _meshes;
         /// <summary>
-        /// The up vector
-        /// </summary>
-        private readonly Vector3D _upVector = new Vector3D(0, 0, 1);
-        /// <summary>
-        /// The camera target
-        /// </summary>
-        private readonly Vector3D _cameraTarget = new Vector3D(0, 0.5, 0.5);
-        /// <summary>
-        /// The camera position
-        /// </summary>
-        private readonly Vector3D _cameraPosition = new Vector3D(3, 5, 5);
-        /// <summary>
-        /// The near plane
-        /// </summary>
-        private readonly double _near = 1;
-        /// <summary>
-        /// The far plane
-        /// </summary>
-        private readonly double _far = 100;
-        /// <summary>
-        /// The field of view
-        /// </summary>
-        private readonly double _fov = 45;
-        /// <summary>
-        /// The aspect ratio of the viewport
-        /// </summary>
-        private readonly double _ratio = 1;//500 / 700;
-        /// <summary>
         /// The viewport width
         /// </summary>
         private double _viewportWidth;
@@ -69,13 +41,6 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("Meshes");
             }
         }
-        /// <summary>
-        /// Gets the camera.
-        /// </summary>
-        /// <value>
-        /// The camera.
-        /// </value>
-        public PerspectiveCamera Camera { get; private set; }
         /// <summary>
         /// Gets or sets the width of the viewport.
         /// </summary>
@@ -110,8 +75,20 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("ViewportHeight");
             }
         }
-
+        /// <summary>
+        /// Gets the mouse manager.
+        /// </summary>
+        /// <value>
+        /// The mouse manager.
+        /// </value>
         public MouseEventManager MouseManager { get { return MouseEventManager.Instance; } }
+        /// <summary>
+        /// Gets the camera manager.
+        /// </summary>
+        /// <value>
+        /// The camera manager.
+        /// </value>
+        public CameraManager CameraManager { get { return CameraManager.Instance; } }
         #endregion Public Properties
         #region .ctor
         /// <summary>
@@ -120,17 +97,28 @@ namespace RayTracer.ViewModel
         public RayViewModel()
         {
             Meshes = new ObservableCollection<ShapeBase>();
-            Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
+            CameraManager.PropertyChanged += CameraManager_PropertyChanged;
         }
         #endregion .ctor
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.ViewMatrix(Camera);
-            Matrix3D projectionMatrix =  Transformations.ProjectionMatrix(_fov, _near, _far, _ratio);
+            Matrix3D viewMatrix = Transformations.ViewMatrix(CameraManager.Instance.Camera);
+            Matrix3D projectionMatrix = Transformations.ProjectionMatrix(CameraManager.Instance.Fov, CameraManager.Instance.Near
+                , CameraManager.Instance.Far, CameraManager.Instance.Ratio);
 
             foreach (ShapeBase mesh in Meshes)
                 mesh.Transform = projectionMatrix * viewMatrix ;
+        }
+        /// <summary>
+        /// Handles the PropertyChanged event of the CameraManager control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private void CameraManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Render();
         }
         #endregion Private Methods
         #region Commands

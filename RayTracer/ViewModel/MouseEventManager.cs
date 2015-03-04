@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers.EventCommand;
 
 namespace RayTracer.ViewModel
@@ -42,7 +42,7 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Initializes a new instance of the <see cref="MouseEventManager"/> class.
         /// </summary>
-        public MouseEventManager()
+        private MouseEventManager()
         {
             _isMouseDown = false;
         }
@@ -101,6 +101,27 @@ namespace RayTracer.ViewModel
 
             MouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
         }
-        #endregion Commands
+
+        private ActionCommand<MouseWheelEventArgs> _mouseWheelCommand;
+        public ActionCommand<MouseWheelEventArgs> MouseWheelCommand
+        {
+            get
+            {
+                return _mouseWheelCommand ??
+                       (_mouseWheelCommand = new ActionCommand<MouseWheelEventArgs>(MouseWheelExecuted));
+            }
+        }
+        /// <summary>
+        /// Zooms in/out the viewport
+        /// </summary>
+        private void MouseWheelExecuted(MouseWheelEventArgs args)
+        {
+            var previous = CameraManager.Instance.CameraTarget;
+            CameraManager.Instance.CameraTarget = previous * Transformations.ScaleMatrix(20);
+
+            var previousPosition = CameraManager.Instance.CameraPosition;
+            CameraManager.Instance.CameraPosition = previousPosition * Transformations.ScaleMatrix(20);
+        }
+        #endregion Commands 
     }
 }
