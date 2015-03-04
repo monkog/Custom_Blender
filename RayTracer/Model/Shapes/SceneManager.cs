@@ -8,7 +8,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Instance of the SceneManager
         /// </summary>
-        private SceneManager _instance;
+        private static SceneManager _instance;
         /// <summary>
         /// Scale matrix
         /// </summary>
@@ -16,12 +16,20 @@ namespace RayTracer.Model.Shapes
                                                             , 0, 100, 0, 0
                                                             , 0, 0, 100, 0
                                                             , 0, 0, 0, 1);
+        /// <summary>
+        /// The transform matrix
+        /// </summary>
+        private readonly Matrix3D _transformMatrix = new Matrix3D(1, 0, 0, 350
+                                                                , 0, 1, 0, 250
+                                                                , 0, 0, 1, 0
+                                                                , 0, 0, 0, 1);
+#warning change matrices to be dynamic
         #endregion Private Members
         #region Public Properties
         /// <summary>
         /// Instance of the SceneManager
         /// </summary>
-        public SceneManager Instance
+        public static SceneManager Instance
         {
             get { return _instance ?? (_instance = new SceneManager()); }
         }
@@ -32,17 +40,16 @@ namespace RayTracer.Model.Shapes
         {
             get { return _scaleMatrix; }
         }
-        #endregion Public Properties
-        #region .ctor
-
-        public SceneManager()
+        /// <summary>
+        /// Gets the transform matrix.
+        /// </summary>
+        /// <value>
+        /// The transform matrix.
+        /// </value>
+        public Matrix3D TransformMatrix
         {
-
-            Matrix3D _transformMatrix = new Matrix3D(100, 0, 0, 0
-                                                   , 0, 100, 0, 0
-                                                   , 0, 0, 100, 0
-                                                   , 0, 0, 0, 1);
+            get { return _transformMatrix; }
         }
-        #endregion .ctor
+        #endregion Public Properties
     }
 }

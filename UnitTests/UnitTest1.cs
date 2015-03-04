@@ -27,16 +27,31 @@ namespace UnitTests
         {
             var camera = A.Fake<PerspectiveCamera>();
             camera.UpVector = new Vector3D(0, 0, 1);
-            camera.CameraTarget = new Vector3D(8, 0.5, 0.5);
-            camera.CameraPosition = new Vector3D(4, 0.5, 0.5);
+            camera.CameraTarget = new Vector3D(0, 0.5, 0.5);
+            camera.CameraPosition = new Vector3D(3, 0.5, 0.5);
             var viewMatrix = Transformations.ViewMatrix(camera);
 
-            var matrix = new Matrix3D(0, 0, 1, -0.5
-                                    , 0, 1, 0, -0.5
-                                    , -1, 0, 0, 4
-                                    , -0, 0, 0, 1);
+            var matrix = new Matrix3D(0, 1, 0, -0.5
+                                    , 0, 0, 1, -0.5
+                                    , 1, 0, 0, -3
+                                    , 0, 0, 0, 1);
 
-            Assert.AreEqual(matrix, viewMatrix);
+            Assert.AreEqual(Math.Round(matrix.M11, 2), Math.Round(viewMatrix.M11, 2));
+            Assert.AreEqual(Math.Round(matrix.M12, 2), Math.Round(viewMatrix.M12, 2));
+            Assert.AreEqual(Math.Round(matrix.M13, 2), Math.Round(viewMatrix.M13, 2));
+            Assert.AreEqual(Math.Round(matrix.M14, 2), Math.Round(viewMatrix.M14, 2));
+            Assert.AreEqual(Math.Round(matrix.M21, 2), Math.Round(viewMatrix.M21, 2));
+            Assert.AreEqual(Math.Round(matrix.M22, 2), Math.Round(viewMatrix.M22, 2));
+            Assert.AreEqual(Math.Round(matrix.M23, 2), Math.Round(viewMatrix.M23, 2));
+            Assert.AreEqual(Math.Round(matrix.M24, 2), Math.Round(viewMatrix.M24, 2));
+            Assert.AreEqual(Math.Round(matrix.M31, 2), Math.Round(viewMatrix.M31, 2));
+            Assert.AreEqual(Math.Round(matrix.M32, 2), Math.Round(viewMatrix.M32, 2));
+            Assert.AreEqual(Math.Round(matrix.M33, 2), Math.Round(viewMatrix.M33, 2));
+            Assert.AreEqual(Math.Round(matrix.M34, 2), Math.Round(viewMatrix.M34, 2));
+            Assert.AreEqual(Math.Round(matrix.OffsetX, 2), Math.Round(viewMatrix.OffsetX, 2));
+            Assert.AreEqual(Math.Round(matrix.OffsetY, 2), Math.Round(viewMatrix.OffsetY, 2));
+            Assert.AreEqual(Math.Round(matrix.OffsetZ, 2), Math.Round(viewMatrix.OffsetZ, 2));
+            Assert.AreEqual(Math.Round(matrix.M44, 2), Math.Round(viewMatrix.M44, 2));
         }
 
         [TestMethod]

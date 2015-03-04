@@ -94,7 +94,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (_transform == value)
                     return;
-                _transform = _scaleMatrix * value;
+                _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value;
                 TransformVertices();
                 OnPropertyChanged("TransformedVertices");
             }
