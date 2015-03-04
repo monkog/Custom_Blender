@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
-using RayTracer.Helpers;
 using RayTracer.Model.Shapes;
 using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
 
@@ -26,7 +25,7 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// The camera position
         /// </summary>
-        private readonly Vector3D _cameraPosition = new Vector3D(3, 0.5, 0.5);
+        private readonly Vector3D _cameraPosition = new Vector3D(3, 5, 5);
         /// <summary>
         /// The near plane
         /// </summary>
@@ -111,6 +110,8 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("ViewportHeight");
             }
         }
+
+        public MouseEventManager MouseManager { get { return MouseEventManager.Instance; } }
         #endregion Public Properties
         #region .ctor
         /// <summary>

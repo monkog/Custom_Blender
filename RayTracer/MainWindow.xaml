@@ -7,6 +7,8 @@
         xmlns:helpers="clr-namespace:RayTracer.Helpers"
         xmlns:converters="clr-namespace:RayTracer.Helpers.Converters"
         mc:Ignorable="d"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1333" d:DesignHeight="768">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
@@ -28,6 +30,11 @@
             <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
         </GroupBox>
         <Canvas Grid.Column="0" Grid.Row="1">
+            <i:Interaction.Behaviors>
+                <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseClickCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseLeftButtonDown" PassArguments="True" />
+                <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseUpCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseLeftButtonUp" PassArguments="True" />
+                <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseMoveCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseMove" PassArguments="True" />
+            </i:Interaction.Behaviors>
             <ItemsControl ItemsSource="{Binding Meshes}" Width="700" Height="500" Canvas.Left="100"
                           helpers:SizeObserver.Observe="True"
                           helpers:SizeObserver.ObservedWidth="{Binding ViewportWidth, Mode=OneWayToSource}"
