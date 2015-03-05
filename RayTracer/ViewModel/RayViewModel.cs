@@ -77,11 +77,11 @@ namespace RayTracer.ViewModel
             set
             {
                 if (_xSlider == value) return;
-                _xSlider = value;
-                Matrix3D matrix = Transformations.RotationMatrixX((Math.PI * 2.0f) * value / 360);
+                Matrix3D matrix = Transformations.RotationMatrixX((Math.PI * 2.0f) * (value - _xSlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
                 Render();
+                _xSlider = value;
                 OnPropertyChanged("XSlider");
             }
         }
@@ -98,7 +98,7 @@ namespace RayTracer.ViewModel
             {
                 if (_ySlider == value) return;
                 _ySlider = value;
-                Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * value / 360);
+                Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * (value - _ySlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
                 Render();
@@ -118,7 +118,7 @@ namespace RayTracer.ViewModel
             {
                 if (_zSlider == value) return;
                 _zSlider = value;
-                Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * value / 360);
+                Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * (value - _zSlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
                 Render();
