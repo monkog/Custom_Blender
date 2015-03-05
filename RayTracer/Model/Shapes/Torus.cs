@@ -59,14 +59,13 @@ namespace RayTracer.Model.Shapes
         {
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
 
-            for (int i = 1; i < _donutDivision; i++)
+            for (int i = 0; i < _donutDivision; i++)
                 for (int j = 0; j < _circle_division; j++)
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, i * _circle_division + ((j + 1) % _circle_division)));
 
             for (int j = 0; j < _circle_division; j++)
                 for (int i = 0; i < _donutDivision; i++)
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, ((i + 1) % _donutDivision) * _circle_division + j));
-            EdgesIndices.Add(new Tuple<int, int>(_circle_division - 1, 0));
         }
         #endregion Private Methods
     }
