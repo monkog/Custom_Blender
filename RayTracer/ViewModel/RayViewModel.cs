@@ -97,11 +97,11 @@ namespace RayTracer.ViewModel
             set
             {
                 if (_ySlider == value) return;
-                _ySlider = value;
                 Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * (value - _ySlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
                 Render();
+                _ySlider = value;
                 OnPropertyChanged("YSlider");
             }
         }
@@ -117,11 +117,11 @@ namespace RayTracer.ViewModel
             set
             {
                 if (_zSlider == value) return;
-                _zSlider = value;
                 Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * (value - _zSlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
                 Render();
+                _zSlider = value;
                 OnPropertyChanged("ZSlider");
             }
         }
@@ -206,13 +206,10 @@ namespace RayTracer.ViewModel
         #region Private Methods
         private void Render()
         {
-            //Matrix3D viewMatrix = Transformations.ViewMatrix(CameraManager.Instance.Camera);
             Matrix3D viewMatrix = Transformations.ViewMatrix(200);
-            Matrix3D projectionMatrix = Transformations.ProjectionMatrix(CameraManager.Instance.Fov, CameraManager.Instance.Near
-                , CameraManager.Instance.Far, CameraManager.Instance.Ratio);
 
             foreach (ShapeBase mesh in Meshes)
-                mesh.Transform = projectionMatrix * viewMatrix;
+                mesh.Transform = viewMatrix;
         }
         /// <summary>
         /// Handles the PropertyChanged event of the CameraManager control.
