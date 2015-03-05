@@ -85,6 +85,14 @@ namespace RayTracer.ViewModel
             return matrix;
         }
 
+        public static Matrix3D ViewMatrix(double r)
+        {
+            return new Matrix3D(1, 0, 0, 0
+                              , 0, 1, 0, 0
+                              , 0, 0, 0, 0
+                              , 0, 0, 1 / r, 1);
+        }
+
         public static Matrix3D CreateLookAt(PerspectiveCamera camera)
         {
             Vector3D zaxis = camera.CameraTarget - camera.CameraPosition;
@@ -124,7 +132,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         /// <param name="alpha">The alpha.</param>
         /// <returns>Rotation matrix for rotation on x axis.</returns>
-        public static Matrix3D RotationMatrixX(float alpha)
+        public static Matrix3D RotationMatrixX(double alpha)
         {
             return new Matrix3D(1, 0, 0, 0
                               , 0, Math.Cos(alpha), -Math.Sin(alpha), 0
@@ -136,7 +144,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         /// <param name="alpha">The alpha.</param>
         /// <returns>Rotation matrix for rotation on y axis.</returns>
-        public static Matrix3D RotationMatrixY(float alpha)
+        public static Matrix3D RotationMatrixY(double alpha)
         {
             return new Matrix3D(Math.Cos(alpha), 0, Math.Sin(alpha), 0
                               , 0, 1, 0, 0
@@ -148,7 +156,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         /// <param name="alpha">The alpha.</param>
         /// <returns>Rotation matrix for rotation on z axis.</returns>
-        public static Matrix3D RotationMatrixZ(float alpha)
+        public static Matrix3D RotationMatrixZ(double alpha)
         {
             return new Matrix3D(Math.Cos(alpha), -Math.Sin(alpha), 0, 0
                               , Math.Sin(alpha), Math.Cos(alpha), 0, 0
@@ -172,7 +180,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         /// <param name="scale">The scale.</param>
         /// <returns>The scale matrix</returns>
-        public static Matrix3D ScaleMatrix(float scale)
+        public static Matrix3D ScaleMatrix(double scale)
         {
             return new Matrix3D(scale, 0, 0, 0
                               , 0, scale, 0, 0

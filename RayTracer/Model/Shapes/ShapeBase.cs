@@ -18,6 +18,10 @@ namespace RayTracer.Model.Shapes
         /// The_transform
         /// </summary>
         private Matrix3D _transform;
+        /// <summary>
+        /// The model transform
+        /// </summary>
+        private Matrix3D _modelTransform;
         #endregion Private Members
         #region .ctor
         /// <summary>
@@ -35,6 +39,7 @@ namespace RayTracer.Model.Shapes
             Vertices = new ObservableCollection<Vector4>();
             TransformedVertices = new ObservableCollection<Vector4>();
             Transform = Transformations.Identity;
+            ModelTransform = Transformations.Identity;
         }
         #endregion .ctor
         #region Public Properties
@@ -94,9 +99,20 @@ namespace RayTracer.Model.Shapes
             {
                 if (_transform == value)
                     return;
-                _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value;
+                _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value * ModelTransform;
                 TransformVertices();
                 OnPropertyChanged("TransformedVertices");
+            }
+        }
+        public Matrix3D ModelTransform
+        {
+            get { return _modelTransform; }
+            set
+            {
+                if (_modelTransform == value)
+                    return;
+                _modelTransform = value;
+                OnPropertyChanged("ModelTransform");
             }
         }
         #endregion Public Properties

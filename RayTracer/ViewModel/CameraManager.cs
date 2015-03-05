@@ -21,7 +21,7 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// The camera position
         /// </summary>
-        private Vector3D _cameraPosition = new Vector3D(3, 5, 5);
+        private Vector3D _cameraPosition = new Vector3D(3, 0.5, 0.5);
         /// <summary>
         /// The near plane
         /// </summary>

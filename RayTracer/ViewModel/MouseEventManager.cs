@@ -6,7 +6,7 @@ using RayTracer.Helpers.EventCommand;
 
 namespace RayTracer.ViewModel
 {
-    public class MouseEventManager
+    public class MouseEventManager : ViewModelBase
     {
         #region Private Members
         /// <summary>
@@ -17,22 +17,55 @@ namespace RayTracer.ViewModel
         /// Is mouse down
         /// </summary>
         private bool _isMouseDown;
-        #endregion Private Members
-        #region  Public Properties
-        /// <summary>
-        /// Gets the mouse previous position.
-        /// </summary>
         /// <value>
         /// The mouse previous position.
         /// </value>
-        public Point MousePreviousPosition { get; private set; }
-        /// <summary>
-        /// Gets the mouse current position.
-        /// </summary>
+        private Point _mousePreviousPosition;
         /// <value>
         /// The mouse current position.
         /// </value>
-        public Point MouseCurrentPosition { get; private set; }
+        private Point _mouseCurrentPosition;
+        /// <summary>
+        /// The mouse delta
+        /// </summary>
+        private Point _mouseDelta;
+        /// <summary>
+        /// The mouse scale
+        /// </summary>
+        private double _mouseScale;
+        #endregion Private Members
+        #region  Public Properties
+        /// <summary>
+        /// Gets or sets the mouse delta.
+        /// </summary>
+        /// <value>
+        /// The mouse delta.
+        /// </value>
+        public Point MouseDelta
+        {
+            get { return _mouseDelta; }
+            set
+            {
+                if (_mouseDelta == value) return;
+                _mouseDelta = value;
+                OnPropertyChanged("MouseDelta");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the mouse scale.
+        /// </summary>
+        /// <value>
+        /// The mouse scale.
+        /// </value>
+        public double MouseScale
+        {
+            get { return _mouseScale; }
+            set
+            {
+                _mouseScale = value;
+                OnPropertyChanged("MouseScale");
+            }
+        }
         /// <summary>
         /// Gets the instance.
         /// </summary>
@@ -47,7 +80,7 @@ namespace RayTracer.ViewModel
             _isMouseDown = false;
         }
         #endregion .ctor
-        #region Commands 
+        #region Commands
         private ActionCommand<MouseButtonEventArgs> _mouseClickCommand;
         public ActionCommand<MouseButtonEventArgs> MouseClickCommand
         {
@@ -62,7 +95,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void MouseClickExecuted(MouseButtonEventArgs args)
         {
-            MousePreviousPosition = args.GetPosition((Canvas)args.OriginalSource);
+            if (args.OriginalSource.GetType() != typeof(Canvas)) return;
+            _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
             _isMouseDown = true;
         }
 
@@ -97,9 +131,12 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void MouseMoveExecuted(MouseEventArgs args)
         {
-            if (!_isMouseDown) return;
+            if (!_isMouseDown || args.OriginalSource.GetType() != typeof(Canvas)) return;
+            _mousePreviousPosition = _mouseCurrentPosition;
+            _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
 
-            MouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
+#warning move constants
+            MouseDelta = new Point((_mouseCurrentPosition.X - _mousePreviousPosition.X) / 50, (_mouseCurrentPosition.Y - _mousePreviousPosition.Y) / 50);
         }
 
         private ActionCommand<MouseWheelEventArgs> _mouseWheelCommand;
@@ -116,12 +153,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void MouseWheelExecuted(MouseWheelEventArgs args)
         {
-            var previous = CameraManager.Instance.CameraTarget;
-            CameraManager.Instance.CameraTarget = previous * Transformations.ScaleMatrix(20);
-
-            var previousPosition = CameraManager.Instance.CameraPosition;
-            CameraManager.Instance.CameraPosition = previousPosition * Transformations.ScaleMatrix(20);
+            MouseScale = 1 + args.Delta / 1000f;
         }
-        #endregion Commands 
+        #endregion Commands
     }
 }

@@ -19,8 +19,8 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// The transform matrix
         /// </summary>
-        private readonly Matrix3D _transformMatrix = new Matrix3D(1, 0, 0, 350
-                                                                , 0, 1, 0, 250
+        private readonly Matrix3D _transformMatrix = new Matrix3D(1, 0, 0, 400
+                                                                , 0, 1, 0, 300
                                                                 , 0, 0, 1, 0
                                                                 , 0, 0, 0, 1);
 #warning change matrices to be dynamic

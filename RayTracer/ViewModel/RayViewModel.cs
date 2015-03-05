@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
 using RayTracer.Model.Shapes;
-using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
 
 namespace RayTracer.ViewModel
 {
@@ -22,8 +22,32 @@ namespace RayTracer.ViewModel
         /// The viewport height
         /// </summary>
         private double _viewportHeight;
+        private int _l;
+        private int _v;
         #endregion Private Members
         #region Public Properties
+
+        public int L
+        {
+            get { return _l; }
+            set
+            {
+                if (_l == value) return;
+                _l = value;
+                OnPropertyChanged("L");
+            }
+        }
+
+        public int V
+        {
+            get { return _v; }
+            set
+            {
+                if (_v == value) return;
+                _v = value;
+                OnPropertyChanged("V");
+            }
+        }
         /// <summary>
         /// Gets or sets the collection of viewed meshes.
         /// </summary>
@@ -97,18 +121,19 @@ namespace RayTracer.ViewModel
         public RayViewModel()
         {
             Meshes = new ObservableCollection<ShapeBase>();
-            CameraManager.PropertyChanged += CameraManager_PropertyChanged;
+            MouseManager.PropertyChanged += MouseManager_PropertyChanged;
         }
         #endregion .ctor
         #region Private Methods
         private void Render()
         {
             Matrix3D viewMatrix = Transformations.ViewMatrix(CameraManager.Instance.Camera);
+            //Matrix3D viewMatrix = Transformations.ViewMatrix(200);
             Matrix3D projectionMatrix = Transformations.ProjectionMatrix(CameraManager.Instance.Fov, CameraManager.Instance.Near
                 , CameraManager.Instance.Far, CameraManager.Instance.Ratio);
 
             foreach (ShapeBase mesh in Meshes)
-                mesh.Transform = projectionMatrix * viewMatrix ;
+                mesh.Transform = projectionMatrix * viewMatrix;
         }
         /// <summary>
         /// Handles the PropertyChanged event of the CameraManager control.
@@ -116,8 +141,29 @@ namespace RayTracer.ViewModel
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private void CameraManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void MouseManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            switch (e.PropertyName)
+            {
+                case "MouseDelta":
+                    {
+                        Point delta = MouseManager.MouseDelta;
+                        Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(0, delta.X, delta.Y));
+                        foreach (var mesh in Meshes)
+                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+                    }
+                    break;
+                case "MouseScale":
+                    {
+                        double delta = MouseManager.MouseScale;
+                        Matrix3D matrix = Transformations.ScaleMatrix(delta);
+                        foreach (var mesh in Meshes)
+                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+                    }
+                    break;
+                default:
+                    return;
+            }
             Render();
         }
         #endregion Private Methods
@@ -135,8 +181,11 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddTorusExecuted()
         {
-            var cube = new Cube(0, 0, 0, 1);
-            Meshes.Add(cube);
+            //var cube = new Cube(0, 0, 0, 1);
+            //Meshes.Add(cube);
+            var torus = new Torus(0, 0, 0, 30, 25);
+            Meshes.Clear();
+            Meshes.Add(torus);
             Render();
         }
         #endregion Commands

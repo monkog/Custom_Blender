@@ -117,6 +117,7 @@
     <Compile Include="Model\Shapes\Cube.cs" />
     <Compile Include="Model\Shapes\SceneManager.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
+    <Compile Include="Model\Shapes\Torus.cs" />
     <Compile Include="ViewModel\CameraManager.cs" />
     <Compile Include="ViewModel\MouseEventManager.cs" />
     <Compile Include="ViewModel\RayViewModel.cs" />
