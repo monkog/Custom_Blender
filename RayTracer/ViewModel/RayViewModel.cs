@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
@@ -24,9 +25,23 @@ namespace RayTracer.ViewModel
         private double _viewportHeight;
         private int _l;
         private int _v;
+        /// <summary>
+        /// The x slider value
+        /// </summary>
+        private int _xSlider;
+        /// <summary>
+        /// The y slider value
+        /// </summary>
+        private int _ySlider;
+        /// <summary>
+        /// The z slider value
+        /// </summary>
+        private int _zSlider;
         #endregion Private Members
         #region Public Properties
-
+        /// <summary>
+        /// Gets or sets the number of torus donut divisions.
+        /// </summary>
         public int L
         {
             get { return _l; }
@@ -37,7 +52,9 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("L");
             }
         }
-
+        /// <summary>
+        /// Gets or sets the torus circle divisions.
+        /// </summary>
         public int V
         {
             get { return _v; }
@@ -46,6 +63,66 @@ namespace RayTracer.ViewModel
                 if (_v == value) return;
                 _v = value;
                 OnPropertyChanged("V");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the x slider value.
+        /// </summary>
+        /// <value>
+        /// The x slider value.
+        /// </value>
+        public int XSlider
+        {
+            get { return _xSlider; }
+            set
+            {
+                if (_xSlider == value) return;
+                _xSlider = value;
+                Matrix3D matrix = Transformations.RotationMatrixX((Math.PI * 2.0f) * value / 360);
+                foreach (var mesh in Meshes)
+                    mesh.ModelTransform = matrix * mesh.ModelTransform;
+                Render();
+                OnPropertyChanged("XSlider");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the y slider value.
+        /// </summary>
+        /// <value>
+        /// The y slider value.
+        /// </value>
+        public int YSlider
+        {
+            get { return _ySlider; }
+            set
+            {
+                if (_ySlider == value) return;
+                _ySlider = value;
+                Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * value / 360);
+                foreach (var mesh in Meshes)
+                    mesh.ModelTransform = matrix * mesh.ModelTransform;
+                Render();
+                OnPropertyChanged("YSlider");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the z slider value.
+        /// </summary>
+        /// <value>
+        /// The z slider value.
+        /// </value>
+        public int ZSlider
+        {
+            get { return _zSlider; }
+            set
+            {
+                if (_zSlider == value) return;
+                _zSlider = value;
+                Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * value / 360);
+                foreach (var mesh in Meshes)
+                    mesh.ModelTransform = matrix * mesh.ModelTransform;
+                Render();
+                OnPropertyChanged("ZSlider");
             }
         }
         /// <summary>
@@ -122,13 +199,15 @@ namespace RayTracer.ViewModel
         {
             Meshes = new ObservableCollection<ShapeBase>();
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
+            L = 20;
+            V = 20;
         }
         #endregion .ctor
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.ViewMatrix(CameraManager.Instance.Camera);
-            //Matrix3D viewMatrix = Transformations.ViewMatrix(200);
+            //Matrix3D viewMatrix = Transformations.ViewMatrix(CameraManager.Instance.Camera);
+            Matrix3D viewMatrix = Transformations.ViewMatrix(200);
             Matrix3D projectionMatrix = Transformations.ProjectionMatrix(CameraManager.Instance.Fov, CameraManager.Instance.Near
                 , CameraManager.Instance.Far, CameraManager.Instance.Ratio);
 
@@ -148,7 +227,7 @@ namespace RayTracer.ViewModel
                 case "MouseDelta":
                     {
                         Point delta = MouseManager.MouseDelta;
-                        Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(0, delta.X, delta.Y));
+                        Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
                         foreach (var mesh in Meshes)
                             mesh.ModelTransform = matrix * mesh.ModelTransform;
                     }
@@ -183,7 +262,7 @@ namespace RayTracer.ViewModel
         {
             //var cube = new Cube(0, 0, 0, 1);
             //Meshes.Add(cube);
-            var torus = new Torus(0, 0, 0, 30, 25);
+            var torus = new Torus(0, 0, 0, L, V);
             Meshes.Clear();
             Meshes.Add(torus);
             Render();

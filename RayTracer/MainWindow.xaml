@@ -95,6 +95,22 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
+            <GroupBox Header="Rotations">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="X rotation:" Margin="5"/>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Y rotation:" Margin="5"/>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Z rotation:" Margin="5"/>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
         </StackPanel>
     </Grid>
 </Window>

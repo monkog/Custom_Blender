@@ -12,9 +12,9 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Scale matrix
         /// </summary>
-        private readonly Matrix3D _scaleMatrix = new Matrix3D(100, 0, 0, 0
-                                                            , 0, 100, 0, 0
-                                                            , 0, 0, 100, 0
+        private readonly Matrix3D _scaleMatrix = new Matrix3D(50, 0, 0, 0
+                                                            , 0, 50, 0, 0
+                                                            , 0, 0, 50, 0
                                                             , 0, 0, 0, 1);
         /// <summary>
         /// The transform matrix
