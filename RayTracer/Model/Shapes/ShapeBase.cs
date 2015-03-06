@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -85,7 +85,7 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The edges representing the mesh.
         /// </value>
-        public ObservableCollection<CustomLine> Edges { get; protected set; }
+        public Polyline Edges { get; protected set; }
         /// <summary>
         /// Gets or sets the current transform of the model.
         /// </summary>
@@ -132,19 +132,8 @@ namespace RayTracer.Model.Shapes
         protected void TransformVertices()
         {
             TransformedVertices = new ObservableCollection<Vector4>();
-            double min = double.MaxValue, max = double.MinValue;
             foreach (var vertex in Vertices)
-            {
-                var transformed = Transformations.TransformPoint(vertex, ModelTransform).Normalized;
-                if (transformed.Z < - 5)
-                    TransformedVertices.Add(null);
-                else
                 TransformedVertices.Add(Transformations.TransformPoint(vertex, Transform).Normalized);
-                if (transformed.Z < min)
-                    min = transformed.Z;
-                if (transformed.Z > max)
-                    max = transformed.Z;
-            }
             TransformEdges();
         }
         /// <summary>
@@ -152,20 +141,14 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         protected void TransformEdges()
         {
-            Edges = new ObservableCollection<CustomLine>();
+            Edges = new Polyline();
             foreach (var edge in EdgesIndices)
             {
                 var begining = TransformedVertices[edge.Item1];
-                var end = TransformedVertices[edge.Item2];
-                if (begining == null || end == null)
-                    continue;
+                Edges.Points.Add(new Point(begining.X, begining.Y));
 
-                var line = new CustomLine();
-                line.Points = new List<Point>();
-                line.Points.Add(new Point(begining.X, begining.Y));
-                line.Points.Add(new Point(end.X, end.Y));
-                line.IsLineVisible = true;
-                Edges.Add(line);
+                var end = TransformedVertices[edge.Item2];
+                Edges.Points.Add(new Point(end.X, end.Y));
             }
             OnPropertyChanged("Edges");
         }

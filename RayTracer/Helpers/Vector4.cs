@@ -7,15 +7,6 @@ namespace RayTracer.Helpers
     {
         private double _x, _y, _z, _a;
 
-        public static Vector4 Zero { get { return new Vector4(0, 0, 0, 0); } }
-
-        public override bool Equals(object obj)
-        {
-            Vector4 vector = (Vector4) obj;
-
-            return X == vector.X && Y == vector.Y && Z == vector.Z && A == vector.A;
-        }
-
         public Vector4(double x, double y, double z, double a)
         {
             _x = x;
@@ -39,7 +30,7 @@ namespace RayTracer.Helpers
             {
                 if (_a == 0)
                     return this;
-                return this / _a;
+                return this/_a;
             }
         }
 

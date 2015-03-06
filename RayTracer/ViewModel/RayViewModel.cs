@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
@@ -207,7 +206,7 @@ namespace RayTracer.ViewModel
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.ViewMatrix(5);
+            Matrix3D viewMatrix = Transformations.ViewMatrix(200);
 
             foreach (ShapeBase mesh in Meshes)
                 mesh.Transform = viewMatrix;
@@ -218,7 +217,7 @@ namespace RayTracer.ViewModel
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private void MouseManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void MouseManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {

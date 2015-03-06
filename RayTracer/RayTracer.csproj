@@ -105,7 +105,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Helpers\Converters\DebugConverter.cs" />
     <Compile Include="Helpers\Converters\TransformedPoint.cs" />
     <Compile Include="Helpers\Converters\ReducedValueConverter.cs" />
     <Compile Include="Helpers\EventCommand\ActionCommand.cs" />
@@ -116,7 +115,6 @@
     <Compile Include="Model\Camera\OrthographicCamera.cs" />
     <Compile Include="Model\Camera\PerspectiveCamera.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
-    <Compile Include="Model\Shapes\CustomLine.cs" />
     <Compile Include="Model\Shapes\SceneManager.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
     <Compile Include="Model\Shapes\Torus.cs" />

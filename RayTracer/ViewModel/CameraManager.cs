@@ -123,5 +123,7 @@ namespace RayTracer.ViewModel
             Camera = new PerspectiveCamera(_upVector, _cameraTarget, _cameraPosition, _near, _far, _fov, _ratio);
         }
         #endregion .ctor
+        #region Commands
+        #endregion Commands
     }
 }
