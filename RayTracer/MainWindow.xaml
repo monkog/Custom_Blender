@@ -46,42 +46,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <ItemsControl ItemsSource="{Binding Meshes}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"
-                      helpers:SizeObserver.Observe="True"
-                      helpers:SizeObserver.ObservedWidth="{Binding ViewportWidth, Mode=OneWayToSource}"
-                      helpers:SizeObserver.ObservedHeight="{Binding ViewportHeight, Mode=OneWayToSource}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas IsItemsHost="True"
-                                Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Width}" 
-                                Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Height}"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ItemsControl ItemsSource="{Binding TransformedVertices}">
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="FrameworkElement">
-                                    <Setter Property="Canvas.Left" Value="{Binding X, Converter={StaticResource ReducedValueConverter}, ConverterParameter=3}" />
-                                    <Setter Property="Canvas.Top" Value="{Binding Y, Converter={StaticResource ReducedValueConverter}, ConverterParameter=3}" />
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Width}" 
-                                            Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Height}"
-                                            ClipToBounds="True"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="Point">
-                                    <Ellipse Width="6" Height="6" Fill="LightCoral"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
         </Canvas>
         <StackPanel Grid.Column="1" Margin="20">
             <GroupBox Margin="20">

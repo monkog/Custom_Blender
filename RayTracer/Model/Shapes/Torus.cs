@@ -47,7 +47,7 @@ namespace RayTracer.Model.Shapes
                 {
                     alpha = j * circleStride;
                     Vertices.Add(new Vector4((_r * Math.Cos(alpha) + _R) * Math.Cos(beta)
-                       , _r * Math.Sin(alpha), (_r * Math.Cos(alpha) + _R) * Math.Sin(beta), 1));
+                       , (_r * Math.Cos(alpha) + _R) * Math.Sin(beta), _r * Math.Sin(alpha), 1));
                 }
             }
         }

@@ -206,7 +206,7 @@ namespace RayTracer.ViewModel
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.ViewMatrix(200);
+            Matrix3D viewMatrix = Transformations.ViewMatrix(500);
 
             foreach (ShapeBase mesh in Meshes)
                 mesh.Transform = viewMatrix;
