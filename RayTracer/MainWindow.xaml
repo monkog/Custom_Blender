@@ -48,19 +48,42 @@
             </ItemsControl>
         </Canvas>
         <StackPanel Grid.Column="1" Margin="20">
-            <GroupBox Margin="20">
-                <StackPanel Margin="20">
-                    <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
-                    <StackPanel Orientation="Horizontal" Margin="20">
-                        <TextBlock Text="L: "/>
-                        <TextBox Width="100" Text="{Binding L}"/>
+            <StackPanel Orientation="Horizontal">
+                <GroupBox Margin="20" Header="Torus">
+                    <StackPanel>
+                        <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="L: "/>
+                            <TextBox Width="100" Text="{Binding L}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="V: "/>
+                            <TextBox Width="100" Text="{Binding V}"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="20">
-                        <TextBlock Text="V: "/>
-                        <TextBox Width="100" Text="{Binding V}"/>
+                </GroupBox>
+                <GroupBox Margin="20" Header="Ellipsoide">
+                    <StackPanel>
+                        <Button Content="Add Ellipsoide" Command="{Binding AddEllipsoideCommand}" Margin="20"/>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="a: "/>
+                            <TextBox Width="100" Text="{Binding A}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="b: "/>
+                            <TextBox Width="100" Text="{Binding B}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="c: "/>
+                            <TextBox Width="100" Text="{Binding C}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20">
+                            <TextBlock Text="I: "/>
+                            <TextBox Width="100" Text="{Binding I}"/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
+                </GroupBox>
+            </StackPanel>
             <GroupBox Header="Rotations">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">

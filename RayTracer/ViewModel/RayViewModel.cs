@@ -25,6 +25,10 @@ namespace RayTracer.ViewModel
         private double _viewportHeight;
         private int _l;
         private int _v;
+        private double _a;
+        private double _b;
+        private double _c;
+        private double _i;
         /// <summary>
         /// The x slider value
         /// </summary>
@@ -63,6 +67,58 @@ namespace RayTracer.ViewModel
                 if (_v == value) return;
                 _v = value;
                 OnPropertyChanged("V");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the first radius of Ellipsoide.
+        /// </summary>
+        public double A
+        {
+            get { return _a; }
+            set
+            {
+                if (_a == value) return;
+                _a = value;
+                OnPropertyChanged("A");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the second radius of Ellipsoide.
+        /// </summary>
+        public double B
+        {
+            get { return _b; }
+            set
+            {
+                if (_b == value) return;
+                _b = value;
+                OnPropertyChanged("B");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the third radius of Ellipsoide.
+        /// </summary>
+        public double C
+        {
+            get { return _c; }
+            set
+            {
+                if (_c == value) return;
+                _c = value;
+                OnPropertyChanged("C");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the intensity of the light.
+        /// </summary>
+        public double I
+        {
+            get { return _i; }
+            set
+            {
+                if (_i == value) return;
+                _i = value;
+                OnPropertyChanged("I");
             }
         }
         /// <summary>
@@ -201,6 +257,9 @@ namespace RayTracer.ViewModel
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             L = 20;
             V = 20;
+            A = 0.2;
+            B = 0.3;
+            C = 0.4;
         }
         #endregion .ctor
         #region Private Methods
@@ -262,6 +321,25 @@ namespace RayTracer.ViewModel
             var torus = new Torus(0, 0, 0, L, V);
             Meshes.Clear();
             Meshes.Add(torus);
+            Render();
+        }
+
+        private ICommand _addEllipsoideCommand;
+        /// <summary>
+        /// Gets the add Ellipse command.
+        /// </summary>
+        /// <value>
+        /// The add Ellipse command.
+        /// </value>
+        public ICommand AddEllipsoideCommand { get { return _addEllipsoideCommand ?? (_addEllipsoideCommand = new DelegateCommand(AddEllipsoideExecuted)); } }
+        /// <summary>
+        /// Adds the Ellipse.
+        /// </summary>
+        private void AddEllipsoideExecuted()
+        {
+            var ellipsoide = new Ellipsoide(0, 0, 0, A, B, C);
+            Meshes.Clear();
+            Meshes.Add(ellipsoide);
             Render();
         }
         #endregion Commands
