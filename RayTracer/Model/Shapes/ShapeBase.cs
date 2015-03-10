@@ -100,7 +100,7 @@ namespace RayTracer.Model.Shapes
                 if (_transform == value)
                     return;
                 _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value * ModelTransform;
-                TransformVertices();
+                CalculateShape();
                 OnPropertyChanged("TransformedVertices");
             }
         }
@@ -127,6 +127,14 @@ namespace RayTracer.Model.Shapes
         #endregion Protected Properties
         #region Protected Methods
         /// <summary>
+        /// Calculates the shape: vertices and edges
+        /// </summary>
+        protected virtual void CalculateShape()
+        {
+            TransformVertices();
+            TransformEdges();
+        }
+        /// <summary>
         /// Transforms the vertices.
         /// </summary>
         protected void TransformVertices()
@@ -134,7 +142,6 @@ namespace RayTracer.Model.Shapes
             TransformedVertices = new ObservableCollection<Vector4>();
             foreach (var vertex in Vertices)
                 TransformedVertices.Add(Transformations.TransformPoint(vertex, Transform).Normalized);
-            TransformEdges();
         }
         /// <summary>
         /// Transforms the edges of the mesh.
@@ -153,5 +160,11 @@ namespace RayTracer.Model.Shapes
             OnPropertyChanged("Edges");
         }
         #endregion Protected Methods
+        #region Public Methods
+        /// <summary>
+        /// Draws this instance.
+        /// </summary>
+        public virtual void Draw() { }
+        #endregion Public Methods
     }
 }

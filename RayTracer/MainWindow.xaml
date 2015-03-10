@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:RayTracer.ViewModel"
+        xmlns:sceneManager="clr-namespace:RayTracer.Model.Shapes"
         xmlns:helpers="clr-namespace:RayTracer.Helpers"
         xmlns:converters="clr-namespace:RayTracer.Helpers.Converters"
         mc:Ignorable="d"
@@ -47,6 +48,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Canvas>
+        <!--<Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}}" Width="800" Height="600" Grid.Column="0"/>-->
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
                 <GroupBox Margin="20" Header="Torus">

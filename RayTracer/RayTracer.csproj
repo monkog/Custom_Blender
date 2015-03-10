@@ -109,6 +109,7 @@
     <Compile Include="Helpers\Converters\ReducedValueConverter.cs" />
     <Compile Include="Helpers\EventCommand\ActionCommand.cs" />
     <Compile Include="Helpers\EventCommand\EventToCommandBehavior.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\SimpleLine.cs" />
     <Compile Include="Helpers\SizeObserver.cs" />
     <Compile Include="Helpers\Vector4.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
 using RayTracer.Model.Shapes;
@@ -268,7 +269,10 @@ namespace RayTracer.ViewModel
             Matrix3D viewMatrix = Transformations.ViewMatrix(500);
 
             foreach (ShapeBase mesh in Meshes)
+            {
                 mesh.Transform = viewMatrix;
+                mesh.Draw();
+            }
         }
         /// <summary>
         /// Handles the PropertyChanged event of the CameraManager control.
@@ -316,8 +320,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddTorusExecuted()
         {
-            //var cube = new Cube(0, 0, 0, 1);
-            //Meshes.Add(cube);
             var torus = new Torus(0, 0, 0, L, V);
             Meshes.Clear();
             Meshes.Add(torus);

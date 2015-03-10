@@ -22,8 +22,8 @@ namespace RayTracer.Model.Shapes
         {
             _donutDivision = l;
             _circle_division = v;
-            _r = 0.5;
-            _R = 1;
+            _r = 10;
+            _R = 100;
             SetVertices();
             SetEdges();
             TransformVertices();
