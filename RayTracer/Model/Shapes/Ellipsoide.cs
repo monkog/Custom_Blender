@@ -49,7 +49,6 @@ namespace RayTracer.Model.Shapes
             transformInvert.Invert();
             var totalMatrix = transformInvert.Transpose() * D * transformInvert;
 
-            int cnt = 0;
             for (int i = 0; i < 800; i++)
                 for (int j = 0; j < 600; j++)
                 {
@@ -59,17 +58,11 @@ namespace RayTracer.Model.Shapes
                         + i * totalMatrix.M14 + j * totalMatrix.M24 + totalMatrix.M44;
                     double fourAc = 4 * totalMatrix.M33 * c;
                     double delta = b * b - fourAc;
-                    if (delta > 0)
+                    if (delta >= 0)
                     {
-                        double z = (-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33);
+                        double z = Math.Min((-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33), (-b - Math.Sqrt(delta)) / (2 * totalMatrix.M33));
+
                         bmp.SetPixel(i, j, Color);
-                        cnt++;
-                    }
-                    else if (delta == 0)
-                    {
-                        double z = -b / (2 * totalMatrix.M33);
-                        bmp.SetPixel(i, j, Color);
-                        cnt++;
                     }
                     else
                         bmp.SetPixel(i, j, DefaultColor);

@@ -95,9 +95,16 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void MouseClickExecuted(MouseButtonEventArgs args)
         {
-            if (args.OriginalSource.GetType() != typeof(Canvas)) return;
-            _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
-            _isMouseDown = true;
+            if (args.OriginalSource.GetType() == typeof(Canvas))
+            {
+                _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
+                _isMouseDown = true;
+            }
+            else if (args.OriginalSource.GetType() == typeof(Image))
+            {
+                _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
+                _isMouseDown = true;
+            }
         }
 
         private ActionCommand<MouseButtonEventArgs> _mouseUpCommand;
@@ -131,9 +138,12 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void MouseMoveExecuted(MouseEventArgs args)
         {
-            if (!_isMouseDown || args.OriginalSource.GetType() != typeof(Canvas)) return;
+            if (!_isMouseDown || !(args.OriginalSource.GetType() == typeof(Canvas) || args.OriginalSource.GetType() == typeof(Image))) return;
             _mousePreviousPosition = _mouseCurrentPosition;
-            _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
+            if (args.OriginalSource.GetType() == typeof(Canvas))
+                _mouseCurrentPosition = args.GetPosition((Canvas)args.OriginalSource);
+            else if (args.OriginalSource.GetType() == typeof(Image))
+                _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
 
 #warning move constants
             MouseDelta = new Point((_mouseCurrentPosition.X - _mousePreviousPosition.X) / 50, (_mouseCurrentPosition.Y - _mousePreviousPosition.Y) / 50);
