@@ -1,8 +1,6 @@
-﻿using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using System.Drawing;
 using System.Windows.Media.Media3D;
 using RayTracer.ViewModel;
-using System.Drawing;
 
 namespace RayTracer.Model.Shapes
 {

@@ -8,7 +8,7 @@ using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
 namespace UnitTests
 {
     [TestClass]
-    public class UnitTest1
+    public class TransformationTest
     {
         [TestMethod]
         public void CreateVersor()

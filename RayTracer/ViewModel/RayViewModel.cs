@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
 using RayTracer.Model.Shapes;
@@ -267,7 +267,7 @@ namespace RayTracer.ViewModel
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private void MouseManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void MouseManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
