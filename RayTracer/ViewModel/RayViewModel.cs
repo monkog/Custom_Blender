@@ -29,7 +29,6 @@ namespace RayTracer.ViewModel
         private double _a;
         private double _b;
         private double _c;
-        private double _i;
         /// <summary>
         /// The x slider value
         /// </summary>
@@ -107,19 +106,6 @@ namespace RayTracer.ViewModel
                 if (_c == value) return;
                 _c = value;
                 OnPropertyChanged("C");
-            }
-        }
-        /// <summary>
-        /// Gets or sets the intensity of the light.
-        /// </summary>
-        public double I
-        {
-            get { return _i; }
-            set
-            {
-                if (_i == value) return;
-                _i = value;
-                OnPropertyChanged("I");
             }
         }
         /// <summary>
@@ -261,6 +247,7 @@ namespace RayTracer.ViewModel
             A = 0.2;
             B = 0.3;
             C = 0.4;
+            SceneManager.Instance.M = 5;
         }
         #endregion .ctor
         #region Private Methods
@@ -339,7 +326,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddEllipsoideExecuted()
         {
-            var ellipsoide = new Ellipsoide(0, 0, 0, A, B, C);
+            var ellipsoide = new Ellipsoide(0, 0, 0, 1 / A, 1 / B, 1 / C);
             Meshes.Clear();
             Meshes.Add(ellipsoide);
             Render();

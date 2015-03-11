@@ -81,8 +81,8 @@
                             <TextBox Width="100" Text="{Binding C}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="20">
-                            <TextBlock Text="I: "/>
-                            <TextBox Width="100" Text="{Binding I}"/>
+                            <TextBlock Text="m: "/>
+                            <TextBox Width="100" Text="{Binding M, Source={x:Static sceneManager:SceneManager.Instance}}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

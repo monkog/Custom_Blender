@@ -45,7 +45,7 @@ namespace RayTracer.Model.Shapes
         public override void Draw()
         {
             Bitmap bmp = SceneManager.Instance.SceneImage;
-            var transformInvert = ModelTransform;
+            var transformInvert = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * ModelTransform;
             transformInvert.Invert();
             var totalMatrix = transformInvert.Transpose() * D * transformInvert;
 
@@ -61,7 +61,13 @@ namespace RayTracer.Model.Shapes
                     double delta = b * b - fourAc;
                     if (delta > 0)
                     {
-                        double z = (-b + Math.Sqrt(delta)) / 2 * totalMatrix.M33;
+                        double z = (-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33);
+                        bmp.SetPixel(i, j, Color);
+                        cnt++;
+                    }
+                    else if (delta == 0)
+                    {
+                        double z = -b / (2 * totalMatrix.M33);
                         bmp.SetPixel(i, j, Color);
                         cnt++;
                     }

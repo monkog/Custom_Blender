@@ -14,6 +14,10 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private Bitmap _sceneImage;
         /// <summary>
+        /// The light intensity
+        /// </summary>
+        private double _m;
+        /// <summary>
         /// Instance of the SceneManager
         /// </summary>
         private static SceneManager _instance;
@@ -71,6 +75,19 @@ namespace RayTracer.Model.Shapes
             {
                 _sceneImage = value;
                 OnPropertyChanged("SceneImage");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the intensity of the light.
+        /// </summary>
+        public double M
+        {
+            get { return _m; }
+            set
+            {
+                if (_m == value) return;
+                _m = value;
+                OnPropertyChanged("M");
             }
         }
         #endregion Public Properties
