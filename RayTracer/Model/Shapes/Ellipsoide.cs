@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
+using System.Drawing;
 
 namespace RayTracer.Model.Shapes
 {
@@ -19,7 +19,14 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The color of the Ellipsoide.
         /// </value>
-        public static Color Color { get { return Colors.Yellow; } }
+        public static Color Color { get { return Color.Yellow; } }
+        /// <summary>
+        /// Gets the color of the back.
+        /// </summary>
+        /// <value>
+        /// The color of the back.
+        /// </value>
+        public static Color DefaultColor { get { return Color.Black; } }
         #endregion Public Properties
         #region .ctor
         public Ellipsoide(double x, double y, double z, double a, double b, double c)
@@ -37,23 +44,31 @@ namespace RayTracer.Model.Shapes
         #region Public Methods
         public override void Draw()
         {
-            WriteableBitmap bmp = SceneManager.Instance.SceneImage;
-            var pixels = new byte[800 * 600];
+            Bitmap bmp = SceneManager.Instance.SceneImage;
             var transformInvert = ModelTransform;
             transformInvert.Invert();
             var totalMatrix = transformInvert.Transpose() * D * transformInvert;
 
+            int cnt = 0;
             for (int i = 0; i < 800; i++)
                 for (int j = 0; j < 600; j++)
                 {
-                    double zSquared = D.M33 * (1 - ((i * i / D.M11) + (j * j / D.M22)));
-                    if (zSquared > 0)
+                    double b = totalMatrix.M31 * i + totalMatrix.M32 * j + totalMatrix.M13 * i + totalMatrix.M23 * j + totalMatrix.OffsetZ + totalMatrix.M34;
+                    double c = i * (totalMatrix.M11 * i + j * totalMatrix.M21 + totalMatrix.OffsetX)
+                        + j * (i * totalMatrix.M12 + j * totalMatrix.M22 + totalMatrix.OffsetY)
+                        + i * totalMatrix.M14 + j * totalMatrix.M24 + totalMatrix.M44;
+                    double fourAc = 4 * totalMatrix.M33 * c;
+                    double delta = b * b - fourAc;
+                    if (delta > 0)
                     {
-                        double z = Math.Sqrt(zSquared);
-                        pixels[i * 800 + j] = 1;
+                        double z = (-b + Math.Sqrt(delta)) / 2 * totalMatrix.M33;
+                        bmp.SetPixel(i, j, Color);
+                        cnt++;
                     }
+                    else
+                        bmp.SetPixel(i, j, DefaultColor);
                 }
-            bmp.WritePixels(new System.Windows.Int32Rect(0, 0, 800, 600), pixels, 800, 0);
+            SceneManager.Instance.SceneImage = bmp;
         }
         #endregion Public Methods
     }

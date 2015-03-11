@@ -17,6 +17,7 @@
     <Window.Resources>
         <converters:TransformedPoint x:Key="TransformedPoint"/>
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
+        <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -47,8 +48,8 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
         </Canvas>
-        <!--<Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}}" Width="800" Height="600" Grid.Column="0"/>-->
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
                 <GroupBox Margin="20" Header="Torus">

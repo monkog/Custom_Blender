@@ -2,6 +2,7 @@
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using RayTracer.ViewModel;
+using System.Drawing;
 
 namespace RayTracer.Model.Shapes
 {
@@ -11,7 +12,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// The scene image
         /// </summary>
-        private WriteableBitmap _sceneImage;
+        private Bitmap _sceneImage;
         /// <summary>
         /// Instance of the SceneManager
         /// </summary>
@@ -63,13 +64,11 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The scene image.
         /// </value>
-        public WriteableBitmap SceneImage
+        public Bitmap SceneImage
         {
             get { return _sceneImage; }
             set
             {
-                if (_sceneImage == value)
-                    return;
                 _sceneImage = value;
                 OnPropertyChanged("SceneImage");
             }
@@ -78,7 +77,7 @@ namespace RayTracer.Model.Shapes
         #region .ctor
         private SceneManager()
         {
-            SceneImage = new WriteableBitmap(800, 600, 96, 96, PixelFormats.Bgr32, null);
+            SceneImage = new Bitmap(800, 600);
         }
         #endregion .ctor
     }
