@@ -125,7 +125,7 @@ namespace RayTracer.ViewModel
         /// <returns>Vector multiplied by the matrix</returns>
         public static Vector4 TransformPoint(Vector4 point, Matrix3D matrix)
         {
-            return point * matrix;
+            return matrix * point;
         }
         /// <summary>
         /// Creates rotation matrix for rotation on x axis.

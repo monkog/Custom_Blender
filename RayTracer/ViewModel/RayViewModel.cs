@@ -244,10 +244,10 @@ namespace RayTracer.ViewModel
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             L = 20;
             V = 20;
-            A = 0.2;
-            B = 0.3;
-            C = 0.4;
-            SceneManager.Instance.M = 5;
+            A = 5;
+            B = 6;
+            C = 8;
+            SceneManager.Instance.M = 4;
         }
         #endregion .ctor
         #region Private Methods

@@ -72,47 +72,75 @@ namespace RayTracer.Model.Shapes
             for (int i = 0; i < 800; i += pixelSize)
                 for (int j = 0; j < 600; j += pixelSize)
                 {
-                    int x = (i + (pixelSize / 2)) % 800;
-                    int y = (j + (pixelSize / 2)) % 600;
-                    double b = totalMatrix.M31 * x + totalMatrix.M32 * y + totalMatrix.M13 * x + totalMatrix.M23 * y + totalMatrix.OffsetZ + totalMatrix.M34;
-                    double c = x * (totalMatrix.M11 * x + y * totalMatrix.M21 + totalMatrix.OffsetX)
-                        + y * (x * totalMatrix.M12 + y * totalMatrix.M22 + totalMatrix.OffsetY)
-                        + x * totalMatrix.M14 + y * totalMatrix.M24 + totalMatrix.M44;
-                    double fourAc = 4 * totalMatrix.M33 * c;
-                    double delta = b * b - fourAc;
+                    int x, y;
+                    double b;
+                    var delta = CalculateDelta(out x, pixelSize, i, j, totalMatrix, out y, out b);
+
                     if (delta >= 0)
                     {
                         double z = Math.Min((-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33), (-b - Math.Sqrt(delta)) / (2 * totalMatrix.M33));
-                        Vector4 v = new Vector4(x, y, z, 1);
-                        Vector4 n = v * totalMatrix * 2;
-                        double light = Math.Pow((new Vector4(400, 300, -100, 1)).Dot(n), SceneManager.Instance.M);
+                        var light = CalculateLightIntensity(x, y, z, D);
 
-                        for (int k = 0; k < pixelSize; k++)
-                            for (int l = 0; l < pixelSize; l++)
-                                bmp.SetPixel((i + k) % 800, (j + l) % 600, GetNormalizedColor(Color, light));
+                        SetPixelColor(pixelSize, i, j, bmp, Color.FromArgb(Color.R, Color.G, (int)Math.Min(Math.Max(Color.B + light, 0), 255)));
                     }
                     else
-                        for (int k = 0; k < pixelSize && i + k < 800; k++)
-                            for (int l = 0; l < pixelSize && j + l < 600; l++)
-                                bmp.SetPixel(i + k, j + l, DefaultColor);
+                        SetPixelColor(pixelSize, i, j, bmp, DefaultColor);
                 }
-            Application.Current.Dispatcher.Invoke(() => { SceneManager.Instance.SceneImage = bmp; });
+            if (Application.Current != null)
+                Application.Current.Dispatcher.Invoke(() => { SceneManager.Instance.SceneImage = bmp; });
             if (pixelSize > 1)
                 Draw(pixelSize / 2);
         }
         /// <summary>
-        /// Calculates the value of the color increased by the certain value and normalized to 255
+        /// Sets the specfied color on the pixel
         /// </summary>
-        /// <param name="color">The color</param>
-        /// <param name="value">The value</param>
-        /// <returns>Normalized increased color</returns>
-        private Color GetNormalizedColor(Color color, double value)
+        private static void SetPixelColor(int pixelSize, int i, int j, Bitmap bmp, Color color)
         {
-            if (value < 0)
-                return Color;
-            Vector3D v = new Vector3D(color.R + value, color.G + value, color.B + value);
-            v.Normalize();
-            return Color.FromArgb((int)(v.X * 255), (int)(v.Y * 255), (int)(v.Z * 255));
+            for (int k = 0; k < pixelSize && i + k < 800; k++)
+                for (int l = 0; l < pixelSize && j + l < 600; l++)
+                    bmp.SetPixel(i + k, j + l, color);
+        }
+        /// <summary>
+        /// Calculates the light intensity.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="z">The z.</param>
+        /// <param name="totalMatrix">The total transform matrix.</param>
+        /// <returns>Light intensity for the given pixel</returns>
+        private static double CalculateLightIntensity(int x, int y, double z, Matrix3D totalMatrix)
+        {
+            Vector4 v = new Vector4(x, y, z, 1);
+            Vector4 n = (totalMatrix * v) * 2;
+            Vector4 light = new Vector4(0, 0, 40, 1);
+            double dot = light.Dot(n.Normalized);
+
+            return Math.Pow(dot, SceneManager.Instance.M);
+        }
+        /// <summary>
+        /// Calculates the delta.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="pixelSize">Size of the pixel.</param>
+        /// <param name="i">The i.</param>
+        /// <param name="j">The j.</param>
+        /// <param name="totalMatrix">The total transform matrix.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        private static double CalculateDelta(out int x, int pixelSize, int i, int j, Matrix3D totalMatrix, out int y
+            , out double b)
+        {
+            x = Math.Min(i + (pixelSize / 2), 799);
+            y = Math.Min(j + (pixelSize / 2), 599);
+            b = totalMatrix.M31 * x + totalMatrix.M32 * y + totalMatrix.M13 * x + totalMatrix.M23 * y + totalMatrix.OffsetZ +
+                totalMatrix.M34;
+            double c = x * (totalMatrix.M11 * x + y * totalMatrix.M21 + totalMatrix.OffsetX)
+                       + y * (x * totalMatrix.M12 + y * totalMatrix.M22 + totalMatrix.OffsetY)
+                       + x * totalMatrix.M14 + y * totalMatrix.M24 + totalMatrix.M44;
+            double fourAc = 4 * totalMatrix.M33 * c;
+            double delta = b * b - fourAc;
+            return delta;
         }
         #endregion Private Methods
     }

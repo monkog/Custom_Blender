@@ -28,9 +28,7 @@ namespace RayTracer.Helpers
         {
             get
             {
-                if (_a == 0)
-                    return this;
-                return this/_a;
+                return this / Length;
             }
         }
 
@@ -59,7 +57,7 @@ namespace RayTracer.Helpers
             return new Vector4(vector.X - vector1.X, vector.Y - vector1.Y, vector.Z - vector1.Z, vector.A - vector1.A);
         }
 
-        public static Vector4 operator *(Vector4 vector, Matrix3D matrix)
+        public static Vector4 operator *(Matrix3D matrix, Vector4 vector)
         {
             return new Vector4(vector.X * matrix.M11 + vector.Y * matrix.M12 + vector.Z * matrix.M13 + vector.A * matrix.M14
                                 , vector.X * matrix.M21 + vector.Y * matrix.M22 + vector.Z * matrix.M23 + vector.A * matrix.M24
