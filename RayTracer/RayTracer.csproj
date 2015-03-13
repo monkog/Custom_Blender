@@ -109,6 +109,7 @@
     <Compile Include="Helpers\Converters\BitmapToBitmapImageConverter.cs" />
     <Compile Include="Helpers\Converters\TransformedPoint.cs" />
     <Compile Include="Helpers\Converters\ReducedValueConverter.cs" />
+    <Compile Include="Helpers\CustomLine.cs" />
     <Compile Include="Helpers\EventCommand\ActionCommand.cs" />
     <Compile Include="Helpers\EventCommand\EventToCommandBehavior.cs" />
     <Compile Include="Helpers\Extensions.cs" />

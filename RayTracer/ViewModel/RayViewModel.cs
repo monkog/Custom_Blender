@@ -253,7 +253,7 @@ namespace RayTracer.ViewModel
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.ViewMatrix(500);
+            Matrix3D viewMatrix = Transformations.StereographicLeftMatrix(0.1,400);
 
             foreach (ShapeBase mesh in Meshes)
             {

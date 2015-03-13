@@ -1,9 +1,7 @@
-﻿using System;
-using System.Windows.Media.Media3D;
-using FakeItEasy;
+﻿using System.Windows.Media.Media3D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RayTracer.Helpers;
 using RayTracer.ViewModel;
-using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
 
 namespace UnitTests
 {
@@ -23,63 +21,16 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void CreateViewMatrix()
+        public void CreateDotProduct()
         {
-            var camera = A.Fake<PerspectiveCamera>();
-            camera.UpVector = new Vector3D(0, 0, 1);
-            camera.CameraTarget = new Vector3D(0, 0.5, 0.5);
-            camera.CameraPosition = new Vector3D(3, 0.5, 0.5);
-            var viewMatrix = Transformations.ViewMatrix(camera);
+            Vector4 v0 = new Vector4(0, 0, 0, 0);
+            Vector4 v1 = new Vector4(1, 1, 1, 1);
+            Vector4 vRand1 = new Vector4(2, 3, 4, 1);
+            Vector4 vRand2 = new Vector4(5, 1, 7, 3);
 
-            var matrix = new Matrix3D(0, 1, 0, -0.5
-                                    , 0, 0, 1, -0.5
-                                    , 1, 0, 0, -3
-                                    , 0, 0, 0, 1);
-
-            Assert.AreEqual(Math.Round(matrix.M11, 2), Math.Round(viewMatrix.M11, 2));
-            Assert.AreEqual(Math.Round(matrix.M12, 2), Math.Round(viewMatrix.M12, 2));
-            Assert.AreEqual(Math.Round(matrix.M13, 2), Math.Round(viewMatrix.M13, 2));
-            Assert.AreEqual(Math.Round(matrix.M14, 2), Math.Round(viewMatrix.M14, 2));
-            Assert.AreEqual(Math.Round(matrix.M21, 2), Math.Round(viewMatrix.M21, 2));
-            Assert.AreEqual(Math.Round(matrix.M22, 2), Math.Round(viewMatrix.M22, 2));
-            Assert.AreEqual(Math.Round(matrix.M23, 2), Math.Round(viewMatrix.M23, 2));
-            Assert.AreEqual(Math.Round(matrix.M24, 2), Math.Round(viewMatrix.M24, 2));
-            Assert.AreEqual(Math.Round(matrix.M31, 2), Math.Round(viewMatrix.M31, 2));
-            Assert.AreEqual(Math.Round(matrix.M32, 2), Math.Round(viewMatrix.M32, 2));
-            Assert.AreEqual(Math.Round(matrix.M33, 2), Math.Round(viewMatrix.M33, 2));
-            Assert.AreEqual(Math.Round(matrix.M34, 2), Math.Round(viewMatrix.M34, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetX, 2), Math.Round(viewMatrix.OffsetX, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetY, 2), Math.Round(viewMatrix.OffsetY, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetZ, 2), Math.Round(viewMatrix.OffsetZ, 2));
-            Assert.AreEqual(Math.Round(matrix.M44, 2), Math.Round(viewMatrix.M44, 2));
-        }
-
-        [TestMethod]
-        public void CreateProjectionMatrix()
-        {
-            var projectionMatrix = Transformations.ProjectionMatrix(45, 1, 100, 1);
-
-            var matrix = new Matrix3D(2.414213562, 0, 0, 0
-                                    , 0, 2.414213562, 0, 0
-                                    , 0, 0, -1.02020202, -2.02020202
-                                    , -0, 0, -1, 0);
-
-            Assert.AreEqual(Math.Round(matrix.M11, 2), Math.Round(projectionMatrix.M11, 2));
-            Assert.AreEqual(Math.Round(matrix.M12, 2), Math.Round(projectionMatrix.M12, 2));
-            Assert.AreEqual(Math.Round(matrix.M13, 2), Math.Round(projectionMatrix.M13, 2));
-            Assert.AreEqual(Math.Round(matrix.M14, 2), Math.Round(projectionMatrix.M14, 2));
-            Assert.AreEqual(Math.Round(matrix.M21, 2), Math.Round(projectionMatrix.M21, 2));
-            Assert.AreEqual(Math.Round(matrix.M22, 2), Math.Round(projectionMatrix.M22, 2));
-            Assert.AreEqual(Math.Round(matrix.M23, 2), Math.Round(projectionMatrix.M23, 2));
-            Assert.AreEqual(Math.Round(matrix.M24, 2), Math.Round(projectionMatrix.M24, 2));
-            Assert.AreEqual(Math.Round(matrix.M31, 2), Math.Round(projectionMatrix.M31, 2));
-            Assert.AreEqual(Math.Round(matrix.M32, 2), Math.Round(projectionMatrix.M32, 2));
-            Assert.AreEqual(Math.Round(matrix.M33, 2), Math.Round(projectionMatrix.M33, 2));
-            Assert.AreEqual(Math.Round(matrix.M34, 2), Math.Round(projectionMatrix.M34, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetX, 2), Math.Round(projectionMatrix.OffsetX, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetY, 2), Math.Round(projectionMatrix.OffsetY, 2));
-            Assert.AreEqual(Math.Round(matrix.OffsetZ, 2), Math.Round(projectionMatrix.OffsetZ, 2));
-            Assert.AreEqual(Math.Round(matrix.M44, 2), Math.Round(projectionMatrix.M44, 2));
+            Assert.AreEqual(0, v0.Dot(v1));
+            Assert.AreEqual(10, v1.Dot(vRand1));
+            Assert.AreEqual(vRand1.Dot(vRand2), vRand2.Dot(vRand1));
         }
     }
 }

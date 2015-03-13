@@ -48,7 +48,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
+            <!--<Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>-->
         </Canvas>
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
@@ -63,6 +63,7 @@
                             <TextBlock Text="V: "/>
                             <TextBox Width="100" Text="{Binding V}"/>
                         </StackPanel>
+                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding StereoscopicView, Source={x:Static sceneManager:SceneManager.Instance}}"/>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Ellipsoide">

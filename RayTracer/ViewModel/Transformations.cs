@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
-using PerspectiveCamera = RayTracer.Model.Camera.PerspectiveCamera;
 
 namespace RayTracer.ViewModel
 {
@@ -37,75 +36,16 @@ namespace RayTracer.ViewModel
             return sqrt == 0 ? vector : new Vector3D(vector.X / sqrt, vector.Y / sqrt, vector.Z / sqrt);
         }
         /// <summary>
-        /// Calculates the projection matrix.
-        /// </summary>
-        /// <param name="fov">The field of view.</param>
-        /// <param name="near">The near plane.</param>
-        /// <param name="far">The far plane.</param>
-        /// <param name="ratio">The aspect ratio of the viewport.</param>
-        /// <returns>Returns the projection matrix.</returns>
-        public static Matrix3D ProjectionMatrix(double fov, double near, double far, double ratio)
-        {
-            double f = 1.0f / Math.Tan((fov / 2.0f) * (Math.PI / 180.0f));
-
-            return new Matrix3D(f, 0.0, 0.0, 0.0
-                              , 0.0, f / ratio, 0.0, 0.0
-                              , 0.0, 0.0, -(far + near) / (far - near), 2 * (-(far * near) / (far - near))
-                              , 0.0, 0.0, -1.0, 0.0);
-        }
-
-        public static Matrix3D MatrixPerspective(double fieldOfView, double aspectRatio, double nearPlaneDistance,
-            double farPlaneDistance)
-        {
-            double e = 1.0f / Math.Tan((fieldOfView / 2.0f));
-            double fn = -(farPlaneDistance + nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance);
-            double fn2 = -(2 * farPlaneDistance * nearPlaneDistance) / (farPlaneDistance - nearPlaneDistance);
-            return new Matrix3D(e, 0, 0, 0,
-                0, e / aspectRatio, 0, 0,
-                0, 0, fn, fn2,
-                0, 0, -1, 0);
-        }
-        /// <summary>
         /// Calculates the view matrix.
         /// </summary>
+        /// <param name="r">The distance between the object and the projection surface</param>
         /// <returns>Returns the view matrix.</returns>
-        public static Matrix3D ViewMatrix(PerspectiveCamera camera)
-        {
-            Vector3D zAxis = camera.CameraPosition - camera.CameraTarget;
-            Vector3D zAxisVersor = Versor(zAxis);
-            Vector3D xAxis = Vector3D.CrossProduct(camera.UpVector, zAxisVersor);
-            Vector3D xAxisVersor = Versor(xAxis);
-            Vector3D yAxis = Vector3D.CrossProduct(zAxisVersor, xAxisVersor);
-            Vector3D yAxisVersor = Versor(yAxis);
-            Matrix3D matrix = new Matrix3D(xAxisVersor.X, yAxisVersor.X, zAxisVersor.X, camera.CameraPosition.X
-                                          , xAxisVersor.Y, yAxisVersor.Y, zAxisVersor.Y, camera.CameraPosition.Y
-                                          , xAxisVersor.Z, yAxisVersor.Z, zAxisVersor.Z, camera.CameraPosition.Z
-                                          , 0, 0, 0, 1);
-            matrix.Invert();
-            return matrix;
-        }
-
         public static Matrix3D ViewMatrix(double r)
         {
             return new Matrix3D(1, 0, 0, 0
                               , 0, 1, 0, 0
                               , 0, 0, 0, 0
                               , 0, 0, 1 / r, 1);
-        }
-
-        public static Matrix3D CreateLookAt(PerspectiveCamera camera)
-        {
-            Vector3D zaxis = camera.CameraTarget - camera.CameraPosition;
-            zaxis.Normalize();
-            Vector3D xaxisCross = Vector3D.CrossProduct(camera.UpVector, zaxis);
-            Vector3D xaxis = xaxisCross;
-            xaxis.Normalize();
-            Vector3D yaxis = Vector3D.CrossProduct(zaxis, xaxis);
-
-            return new Matrix3D(xaxis.X, yaxis.X, zaxis.X, 0,
-                xaxis.Y, yaxis.Y, zaxis.Y, 0,
-                xaxis.Z, yaxis.Z, zaxis.Z, 0,
-                -Vector3D.DotProduct(xaxis, camera.CameraPosition), -Vector3D.DotProduct(yaxis, camera.CameraPosition), -Vector3D.DotProduct(zaxis, camera.CameraPosition), 1);
         }
         /// <summary>
         /// Creates the dot product of two 3D vectors.
@@ -186,6 +126,32 @@ namespace RayTracer.ViewModel
                               , 0, scale, 0, 0
                               , 0, 0, scale, 0
                               , 0, 0, 0, 1);
+        }
+        /// <summary>
+        /// Stereographics the left matrix.
+        /// </summary>
+        /// <param name="e">The e.</param>
+        /// <param name="r">The distance between the object and the projection surface</param>
+        /// <returns>Returns the left stereographic view matrix.</returns>
+        public static Matrix3D StereographicLeftMatrix(double e, double r)
+        {
+            return new Matrix3D(1, 0, -e / (2 * r), 0
+                              , 0, 1, 0, 0
+                              , 0, 0, 0, 0
+                              , 0, 0, 1 / r, 1);
+        }
+        /// <summary>
+        /// Stereographics the right matrix.
+        /// </summary>
+        /// <param name="e">The e.</param>
+        /// <param name="r">The distance between the object and the projection surface</param>
+        /// <returns>Returns the right stereographic view matrix.</returns>
+        public static Matrix3D StereographicRightMatrix(double e, double r)
+        {
+            return new Matrix3D(1, 0, e / (2 * r), 0
+                              , 0, 1, 0, 0
+                              , 0, 0, 0, 0
+                              , 0, 0, 1 / r, 1);
         }
         #endregion Public Methods
     }

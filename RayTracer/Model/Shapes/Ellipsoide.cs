@@ -26,7 +26,7 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The color of the Ellipsoide.
         /// </value>
-        public static Color Color { get { return Color.Yellow; } }
+        public static Color Color { get { return Color.FromArgb(255, 255, 1); } }
         /// <summary>
         /// Gets the color of the back.
         /// </summary>
@@ -64,30 +64,38 @@ namespace RayTracer.Model.Shapes
         /// <param name="pixelSize">Number of pixels representing one pixel</param>
         private void Draw(int pixelSize)
         {
-            Bitmap bmp = SceneManager.Instance.SceneImage;
-            var transformInvert = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * ModelTransform;
-            transformInvert.Invert();
-            var totalMatrix = transformInvert.Transpose() * D * transformInvert;
+            lock (BitmapLock)
+            {
+                Bitmap bmp = SceneManager.Instance.SceneImage;
+                var transformInvert = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix *
+                                      ModelTransform;
+                transformInvert.Invert();
+                var totalMatrix = transformInvert.Transpose() * D * transformInvert;
 
-            for (int i = 0; i < 800; i += pixelSize)
-                for (int j = 0; j < 600; j += pixelSize)
-                {
-                    int x, y;
-                    double b;
-                    var delta = CalculateDelta(out x, pixelSize, i, j, totalMatrix, out y, out b);
-
-                    if (delta >= 0)
+                for (int i = 0; i < 800; i += pixelSize)
+                    for (int j = 0; j < 600; j += pixelSize)
                     {
-                        double z = Math.Min((-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33), (-b - Math.Sqrt(delta)) / (2 * totalMatrix.M33));
-                        var light = CalculateLightIntensity(x, y, z, D);
+                        int x, y;
+                        double b;
+                        var delta = CalculateDelta(out x, pixelSize, i, j, totalMatrix, out y, out b);
 
-                        SetPixelColor(pixelSize, i, j, bmp, Color.FromArgb(Color.R, Color.G, (int)Math.Min(Math.Max(Color.B + light, 0), 255)));
+                        if (delta >= 0)
+                        {
+                            double z = Math.Max((-b + Math.Sqrt(delta)) / (2 * totalMatrix.M33),
+                                (-b - Math.Sqrt(delta)) / (2 * totalMatrix.M33));
+                            var light = CalculateLightIntensity(x, y, z, D);
+
+                            SetPixelColor(pixelSize, i, j, bmp
+                                , Color.FromArgb((int)Math.Max(Math.Min(Color.R * light, 255), 0)
+                                                            , (int)Math.Max(Math.Min(Color.G * light, 255), 0)
+                                                            , (int)Math.Max(Math.Min(Color.B * light, 255), 0)));
+                        }
+                        else
+                            SetPixelColor(pixelSize, i, j, bmp, DefaultColor);
                     }
-                    else
-                        SetPixelColor(pixelSize, i, j, bmp, DefaultColor);
-                }
-            if (Application.Current != null)
-                Application.Current.Dispatcher.Invoke(() => { SceneManager.Instance.SceneImage = bmp; });
+                if (Application.Current != null)
+                    Application.Current.Dispatcher.Invoke(() => { SceneManager.Instance.SceneImage = bmp; });
+            }
             if (pixelSize > 1)
                 Draw(pixelSize / 2);
         }
@@ -110,10 +118,12 @@ namespace RayTracer.Model.Shapes
         /// <returns>Light intensity for the given pixel</returns>
         private static double CalculateLightIntensity(int x, int y, double z, Matrix3D totalMatrix)
         {
-            Vector4 v = new Vector4(x, y, z, 1);
+            Vector4 v = new Vector4(x, y, z, 0);
             Vector4 n = (totalMatrix * v) * 2;
-            Vector4 light = new Vector4(0, 0, 40, 1);
+            Vector4 light = new Vector4(-10, 0, 20, 0);
             double dot = light.Dot(n.Normalized);
+            if (dot < 0)
+                return 0;
 
             return Math.Pow(dot, SceneManager.Instance.M);
         }

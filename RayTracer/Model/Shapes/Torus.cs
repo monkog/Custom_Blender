@@ -16,20 +16,20 @@ namespace RayTracer.Model.Shapes
         private int _circle_division;
         private double _r;
         private double _R;
-
+        #region .ctor
         public Torus(double x, double y, double z, int l, int v)
             : base(x, y, z)
         {
             _donutDivision = l;
             _circle_division = v;
-            _r = 10;
-            _R = 100;
+            _r = 0.1;
+            _R = 1;
             SetVertices();
             SetEdges();
             TransformVertices();
         }
+        #endregion .ctor
         #region Private Methods
-
         /// <summary>
         /// Sets the vertices.
         /// </summary>
@@ -69,5 +69,16 @@ namespace RayTracer.Model.Shapes
             EdgesIndices.Add(new Tuple<int, int>(_circle_division - 1, 0));
         }
         #endregion Private Methods
+        #region Public Methods
+        /// <summary>
+        /// Draws this instance.
+        /// </summary>
+        public override void Draw()
+        {
+            //Bitmap bmp = SceneManager.Instance.SceneImage;
+
+            //SceneManager.Instance.SceneImage = bmp;
+        }
+        #endregion Public Methods
     }
 }

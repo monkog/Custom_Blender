@@ -8,6 +8,10 @@ namespace RayTracer.Model.Shapes
     {
         #region Private Members
         /// <summary>
+        /// Is the view stereoscopic
+        /// </summary>
+        private bool _isStereoscopic;
+        /// <summary>
         /// The scene image
         /// </summary>
         private Bitmap _sceneImage;
@@ -86,6 +90,23 @@ namespace RayTracer.Model.Shapes
                 if (_m == value) return;
                 _m = value;
                 OnPropertyChanged("M");
+            }
+        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the view is stereoscopic.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the view is stereoscopic; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsStereoscopic
+        {
+            get { return _isStereoscopic; }
+            set
+            {
+                if (_isStereoscopic == value)
+                    return;
+                _isStereoscopic = value;
+                OnPropertyChanged("IsStereoscopic");
             }
         }
         #endregion Public Properties

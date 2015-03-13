@@ -124,6 +124,10 @@ namespace RayTracer.Model.Shapes
         /// The edges indices.
         /// </value>
         protected ObservableCollection<Tuple<int, int>> EdgesIndices { get; set; }
+        /// <summary>
+        /// Used for synchronising bitmap access
+        /// </summary>
+        protected readonly object BitmapLock = new object();
         #endregion Protected Properties
         #region Protected Methods
         /// <summary>
