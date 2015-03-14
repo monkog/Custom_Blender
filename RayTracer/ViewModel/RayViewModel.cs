@@ -233,6 +233,13 @@ namespace RayTracer.ViewModel
         /// The camera manager.
         /// </value>
         public CameraManager CameraManager { get { return CameraManager.Instance; } }
+        /// <summary>
+        /// Gets the scene manager.
+        /// </summary>
+        /// <value>
+        /// The scene manager.
+        /// </value>
+        public SceneManager SceneManager { get { return SceneManager.Instance; } }
         #endregion Public Properties
         #region .ctor
         /// <summary>
@@ -242,24 +249,20 @@ namespace RayTracer.ViewModel
         {
             Meshes = new ObservableCollection<ShapeBase>();
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
+            SceneManager.PropertyChanged += SceneManager_PropertyChanged; 
             L = 20;
             V = 20;
             A = 5;
             B = 6;
             C = 8;
-            SceneManager.Instance.M = 4;
+            SceneManager.M = 4;
         }
         #endregion .ctor
         #region Private Methods
         private void Render()
         {
-            Matrix3D viewMatrix = Transformations.StereographicLeftMatrix(0.1,400);
-
             foreach (ShapeBase mesh in Meshes)
-            {
-                mesh.Transform = viewMatrix;
                 mesh.Draw();
-            }
         }
         /// <summary>
         /// Handles the PropertyChanged event of the CameraManager control.
@@ -291,6 +294,20 @@ namespace RayTracer.ViewModel
                     return;
             }
             Render();
+        }
+        /// <summary>
+        /// Handles the PropertyChanged event of the SceneManager control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void SceneManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "IsStereoscopic":
+                    Render();
+                    break;
+            }
         }
         #endregion Private Methods
         #region Commands

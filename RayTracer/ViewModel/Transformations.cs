@@ -48,6 +48,32 @@ namespace RayTracer.ViewModel
                               , 0, 0, 1 / r, 1);
         }
         /// <summary>
+        /// Stereographics the left matrix.
+        /// </summary>
+        /// <param name="e">The e.</param>
+        /// <param name="r">The distance between the object and the projection surface</param>
+        /// <returns>Returns the left stereographic view matrix.</returns>
+        public static Matrix3D StereographicLeftViewMatrix(double e, double r)
+        {
+            return new Matrix3D(1, 0, -e / (2 * r), 0
+                              , 0, 1, 0, 0
+                              , 0, 0, 0, 0
+                              , 0, 0, 1 / r, 1);
+        }
+        /// <summary>
+        /// Stereographics the right matrix.
+        /// </summary>
+        /// <param name="e">The e.</param>
+        /// <param name="r">The distance between the object and the projection surface</param>
+        /// <returns>Returns the right stereographic view matrix.</returns>
+        public static Matrix3D StereographicRightViewMatrix(double e, double r)
+        {
+            return new Matrix3D(1, 0, e / (2 * r), 0
+                              , 0, 1, 0, 0
+                              , 0, 0, 0, 0
+                              , 0, 0, 1 / r, 1);
+        }
+        /// <summary>
         /// Creates the dot product of two 3D vectors.
         /// </summary>
         /// <param name="v">The first vector.</param>
@@ -126,32 +152,6 @@ namespace RayTracer.ViewModel
                               , 0, scale, 0, 0
                               , 0, 0, scale, 0
                               , 0, 0, 0, 1);
-        }
-        /// <summary>
-        /// Stereographics the left matrix.
-        /// </summary>
-        /// <param name="e">The e.</param>
-        /// <param name="r">The distance between the object and the projection surface</param>
-        /// <returns>Returns the left stereographic view matrix.</returns>
-        public static Matrix3D StereographicLeftMatrix(double e, double r)
-        {
-            return new Matrix3D(1, 0, -e / (2 * r), 0
-                              , 0, 1, 0, 0
-                              , 0, 0, 0, 0
-                              , 0, 0, 1 / r, 1);
-        }
-        /// <summary>
-        /// Stereographics the right matrix.
-        /// </summary>
-        /// <param name="e">The e.</param>
-        /// <param name="r">The distance between the object and the projection surface</param>
-        /// <returns>Returns the right stereographic view matrix.</returns>
-        public static Matrix3D StereographicRightMatrix(double e, double r)
-        {
-            return new Matrix3D(1, 0, e / (2 * r), 0
-                              , 0, 1, 0, 0
-                              , 0, 0, 0, 0
-                              , 0, 0, 1 / r, 1);
         }
         #endregion Public Methods
     }

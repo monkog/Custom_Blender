@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Windows;
+using System.Drawing;
 using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
+
 
 namespace RayTracer.Model.Shapes
 {
@@ -15,13 +15,9 @@ namespace RayTracer.Model.Shapes
     {
         #region Private Members
         /// <summary>
-        /// The_transform
+        /// The transform matrix
         /// </summary>
         private Matrix3D _transform;
-        /// <summary>
-        /// The model transform
-        /// </summary>
-        private Matrix3D _modelTransform;
         #endregion Private Members
         #region .ctor
         /// <summary>
@@ -85,7 +81,7 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The edges representing the mesh.
         /// </value>
-        public Polyline Edges { get; protected set; }
+        public ObservableCollection<CustomLine> Edges { get; protected set; }
         /// <summary>
         /// Gets or sets the current transform of the model.
         /// </summary>
@@ -101,20 +97,9 @@ namespace RayTracer.Model.Shapes
                     return;
                 _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value * ModelTransform;
                 CalculateShape();
-                OnPropertyChanged("TransformedVertices");
             }
         }
-        public Matrix3D ModelTransform
-        {
-            get { return _modelTransform; }
-            set
-            {
-                if (_modelTransform == value)
-                    return;
-                _modelTransform = value;
-                OnPropertyChanged("ModelTransform");
-            }
-        }
+        public Matrix3D ModelTransform { get; set; }
         #endregion Public Properties
         #region Protected Properties
         /// <summary>
@@ -152,14 +137,12 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         protected void TransformEdges()
         {
-            Edges = new Polyline();
+            Edges = new ObservableCollection<CustomLine>();
             foreach (var edge in EdgesIndices)
             {
                 var begining = TransformedVertices[edge.Item1];
-                Edges.Points.Add(new Point(begining.X, begining.Y));
-
                 var end = TransformedVertices[edge.Item2];
-                Edges.Points.Add(new Point(end.X, end.Y));
+                Edges.Add(new CustomLine(new Point((int)begining.X, (int)begining.Y), new Point((int)end.X, (int)end.Y)));
             }
             OnPropertyChanged("Edges");
         }

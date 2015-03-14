@@ -28,7 +28,9 @@ namespace RayTracer.Helpers
         {
             get
             {
-                return this / Length;
+                if (_a == 0)
+                    return this;
+                return this / _a;
             }
         }
 

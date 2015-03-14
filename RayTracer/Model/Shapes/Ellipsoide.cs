@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
+using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
@@ -52,6 +53,7 @@ namespace RayTracer.Model.Shapes
         #region Public Methods
         public override void Draw()
         {
+            Transform = Transformations.ViewMatrix(400);
             _workerThread.Abort();
             _workerThread = new Thread(() => { Draw(64); });
             _workerThread.Start();

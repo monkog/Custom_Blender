@@ -31,24 +31,7 @@
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseMoveCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseMove" PassArguments="True" />
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseWheelCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseWheel" PassArguments="True" />
             </i:Interaction.Behaviors>
-            <ItemsControl ItemsSource="{Binding Meshes}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"
-                          helpers:SizeObserver.Observe="True"
-                          helpers:SizeObserver.ObservedWidth="{Binding ViewportWidth, Mode=OneWayToSource}"
-                          helpers:SizeObserver.ObservedHeight="{Binding ViewportHeight, Mode=OneWayToSource}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Width}" 
-                                Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=Height}"
-                                Background="Black" ClipToBounds="True"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Polyline Points="{Binding Edges.Points}" StrokeThickness="1" Stroke="LightBlue"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <!--<Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>-->
+            <Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
         </Canvas>
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
@@ -63,7 +46,7 @@
                             <TextBlock Text="V: "/>
                             <TextBox Width="100" Text="{Binding V}"/>
                         </StackPanel>
-                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding StereoscopicView, Source={x:Static sceneManager:SceneManager.Instance}}"/>
+                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding IsStereoscopic, Source={x:Static sceneManager:SceneManager.Instance}}"/>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Ellipsoide">

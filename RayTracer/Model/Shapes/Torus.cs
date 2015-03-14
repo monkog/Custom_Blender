@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using RayTracer.Helpers;
+using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
@@ -23,7 +25,7 @@ namespace RayTracer.Model.Shapes
             _donutDivision = l;
             _circle_division = v;
             _r = 0.1;
-            _R = 1;
+            _R = 0.2;
             SetVertices();
             SetEdges();
             TransformVertices();
@@ -51,7 +53,6 @@ namespace RayTracer.Model.Shapes
                 }
             }
         }
-
         /// <summary>
         /// Sets the edges.
         /// </summary>
@@ -59,14 +60,25 @@ namespace RayTracer.Model.Shapes
         {
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
 
-            for (int i = 1; i < _donutDivision; i++)
+            for (int i = 0; i < _donutDivision; i++)
                 for (int j = 0; j < _circle_division; j++)
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, i * _circle_division + ((j + 1) % _circle_division)));
 
             for (int j = 0; j < _circle_division; j++)
                 for (int i = 0; i < _donutDivision; i++)
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, ((i + 1) % _donutDivision) * _circle_division + j));
-            EdgesIndices.Add(new Tuple<int, int>(_circle_division - 1, 0));
+        }
+
+        /// <summary>
+        /// Draws the torus.
+        /// </summary>
+        /// <param name="bmp">The bitmap to draw onto.</param>
+        /// <param name="graphics">The graphics of the bitmap</param>
+        /// <param name="color">The color of the torus</param>
+        private void DrawTorus(Bitmap bmp, Graphics graphics, Color color)
+        {
+            foreach (var edge in Edges)
+                edge.Draw(bmp, graphics, color, 1);
         }
         #endregion Private Methods
         #region Public Methods
@@ -75,10 +87,28 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         public override void Draw()
         {
-            //Bitmap bmp = SceneManager.Instance.SceneImage;
+            Bitmap bmp = SceneManager.Instance.SceneImage;
 
-            //SceneManager.Instance.SceneImage = bmp;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.Black);
+
+                if (SceneManager.Instance.IsStereoscopic)
+                {
+                    Transform = Transformations.StereographicLeftViewMatrix(10, 400);
+                    DrawTorus(bmp, g, Color.Red);
+                    Transform = Transformations.StereographicRightViewMatrix(10, 400);
+                    DrawTorus(bmp, g, Color.Blue);
+                }
+                else
+                {
+                    Transform = Transformations.ViewMatrix(400);
+                    DrawTorus(bmp, g, Color.DarkCyan);
+                }
+            }
+            SceneManager.Instance.SceneImage = bmp;
         }
+
         #endregion Public Methods
     }
 }
