@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:RayTracer.ViewModel"
         xmlns:sceneManager="clr-namespace:RayTracer.Model.Shapes"
-        xmlns:helpers="clr-namespace:RayTracer.Helpers"
         xmlns:converters="clr-namespace:RayTracer.Helpers.Converters"
         mc:Ignorable="d"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
+        xmlns:model="clr-namespace:RayTracer.Model"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1333" d:DesignHeight="768">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
@@ -18,7 +18,14 @@
         <converters:TransformedPoint x:Key="TransformedPoint"/>
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
         <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
+        <converters:DebugConverter x:Key="DebugConverter"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Up"/>
+        <KeyBinding Command="{Binding Path=KeyDownCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Down"/>
+        <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Left"/>
+        <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Right"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="900"/>
@@ -84,6 +91,22 @@
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Z rotation:" Margin="5"/>
                         <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Scene Info" Margin="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Cursor X:"/>
+                        <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Cursor Y:"/>
+                        <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Cursor Z:"/>
+                        <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

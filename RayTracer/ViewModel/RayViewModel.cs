@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
+using RayTracer.Model;
 using RayTracer.Model.Shapes;
+using Point = System.Windows.Point;
 
 namespace RayTracer.ViewModel
 {
@@ -227,6 +230,13 @@ namespace RayTracer.ViewModel
         /// </value>
         public MouseEventManager MouseManager { get { return MouseEventManager.Instance; } }
         /// <summary>
+        /// Gets the keyboard manager.
+        /// </summary>
+        /// <value>
+        /// The keyboard manager.
+        /// </value>
+        public KeyboardEventManager KeyboardManager { get { return KeyboardEventManager.Instance; } }
+        /// <summary>
         /// Gets the camera manager.
         /// </summary>
         /// <value>
@@ -240,6 +250,13 @@ namespace RayTracer.ViewModel
         /// The scene manager.
         /// </value>
         public SceneManager SceneManager { get { return SceneManager.Instance; } }
+        /// <summary>
+        /// Gets the cursor.
+        /// </summary>
+        /// <value>
+        /// The cursor.
+        /// </value>
+        public Cursor3D Cursor { get { return Cursor3D.Instance; } }
         #endregion Public Properties
         #region .ctor
         /// <summary>
@@ -249,20 +266,28 @@ namespace RayTracer.ViewModel
         {
             Meshes = new ObservableCollection<ShapeBase>();
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
-            SceneManager.PropertyChanged += SceneManager_PropertyChanged; 
+            SceneManager.PropertyChanged += SceneManager_PropertyChanged;
+            Cursor.PropertyChanged += Cursor_PropertyChanged;
             L = 20;
             V = 20;
             A = 5;
             B = 6;
             C = 8;
             SceneManager.M = 4;
+            Render();
         }
         #endregion .ctor
         #region Private Methods
         private void Render()
         {
+            using (Graphics g = Graphics.FromImage(SceneManager.Instance.SceneImage))
+            {
+                g.Clear(Color.Black);
+            }
+
             foreach (ShapeBase mesh in Meshes)
                 mesh.Draw();
+            Cursor3D.Instance.Draw();
         }
         /// <summary>
         /// Handles the PropertyChanged event of the CameraManager control.
@@ -277,9 +302,19 @@ namespace RayTracer.ViewModel
                 case "MouseDelta":
                     {
                         Point delta = MouseManager.MouseDelta;
-                        Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
-                        foreach (var mesh in Meshes)
-                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+
+                        if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                        {
+                            Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(0, 0, Math.Max(delta.X, delta.Y)));
+                            foreach (var mesh in Meshes)
+                                mesh.ModelTransform = matrix * mesh.ModelTransform;
+                        }
+                        else
+                        {
+                            Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
+                            foreach (var mesh in Meshes)
+                                mesh.ModelTransform = matrix * mesh.ModelTransform;
+                        }
                     }
                     break;
                 case "MouseScale":
@@ -309,6 +344,20 @@ namespace RayTracer.ViewModel
                     break;
             }
         }
+        /// <summary>
+        /// Handles the PropertyChanged event of the Cursor control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void Cursor_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "ModelTransform":
+                    Render();
+                    break;
+            }
+        }
         #endregion Private Methods
         #region Commands
         private ICommand _addTorusCommand;
@@ -325,7 +374,6 @@ namespace RayTracer.ViewModel
         private void AddTorusExecuted()
         {
             var torus = new Torus(0, 0, 0, L, V);
-            Meshes.Clear();
             Meshes.Add(torus);
             Render();
         }

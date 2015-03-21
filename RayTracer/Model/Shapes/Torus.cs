@@ -68,47 +68,8 @@ namespace RayTracer.Model.Shapes
                 for (int i = 0; i < _donutDivision; i++)
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, ((i + 1) % _donutDivision) * _circle_division + j));
         }
-
-        /// <summary>
-        /// Draws the torus.
-        /// </summary>
-        /// <param name="bmp">The bitmap to draw onto.</param>
-        /// <param name="graphics">The graphics of the bitmap</param>
-        /// <param name="color">The color of the torus</param>
-        private void DrawTorus(Bitmap bmp, Graphics graphics, Color color)
-        {
-            foreach (var edge in Edges)
-                edge.Draw(bmp, graphics, color, 1);
-        }
         #endregion Private Methods
         #region Public Methods
-        /// <summary>
-        /// Draws this instance.
-        /// </summary>
-        public override void Draw()
-        {
-            Bitmap bmp = SceneManager.Instance.SceneImage;
-
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Color.Black);
-
-                if (SceneManager.Instance.IsStereoscopic)
-                {
-                    Transform = Transformations.StereographicLeftViewMatrix(10, 400);
-                    DrawTorus(bmp, g, Color.Red);
-                    Transform = Transformations.StereographicRightViewMatrix(10, 400);
-                    DrawTorus(bmp, g, Color.Blue);
-                }
-                else
-                {
-                    Transform = Transformations.ViewMatrix(400);
-                    DrawTorus(bmp, g, Color.DarkCyan);
-                }
-            }
-            SceneManager.Instance.SceneImage = bmp;
-        }
-
         #endregion Public Methods
     }
 }

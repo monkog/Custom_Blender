@@ -18,6 +18,7 @@ namespace RayTracer.Model.Shapes
         /// The transform matrix
         /// </summary>
         private Matrix3D _transform;
+        private Matrix3D _modelTransform;
         #endregion Private Members
         #region .ctor
         /// <summary>
@@ -34,6 +35,8 @@ namespace RayTracer.Model.Shapes
 
             Vertices = new ObservableCollection<Vector4>();
             TransformedVertices = new ObservableCollection<Vector4>();
+            Edges = new ObservableCollection<CustomLine>();
+            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
             Transform = Transformations.Identity;
             ModelTransform = Transformations.Identity;
         }
@@ -93,13 +96,21 @@ namespace RayTracer.Model.Shapes
             get { return _transform; }
             set
             {
-                if (_transform == value)
-                    return;
                 _transform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * value * ModelTransform;
                 CalculateShape();
             }
         }
-        public Matrix3D ModelTransform { get; set; }
+        public Matrix3D ModelTransform
+        {
+            get { return _modelTransform; }
+            set
+            {
+                if (_modelTransform == value)
+                    return;
+                _modelTransform = value;
+                OnPropertyChanged("ModelTransform");
+            }
+        }
         #endregion Public Properties
         #region Protected Properties
         /// <summary>
@@ -126,7 +137,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Transforms the vertices.
         /// </summary>
-        protected void TransformVertices()
+        protected virtual void TransformVertices()
         {
             TransformedVertices = new ObservableCollection<Vector4>();
             foreach (var vertex in Vertices)
@@ -146,12 +157,43 @@ namespace RayTracer.Model.Shapes
             }
             OnPropertyChanged("Edges");
         }
+        /// <summary>
+        /// Draws the shape.
+        /// </summary>
+        /// <param name="bmp">The bitmap to draw onto.</param>
+        /// <param name="graphics">The graphics of the bitmap</param>
+        /// <param name="color">The color of the shape</param>
+        protected void DrawShape(Bitmap bmp, Graphics graphics, Color color)
+        {
+            foreach (var edge in Edges)
+                edge.Draw(bmp, graphics, color, 1);
+        }
         #endregion Protected Methods
         #region Public Methods
         /// <summary>
         /// Draws this instance.
         /// </summary>
-        public virtual void Draw() { }
+        public virtual void Draw()
+        {
+            Bitmap bmp = SceneManager.Instance.SceneImage;
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                if (SceneManager.Instance.IsStereoscopic)
+                {
+                    Transform = Transformations.StereographicLeftViewMatrix(20, 400);
+                    DrawShape(bmp, g, Color.Red);
+                    Transform = Transformations.StereographicRightViewMatrix(20, 400);
+                    DrawShape(bmp, g, Color.Blue);
+                }
+                else
+                {
+                    Transform = Transformations.ViewMatrix(400);
+                    DrawShape(bmp, g, Color.DarkCyan);
+                }
+            }
+            SceneManager.Instance.SceneImage = bmp;
+        }
         #endregion Public Methods
     }
 }
