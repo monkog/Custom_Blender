@@ -79,7 +79,13 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Points">
-                    <ListBox ItemsSource="{Binding}"></ListBox>
+                    <ListView ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </GroupBox>
             </StackPanel>
             <GroupBox Margin="20" Header="Rotations">
@@ -124,7 +130,8 @@
                                 <Label Content="Screen Y:"/>
                                 <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
                             </StackPanel>
-                        </StackPanel></StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
         </StackPanel>
