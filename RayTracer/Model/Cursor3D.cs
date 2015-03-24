@@ -11,6 +11,8 @@ namespace RayTracer.Model
         public double _xPosition;
         public double _yPosition;
         public double _zPosition;
+        private double _xScreenPosition;
+        private double _yScreenPosition;
         private static Cursor3D _instance;
         private const double CursorSize = 0.1;
         #endregion Private Members
@@ -67,6 +69,38 @@ namespace RayTracer.Model
                 OnPropertyChanged("ZPosition");
             }
         }
+        /// <summary>
+        /// Gets or sets the x Screen position of the cursor in 3D space.
+        /// </summary>
+        /// <value>
+        /// The x Screen position of the cursor in 3D space.
+        /// </value>
+        public double XScreenPosition
+        {
+            get { return _xScreenPosition; }
+            set
+            {
+                if (_xScreenPosition == value) return;
+                _xScreenPosition = value;
+                OnPropertyChanged("XScreenPosition");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the y Screen position of the cursor in 3D space.
+        /// </summary>
+        /// <value>
+        /// The y Screen position of the cursor in 3D space.
+        /// </value>
+        public double YScreenPosition
+        {
+            get { return _yScreenPosition; }
+            set
+            {
+                if (_yScreenPosition == value) return;
+                _yScreenPosition = value;
+                OnPropertyChanged("YScreenPosition");
+            }
+        }
         #endregion Public Properties
         #region Constructors
         /// <summary>
@@ -107,8 +141,10 @@ namespace RayTracer.Model
         #endregion Private Methods
         #region Public Methods
         #endregion Public Methods
-        #region Protected Methods
-
+        #region Protected Methods        
+        /// <summary>
+        /// Transforms the vertices.
+        /// </summary>
         protected override void TransformVertices()
         {
             base.TransformVertices();
@@ -117,8 +153,10 @@ namespace RayTracer.Model
             XPosition = position.X;
             YPosition = position.Y;
             ZPosition = position.Z;
+            Vector4 transformPosition = Transform * (Vertices[0] + ((Vertices[1] - Vertices[0]) / 2));
+            XScreenPosition = transformPosition.X;
+            YScreenPosition = transformPosition.Y;
         }
-
         #endregion Protected Methods
     }
 }

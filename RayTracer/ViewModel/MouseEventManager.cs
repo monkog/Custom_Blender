@@ -1,7 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
+using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {
@@ -163,6 +165,29 @@ namespace RayTracer.ViewModel
         private void MouseWheelExecuted(MouseWheelEventArgs args)
         {
             MouseScale = 1 + args.Delta / 1000f;
+        }
+
+        private ActionCommand<MouseButtonEventArgs> _rightMouseButtonCommand;
+        public ActionCommand<MouseButtonEventArgs> RightMouseButtonCommand
+        {
+            get
+            {
+                return _rightMouseButtonCommand ??
+                       (_rightMouseButtonCommand = new ActionCommand<MouseButtonEventArgs>(RightMouseButtonExecuted));
+            }
+        }
+        /// <summary>
+        /// Inserts a new 3D point
+        /// </summary>
+        private void RightMouseButtonExecuted(MouseButtonEventArgs args)
+        {
+            var position = args.GetPosition((IInputElement)args.Source);
+            var reverseTransform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix;
+            reverseTransform.Invert();
+            Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
+            pos = reverseTransform * pos;
+
+            PointManager.Instance.Points.Add(new PointEx(pos.X, pos.Y, 0, "A"));
         }
         #endregion Commands
     }

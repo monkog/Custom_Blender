@@ -1,8 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Media.Media3D;
-using RayTracer.ViewModel;
 
-namespace RayTracer.Model.Shapes
+namespace RayTracer.ViewModel
 {
     public class SceneManager : ViewModelBase
     {

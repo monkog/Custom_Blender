@@ -10,7 +10,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         xmlns:model="clr-namespace:RayTracer.Model"
-        Title="Torus" WindowState="Maximized" d:DesignWidth="1333" d:DesignHeight="768">
+        Title="Torus" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
     </d:Window.DataContext>
@@ -37,8 +37,9 @@
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseUpCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseLeftButtonUp" PassArguments="True" />
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseMoveCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseMove" PassArguments="True" />
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseWheelCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseWheel" PassArguments="True" />
+                <eventCommand:EventToCommandBehavior Command="{Binding Path=RightMouseButtonCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseRightButtonUp" PassArguments="True" />
             </i:Interaction.Behaviors>
-            <Image Source="{Binding SceneImage, Source={x:Static sceneManager:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
+            <Image Source="{Binding SceneImage, Source={x:Static viewModel:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
         </Canvas>
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
@@ -53,7 +54,7 @@
                             <TextBlock Text="V: "/>
                             <TextBox Width="100" Text="{Binding V}"/>
                         </StackPanel>
-                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding IsStereoscopic, Source={x:Static sceneManager:SceneManager.Instance}}"/>
+                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Ellipsoide">
@@ -73,12 +74,15 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="20">
                             <TextBlock Text="m: "/>
-                            <TextBox Width="100" Text="{Binding M, Source={x:Static sceneManager:SceneManager.Instance}}"/>
+                            <TextBox Width="100" Text="{Binding M, Source={x:Static viewModel:SceneManager.Instance}}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
+                <GroupBox Margin="20" Header="Points">
+                    <ListBox ItemsSource="{Binding}"></ListBox>
+                </GroupBox>
             </StackPanel>
-            <GroupBox Header="Rotations">
+            <GroupBox Margin="20" Header="Rotations">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="X rotation:" Margin="5"/>
@@ -94,20 +98,33 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Scene Info" Margin="20">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Cursor X:"/>
-                        <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+            <GroupBox Margin="20" Header="Scene Info">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor X:"/>
+                            <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor Y:"/>
+                            <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor Z:"/>
+                            <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Cursor Y:"/>
-                        <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Cursor Z:"/>
-                        <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
-                    </StackPanel>
+                    <StackPanel Margin="10, 0, 0, 0">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Screen X:"/>
+                                <Label Content="{Binding XScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Screen Y:"/>
+                                <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                            </StackPanel>
+                        </StackPanel></StackPanel>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

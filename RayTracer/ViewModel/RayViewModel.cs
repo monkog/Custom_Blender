@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
@@ -251,6 +250,13 @@ namespace RayTracer.ViewModel
         /// </value>
         public SceneManager SceneManager { get { return SceneManager.Instance; } }
         /// <summary>
+        /// Gets the point manager.
+        /// </summary>
+        /// <value>
+        /// The point manager.
+        /// </value>
+        public PointManager PointManager { get { return PointManager.Instance; } }
+        /// <summary>
         /// Gets the cursor.
         /// </summary>
         /// <value>
@@ -268,6 +274,7 @@ namespace RayTracer.ViewModel
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             SceneManager.PropertyChanged += SceneManager_PropertyChanged;
             Cursor.PropertyChanged += Cursor_PropertyChanged;
+            PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
             L = 20;
             V = 20;
             A = 5;
@@ -287,6 +294,10 @@ namespace RayTracer.ViewModel
 
             foreach (ShapeBase mesh in Meshes)
                 mesh.Draw();
+
+            foreach (var point in PointManager.Instance.Points)
+                point.Draw();
+
             Cursor3D.Instance.Draw();
         }
         /// <summary>

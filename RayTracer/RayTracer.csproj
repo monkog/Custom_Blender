@@ -122,7 +122,9 @@
     <Compile Include="Model\Cursor3D.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
     <Compile Include="Model\Shapes\Ellipsoide.cs" />
-    <Compile Include="Model\Shapes\SceneManager.cs" />
+    <Compile Include="Model\Shapes\PointEx.cs" />
+    <Compile Include="ViewModel\PointManager.cs" />
+    <Compile Include="ViewModel\SceneManager.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
     <Compile Include="Model\Shapes\Torus.cs" />
     <Compile Include="ViewModel\CameraManager.cs" />

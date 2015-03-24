@@ -1,42 +1,44 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
-    public class Cube : ShapeBase
+    public class PointEx : ShapeBase
     {
-        #region .ctor
+        #region Private Members
+        private string _name;
+        private const double Size = 0.05;
+        #endregion Private Members
+        #region Public Properties
+
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                if (_name == value) return;
+                _name = value;
+                OnPropertyChanged("Name");
+            }
+        }
+        #endregion Public Properties
+        #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="Cube"/> class.
+        /// Initializes a new instance of the <see cref="PointEx"/> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
-        /// <param name="size">The size of the cube.</param>
-        public Cube(double x, double y, double z, double size)
+        /// <param name="name">Name of the point</param>
+        public PointEx(double x, double y, double z, string name)
             : base(x, y, z)
         {
-            Width = Height = Depth = size;
+            Name = name;
             SetVertices();
             SetEdges();
-            TransformVertices();
         }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Cube"/> class.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="size">The size of the cube.</param>
-        public Cube(Point3D position, int size)
-            : this(position.X, position.Y, position.Z, size)
-        { }
-        #endregion .ctor
-        #region Public Properties
-        public double Width { get; set; }
-        public double Height { get; set; }
-        public double Depth { get; set; }
-        #endregion Public Properties
+        #endregion Constructors
         #region Private Methods
         /// <summary>
         /// Sets the vertices.
@@ -44,13 +46,13 @@ namespace RayTracer.Model.Shapes
         private void SetVertices()
         {
             Vertices.Add(new Vector4(X, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z, 1));
-            Vertices.Add(new Vector4(X, Y + Height, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 1));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 1));
-            Vertices.Add(new Vector4(X, Y + Height, Z + Depth, 1));
-            Vertices.Add(new Vector4(X, Y, Z + Depth, 1));
+            Vertices.Add(new Vector4(X + Size, Y, Z, 1));
+            Vertices.Add(new Vector4(X + Size, Y + Size, Z, 1));
+            Vertices.Add(new Vector4(X, Y + Size, Z, 1));
+            Vertices.Add(new Vector4(X + Size, Y, Z + Size, 1));
+            Vertices.Add(new Vector4(X + Size, Y + Size, Z + Size, 1));
+            Vertices.Add(new Vector4(X, Y + Size, Z + Size, 1));
+            Vertices.Add(new Vector4(X, Y, Z + Size, 1));
         }
         /// <summary>
         /// Sets the edges.
@@ -90,5 +92,8 @@ namespace RayTracer.Model.Shapes
             EdgesIndices.Add(new Tuple<int, int>(6, 5));
         }
         #endregion Private Methods
+        #region Public Methods
+        #endregion Public Methods
     }
 }
+

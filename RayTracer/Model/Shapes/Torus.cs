@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using RayTracer.Helpers;
-using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {

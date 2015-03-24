@@ -5,7 +5,6 @@ using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
-
 namespace RayTracer.Model.Shapes
 {
     /// <summary>
