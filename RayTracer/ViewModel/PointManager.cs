@@ -10,6 +10,7 @@ namespace RayTracer.ViewModel
         /// Instance of PointManager
         /// </summary>
         private static PointManager _instance;
+        private PointEx _selectedPoint;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -23,6 +24,22 @@ namespace RayTracer.ViewModel
         /// List of points on the screen
         /// </summary>
         public ObservableCollection<PointEx> Points { get; set; }
+        /// <summary>
+        /// Gets or sets the selected point.
+        /// </summary>
+        /// <value>
+        /// The selected point.
+        /// </value>
+        public PointEx SelectedPoint
+        {
+            get { return _selectedPoint; }
+            set
+            {
+                if (_selectedPoint == value) return;
+                _selectedPoint = value;
+                OnPropertyChanged("SelectedPoint");
+            }
+        }
         #endregion Public Properties
         #region Constructors
         /// <summary>

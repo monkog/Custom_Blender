@@ -101,6 +101,23 @@ namespace RayTracer.ViewModel
         {
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
+
+        private ActionCommand<KeyEventArgs> _keyDeleteCommand;
+        public ActionCommand<KeyEventArgs> KeyDeleteCommand
+        {
+            get
+            {
+                return _keyDeleteCommand ??
+                       (_keyDeleteCommand = new ActionCommand<KeyEventArgs>(KeyDeleteExecuted));
+            }
+        }
+        /// <summary>
+        /// Removes the selected point
+        /// </summary>
+        private void KeyDeleteExecuted(KeyEventArgs args)
+        {
+            PointManager.Instance.Points.Remove(PointManager.Instance.SelectedPoint);
+        }
         #endregion Commands
     }
 }

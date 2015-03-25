@@ -187,7 +187,7 @@ namespace RayTracer.ViewModel
             Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
             pos = reverseTransform * pos;
 
-            PointManager.Instance.Points.Add(new PointEx(pos.X, pos.Y, 0, "Point(" + pos.X + ", " + pos.Y + ")"));
+            PointManager.Instance.Points.Add(new PointEx(pos.X, pos.Y, 0, "Point(" + pos.X + ", " + pos.Y + ", " + 0.0 + ")"));
         }
         #endregion Commands
     }

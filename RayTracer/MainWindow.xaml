@@ -25,6 +25,7 @@
         <KeyBinding Command="{Binding Path=KeyDownCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Down"/>
         <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Left"/>
         <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Right"/>
+        <KeyBinding Command="{Binding Path=KeyDeleteCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Delete"/>
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -79,7 +80,7 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Points">
-                    <ListView ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}">
+                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Single" SelectedItem="{Binding SelectedPoint, Source={x:Static viewModel:PointManager.Instance}}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBox Text="{Binding Name}"/>
