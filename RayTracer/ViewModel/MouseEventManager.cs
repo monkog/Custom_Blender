@@ -34,6 +34,7 @@ namespace RayTracer.ViewModel
         /// The mouse scale
         /// </summary>
         private double _mouseScale;
+        private const double Tolernce = 0.2;
         #endregion Private Members
         #region  Public Properties
         /// <summary>
@@ -81,6 +82,27 @@ namespace RayTracer.ViewModel
             _isMouseDown = false;
         }
         #endregion .ctor
+        #region Private Methods
+        /// <summary>
+        /// Selects the point that is close to the clicked point
+        /// </summary>
+        /// <param name="args">Click arguments</param>
+        private void SelectNearbyPoint(MouseButtonEventArgs args)
+        {
+            var position = args.GetPosition((IInputElement)args.Source);
+            var reverseTransform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix;
+            reverseTransform.Invert();
+            Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
+            pos = reverseTransform * pos;
+
+            foreach (var point in PointManager.Instance.Points)
+                if (point.X < pos.X + Tolernce && point.X > pos.X - Tolernce && point.Y < pos.Y + Tolernce && point.Y > pos.Y - Tolernce)
+                {
+                    PointManager.Instance.SelectedPoint = point;
+                    return;
+                }
+        }
+        #endregion Private Methods
         #region Commands
         private ActionCommand<MouseButtonEventArgs> _mouseClickCommand;
         public ActionCommand<MouseButtonEventArgs> MouseClickCommand
@@ -106,6 +128,8 @@ namespace RayTracer.ViewModel
                 _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
                 _isMouseDown = true;
             }
+
+            SelectNearbyPoint(args);
         }
 
         private ActionCommand<MouseButtonEventArgs> _mouseUpCommand;
