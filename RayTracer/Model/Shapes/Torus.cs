@@ -17,8 +17,8 @@ namespace RayTracer.Model.Shapes
         private double _r;
         private double _R;
         #region .ctor
-        public Torus(double x, double y, double z, int l, int v)
-            : base(x, y, z)
+        public Torus(double x, double y, double z, string name, int l, int v)
+            : base(x, y, z, name)
         {
             _donutDivision = l;
             _circle_division = v;

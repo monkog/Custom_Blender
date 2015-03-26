@@ -31,6 +31,7 @@ namespace RayTracer.ViewModel
         private double _a;
         private double _b;
         private double _c;
+        private ShapeBase _selectedMesh;
         /// <summary>
         /// The x slider value
         /// </summary>
@@ -188,6 +189,22 @@ namespace RayTracer.ViewModel
             }
         }
         /// <summary>
+        /// Gets or sets the selected Mesh.
+        /// </summary>
+        /// <value>
+        /// The selected Mesh.
+        /// </value>
+        public ShapeBase SelectedMesh
+        {
+            get { return _selectedMesh; }
+            set
+            {
+                if (_selectedMesh == value) return;
+                _selectedMesh = value;
+                OnPropertyChanged("SelectedMesh");
+            }
+        }
+        /// <summary>
         /// Gets or sets the width of the viewport.
         /// </summary>
         /// <value>
@@ -313,27 +330,21 @@ namespace RayTracer.ViewModel
                 case "MouseDelta":
                     {
                         Point delta = MouseManager.MouseDelta;
+                        Matrix3D matrix;
 
                         if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                        {
-                            Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(0, 0, Math.Max(delta.X, delta.Y)));
-                            foreach (var mesh in Meshes)
-                                mesh.ModelTransform = matrix * mesh.ModelTransform;
-                        }
+                            matrix = Transformations.TranslationMatrix(new Vector3D(0, 0, delta.X));
                         else
-                        {
-                            Matrix3D matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
-                            foreach (var mesh in Meshes)
-                                mesh.ModelTransform = matrix * mesh.ModelTransform;
-                        }
+                            matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
+
+                        SelectedMesh.ModelTransform = matrix * SelectedMesh.ModelTransform;
                     }
                     break;
                 case "MouseScale":
                     {
                         double delta = MouseManager.MouseScale;
                         Matrix3D matrix = Transformations.ScaleMatrix(delta);
-                        foreach (var mesh in Meshes)
-                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+                        SelectedMesh.ModelTransform = matrix * SelectedMesh.ModelTransform;
                     }
                     break;
                 default:
@@ -384,8 +395,9 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddTorusExecuted()
         {
-            var torus = new Torus(0, 0, 0, L, V);
+            var torus = new Torus(0, 0, 0, "Torus(L:" + L + ", V:" + V + ")", L, V);
             Meshes.Add(torus);
+            SelectedMesh = torus;
             Render();
         }
 
@@ -402,7 +414,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddEllipsoideExecuted()
         {
-            var ellipsoide = new Ellipsoide(0, 0, 0, 1 / A, 1 / B, 1 / C);
+            var ellipsoide = new Ellipsoide(0, 0, 0, "Ellipsoide(a:" + A + ", b:" + B + ", c:" + C + ")", 1 / A, 1 / B, 1 / C);
             Meshes.Clear();
             Meshes.Add(ellipsoide);
             Render();

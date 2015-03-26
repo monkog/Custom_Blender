@@ -7,21 +7,10 @@ namespace RayTracer.Model.Shapes
     public class PointEx : ShapeBase
     {
         #region Private Members
-        private string _name;
         private const double Size = 0.05;
         #endregion Private Members
         #region Public Properties
 
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (_name == value) return;
-                _name = value;
-                OnPropertyChanged("Name");
-            }
-        }
         #endregion Public Properties
         #region Constructors
         /// <summary>
@@ -32,9 +21,8 @@ namespace RayTracer.Model.Shapes
         /// <param name="z">The z.</param>
         /// <param name="name">Name of the point</param>
         public PointEx(double x, double y, double z, string name)
-            : base(x, y, z)
+            : base(x, y, z, name)
         {
-            Name = name;
             SetVertices();
             SetEdges();
         }

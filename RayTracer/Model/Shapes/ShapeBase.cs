@@ -18,6 +18,7 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private Matrix3D _transform;
         private Matrix3D _modelTransform;
+        private string _name;
         #endregion Private Members
         #region .ctor
         /// <summary>
@@ -26,11 +27,13 @@ namespace RayTracer.Model.Shapes
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
-        protected ShapeBase(double x, double y, double z)
+        protected ShapeBase(double x, double y, double z, string name)
         {
             X = x;
             Y = y;
             Z = z;
+
+            Name = name;
 
             Vertices = new ObservableCollection<Vector4>();
             TransformedVertices = new ObservableCollection<Vector4>();
@@ -85,10 +88,10 @@ namespace RayTracer.Model.Shapes
         /// </value>
         public ObservableCollection<CustomLine> Edges { get; protected set; }
         /// <summary>
-        /// Gets or sets the current transform of the model.
+        /// Gets or sets the transform multiplied by the projection transformations.
         /// </summary>
         /// <value>
-        /// The current transform of the model.
+        /// The transform multiplied by the projection transformations.
         /// </value>
         public Matrix3D Transform
         {
@@ -99,6 +102,12 @@ namespace RayTracer.Model.Shapes
                 CalculateShape();
             }
         }
+        /// <summary>
+        /// Gets or sets the current transform of the model.
+        /// </summary>
+        /// <value>
+        /// The current transform of the model.
+        /// </value>
         public Matrix3D ModelTransform
         {
             get { return _modelTransform; }
@@ -108,6 +117,22 @@ namespace RayTracer.Model.Shapes
                     return;
                 _modelTransform = value;
                 OnPropertyChanged("ModelTransform");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                if (_name == value) return;
+                _name = value;
+                OnPropertyChanged("Name");
             }
         }
         #endregion Public Properties

@@ -37,8 +37,8 @@ namespace RayTracer.Model.Shapes
         public static Color DefaultColor { get { return Color.Black; } }
         #endregion Public Properties
         #region .ctor
-        public Ellipsoide(double x, double y, double z, double a, double b, double c)
-            : base(x, y, z)
+        public Ellipsoide(double x, double y, double z, string name, double a, double b, double c)
+            : base(x, y, z, name)
         {
             _workerThread = new Thread(() => { Draw(64); });
             D = new Matrix3D(a, 0, 0, 0

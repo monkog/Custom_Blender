@@ -110,7 +110,7 @@ namespace RayTracer.Model
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
         public Cursor3D(double x, double y, double z)
-            : base(x, y, z)
+            : base(x, y, z, string.Empty)
         {
             SetVertices();
             SetEdges();

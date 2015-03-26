@@ -89,52 +89,65 @@
                     </ListView>
                 </GroupBox>
             </StackPanel>
-            <GroupBox Margin="20" Header="Rotations">
+            <StackPanel Orientation="Horizontal">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="X rotation:" Margin="5"/>
-                        <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Y rotation:" Margin="5"/>
-                        <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Z rotation:" Margin="5"/>
-                        <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
-                    </StackPanel>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Margin="20" Header="Scene Info">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Cursor X:"/>
-                            <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Cursor Y:"/>
-                            <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Cursor Z:"/>
-                            <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Margin="10, 0, 0, 0">
+                    <GroupBox Margin="20" Header="Rotations">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <Label Content="Screen X:"/>
-                                <Label Content="{Binding XScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                <Label Content="X rotation:" Margin="5"/>
+                                <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <Label Content="Screen Y:"/>
-                                <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                <Label Content="Y rotation:" Margin="5"/>
+                                <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Z rotation:" Margin="5"/>
+                                <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
+                    </GroupBox>
+                    <GroupBox Margin="20" Header="Scene Info">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Cursor X:"/>
+                                    <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Cursor Y:"/>
+                                    <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Cursor Z:"/>
+                                    <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Margin="10, 0, 0, 0">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="Screen X:"/>
+                                        <Label Content="{Binding XScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="Screen Y:"/>
+                                        <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
-            </GroupBox>
+                <GroupBox Margin="20" Header="Meshes">
+                    <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single" SelectedItem="{Binding SelectedMesh}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </GroupBox>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

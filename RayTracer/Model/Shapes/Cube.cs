@@ -5,7 +5,7 @@ using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
-    public class Cube : ShapeBase
+    public sealed class Cube : ShapeBase
     {
         #region .ctor
         /// <summary>
@@ -14,9 +14,10 @@ namespace RayTracer.Model.Shapes
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
+        /// <param name="name">Name of the mesh</param>
         /// <param name="size">The size of the cube.</param>
-        public Cube(double x, double y, double z, double size)
-            : base(x, y, z)
+        public Cube(double x, double y, double z, string name, double size)
+            : base(x, y, z, name)
         {
             Width = Height = Depth = size;
             SetVertices();
@@ -27,9 +28,10 @@ namespace RayTracer.Model.Shapes
         /// Initializes a new instance of the <see cref="Cube"/> class.
         /// </summary>
         /// <param name="position">The position.</param>
+        /// <param name="name">Name of the mesh</param>
         /// <param name="size">The size of the cube.</param>
-        public Cube(Point3D position, int size)
-            : this(position.X, position.Y, position.Z, size)
+        public Cube(Point3D position, string name, int size)
+            : this(position.X, position.Y, position.Z, name, size)
         { }
         #endregion .ctor
         #region Public Properties
