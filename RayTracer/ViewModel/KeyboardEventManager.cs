@@ -1,7 +1,9 @@
-﻿using System.Windows.Input;
+﻿using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers.EventCommand;
 using RayTracer.Model;
+using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {
@@ -16,6 +18,7 @@ namespace RayTracer.ViewModel
         /// How much should the cursor be moved in one step
         /// </summary>
         private const double MoveStep = 0.1;
+        private const double Tolernce = 0.3;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -43,9 +46,17 @@ namespace RayTracer.ViewModel
         private void KeyUpExecuted(KeyEventArgs args)
         {
             if (Keyboard.IsKeyDown(Key.Z))
+            {
+                if (PointManager.Instance.SelectedPoint != null)
+                    PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * PointManager.Instance.SelectedPoint.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * Cursor3D.Instance.ModelTransform;
+            }
             else
+            {
+                if (PointManager.Instance.SelectedPoint != null)
+                    PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * PointManager.Instance.SelectedPoint.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
+            }
         }
 
         private ActionCommand<KeyEventArgs> _keyDownCommand;
@@ -63,9 +74,17 @@ namespace RayTracer.ViewModel
         private void KeyDownExecuted(KeyEventArgs args)
         {
             if (Keyboard.IsKeyDown(Key.Z))
+            {
+                if (PointManager.Instance.SelectedPoint != null)
+                    PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * PointManager.Instance.SelectedPoint.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * Cursor3D.Instance.ModelTransform;
+            }
             else
+            {
+                if (PointManager.Instance.SelectedPoint != null)
+                    PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * PointManager.Instance.SelectedPoint.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
+            }
         }
 
         private ActionCommand<KeyEventArgs> _keyLeftCommand;
@@ -82,6 +101,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void KeyLeftExecuted(KeyEventArgs args)
         {
+            if (PointManager.Instance.SelectedPoint != null)
+                PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * PointManager.Instance.SelectedPoint.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
 
@@ -99,6 +120,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void KeyRightExecuted(KeyEventArgs args)
         {
+            if (PointManager.Instance.SelectedPoint != null)
+                PointManager.Instance.SelectedPoint.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * PointManager.Instance.SelectedPoint.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
 
@@ -117,6 +140,58 @@ namespace RayTracer.ViewModel
         private void KeyDeleteExecuted(KeyEventArgs args)
         {
             PointManager.Instance.Points.Remove(PointManager.Instance.SelectedPoint);
+        }
+
+        private ActionCommand<KeyEventArgs> _keySCommand;
+        public ActionCommand<KeyEventArgs> KeySCommand
+        {
+            get
+            {
+                return _keySCommand ??
+                       (_keySCommand = new ActionCommand<KeyEventArgs>(KeySExecuted));
+            }
+        }
+        /// <summary>
+        /// Selects / deselects the point
+        /// </summary>
+        private void KeySExecuted(KeyEventArgs args)
+        {
+            var x = Cursor3D.Instance.XPosition;
+            var y = Cursor3D.Instance.YPosition;
+            var z = Cursor3D.Instance.ZPosition;
+
+            var point = PointManager.Instance.Points.FirstOrDefault(
+                p => p.X < x + Tolernce && p.X > x - Tolernce && p.Y < y + Tolernce && p.Y > y - Tolernce && p.Z < z + Tolernce && p.Z > z - Tolernce);
+
+            if (point != null && PointManager.Instance.SelectedPoint != point)
+                PointManager.Instance.SelectedPoint = point;
+            else
+                PointManager.Instance.SelectedPoint = null;
+        }
+
+        private ActionCommand<KeyEventArgs> _keyReturnCommand;
+        public ActionCommand<KeyEventArgs> KeyReturnCommand
+        {
+            get
+            {
+                return _keyReturnCommand ??
+                       (_keyReturnCommand = new ActionCommand<KeyEventArgs>(KeyReturnExecuted));
+            }
+        }
+        /// <summary>
+        /// Adds a new point in the position of the 3D cursor
+        /// </summary>
+        private void KeyReturnExecuted(KeyEventArgs args)
+        {
+            var x = Cursor3D.Instance.XPosition;
+            var y = Cursor3D.Instance.YPosition;
+            var z = Cursor3D.Instance.ZPosition;
+
+            var point = PointManager.Instance.Points.FirstOrDefault(
+                p => p.X < x + Tolernce && p.X > x - Tolernce && p.Y < y + Tolernce && p.Y > y - Tolernce && p.Z < z + Tolernce && p.Z > z - Tolernce);
+
+            if (point == null)
+                PointManager.Instance.Points.Add(new PointEx(x, y, z));
         }
         #endregion Commands
     }

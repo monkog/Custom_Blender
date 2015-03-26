@@ -14,7 +14,7 @@ namespace RayTracer.Model
         private double _xScreenPosition;
         private double _yScreenPosition;
         private static Cursor3D _instance;
-        private const double CursorSize = 0.1;
+        private const double CursorSize = 0.2;
         #endregion Private Members
         #region Public Properties
         /// <summary>

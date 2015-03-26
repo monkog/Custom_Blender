@@ -26,6 +26,8 @@
         <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Left"/>
         <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Right"/>
         <KeyBinding Command="{Binding Path=KeyDeleteCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Delete"/>
+        <KeyBinding Command="{Binding Path=KeySCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="S"/>
+        <KeyBinding Command="{Binding Path=KeyReturnCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Return"/>
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>

@@ -329,6 +329,7 @@ namespace RayTracer.ViewModel
             {
                 case "MouseDelta":
                     {
+                        if (SelectedMesh == null) return;
                         Point delta = MouseManager.MouseDelta;
                         Matrix3D matrix;
 
@@ -342,6 +343,7 @@ namespace RayTracer.ViewModel
                     break;
                 case "MouseScale":
                     {
+                        if (SelectedMesh == null) return;
                         double delta = MouseManager.MouseScale;
                         Matrix3D matrix = Transformations.ScaleMatrix(delta);
                         SelectedMesh.ModelTransform = matrix * SelectedMesh.ModelTransform;

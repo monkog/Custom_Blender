@@ -19,9 +19,8 @@ namespace RayTracer.Model.Shapes
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
-        /// <param name="name">Name of the point</param>
-        public PointEx(double x, double y, double z, string name)
-            : base(x, y, z, name)
+        public PointEx(double x, double y, double z)
+            : base(x, y, z, "Point(" + x + ", " + y + ", " + z + ")")
         {
             SetVertices();
             SetEdges();

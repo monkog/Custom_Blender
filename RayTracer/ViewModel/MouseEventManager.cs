@@ -1,8 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
+using RayTracer.Model;
 using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
@@ -82,27 +84,6 @@ namespace RayTracer.ViewModel
             _isMouseDown = false;
         }
         #endregion .ctor
-        #region Private Methods
-        /// <summary>
-        /// Selects the point that is close to the clicked point
-        /// </summary>
-        /// <param name="args">Click arguments</param>
-        private void SelectNearbyPoint(MouseButtonEventArgs args)
-        {
-            var position = args.GetPosition((IInputElement)args.Source);
-            var reverseTransform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix;
-            reverseTransform.Invert();
-            Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
-            pos = reverseTransform * pos;
-
-            foreach (var point in PointManager.Instance.Points)
-                if (point.X < pos.X + Tolernce && point.X > pos.X - Tolernce && point.Y < pos.Y + Tolernce && point.Y > pos.Y - Tolernce)
-                {
-                    PointManager.Instance.SelectedPoint = point;
-                    return;
-                }
-        }
-        #endregion Private Methods
         #region Commands
         private ActionCommand<MouseButtonEventArgs> _mouseClickCommand;
         public ActionCommand<MouseButtonEventArgs> MouseClickCommand
@@ -128,8 +109,6 @@ namespace RayTracer.ViewModel
                 _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
                 _isMouseDown = true;
             }
-
-            SelectNearbyPoint(args);
         }
 
         private ActionCommand<MouseButtonEventArgs> _mouseUpCommand;
@@ -201,7 +180,7 @@ namespace RayTracer.ViewModel
             }
         }
         /// <summary>
-        /// Inserts a new 3D point
+        /// Selects the 3D point
         /// </summary>
         private void RightMouseButtonExecuted(MouseButtonEventArgs args)
         {
@@ -211,7 +190,15 @@ namespace RayTracer.ViewModel
             Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
             pos = reverseTransform * pos;
 
-            PointManager.Instance.Points.Add(new PointEx(pos.X, pos.Y, 0, "Point(" + pos.X + ", " + pos.Y + ", " + 0.0 + ")"));
+            foreach (var point in PointManager.Instance.Points)
+                if (point.X < pos.X + Tolernce && point.X > pos.X - Tolernce && point.Y < pos.Y + Tolernce && point.Y > pos.Y - Tolernce)
+                {
+                    PointManager.Instance.SelectedPoint = point;
+                    var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition, Cursor3D.Instance.ZPosition);
+                    var delta = new Vector3D(point.X, point.Y, point.Z) - cursorPosition;
+                    Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(delta) * Cursor3D.Instance.ModelTransform;
+                    return;
+                }
         }
         #endregion Commands
     }
