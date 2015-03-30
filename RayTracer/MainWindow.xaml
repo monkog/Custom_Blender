@@ -21,12 +21,12 @@
         <converters:DebugConverter x:Key="DebugConverter"/>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Up"/>
-        <KeyBinding Command="{Binding Path=KeyDownCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Down"/>
-        <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Left"/>
-        <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Right"/>
+        <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad8"/>
+        <KeyBinding Command="{Binding Path=KeyDownCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad2"/>
+        <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad4"/>
+        <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad6"/>
         <KeyBinding Command="{Binding Path=KeyDeleteCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Delete"/>
-        <KeyBinding Command="{Binding Path=KeySCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="S"/>
+        <KeyBinding Command="{Binding Path=KeySelectCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad5"/>
         <KeyBinding Command="{Binding Path=KeyReturnCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Return"/>
     </Window.InputBindings>
     <Grid>

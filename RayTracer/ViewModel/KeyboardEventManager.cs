@@ -142,19 +142,19 @@ namespace RayTracer.ViewModel
             PointManager.Instance.Points.Remove(PointManager.Instance.SelectedPoint);
         }
 
-        private ActionCommand<KeyEventArgs> _keySCommand;
-        public ActionCommand<KeyEventArgs> KeySCommand
+        private ActionCommand<KeyEventArgs> _keySelectCommand;
+        public ActionCommand<KeyEventArgs> KeySelectCommand
         {
             get
             {
-                return _keySCommand ??
-                       (_keySCommand = new ActionCommand<KeyEventArgs>(KeySExecuted));
+                return _keySelectCommand ??
+                       (_keySelectCommand = new ActionCommand<KeyEventArgs>(KeySelectExecuted));
             }
         }
         /// <summary>
         /// Selects / deselects the point
         /// </summary>
-        private void KeySExecuted(KeyEventArgs args)
+        private void KeySelectExecuted(KeyEventArgs args)
         {
             var x = Cursor3D.Instance.XPosition;
             var y = Cursor3D.Instance.YPosition;
