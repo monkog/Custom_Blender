@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
+using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
@@ -34,7 +38,8 @@ namespace RayTracer.Model.Shapes
         {
             SetVertices();
             SetEdges();
-            IsSelected = true;
+            IsSelected = false;
+            PropertyChanged += PointEx_PropertyChanged;
         }
         #endregion Constructors
         #region Private Methods
@@ -88,6 +93,25 @@ namespace RayTracer.Model.Shapes
             EdgesIndices.Add(new Tuple<int, int>(4, 7));
             EdgesIndices.Add(new Tuple<int, int>(7, 6));
             EdgesIndices.Add(new Tuple<int, int>(6, 5));
+        }
+        /// <summary>
+        /// Sets the cursor to the point's position if it's the only one point selected
+        /// </summary>
+        private void PointEx_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "IsSelected":
+                    if (PointManager.Instance.SelectedItems.Count() != 1) return;
+                    var transformedPoint = ModelTransform * new Vector4(X, Y, Z, 1);
+
+                    var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition,
+                        Cursor3D.Instance.ZPosition);
+                    var delta = new Vector3D(transformedPoint.X, transformedPoint.Y, transformedPoint.Z) - cursorPosition;
+                    Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(delta) *
+                                                       Cursor3D.Instance.ModelTransform;
+                    break;
+            }
         }
         #endregion Private Methods
         #region Public Methods

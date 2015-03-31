@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
@@ -10,7 +12,6 @@ namespace RayTracer.ViewModel
         /// Instance of PointManager
         /// </summary>
         private static PointManager _instance;
-        private ObservableCollection<PointEx> _selectedItems;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -30,15 +31,9 @@ namespace RayTracer.ViewModel
         /// <value>
         /// The selected point.
         /// </value>
-        public ObservableCollection<PointEx> SelectedItems
+        public IEnumerable<PointEx> SelectedItems
         {
-            get { return _selectedItems; }
-            set
-            {
-                if (_selectedItems == value) return;
-                _selectedItems = value;
-                OnPropertyChanged("SelectedItems");
-            }
+            get { return Points.Where(p => p.IsSelected); }
         }
         #endregion Public Properties
         #region Constructors
@@ -48,7 +43,6 @@ namespace RayTracer.ViewModel
         private PointManager()
         {
             Points = new ObservableCollection<PointEx>();
-            SelectedItems = new ObservableCollection<PointEx>();
         }
         #endregion Constructors
         #region Private Methods

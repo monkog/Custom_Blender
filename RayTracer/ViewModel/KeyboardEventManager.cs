@@ -162,6 +162,7 @@ namespace RayTracer.ViewModel
             var x = Cursor3D.Instance.XPosition;
             var y = Cursor3D.Instance.YPosition;
             var z = Cursor3D.Instance.ZPosition;
+            var cursorTransform = Cursor3D.Instance.ModelTransform;
 
             var items = PointManager.Instance.SelectedItems;
             PointEx point = null;
@@ -175,14 +176,14 @@ namespace RayTracer.ViewModel
                     point = p;
             }
 
-            if (point == null) return;
-            if (items.Contains(point))
-                items.Remove(point);
-            else
-            {
-                items.Clear();
-                items.Add(point);
-            }
+            bool shouldSelect = point != null && !point.IsSelected;
+
+            foreach (var p in items)
+                p.IsSelected = false;
+
+            if (shouldSelect)
+                point.IsSelected = true;
+            Cursor3D.Instance.ModelTransform = cursorTransform;
         }
 
         private ActionCommand<KeyEventArgs> _keyInsertCommand;

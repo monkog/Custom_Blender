@@ -114,9 +114,6 @@
     <Compile Include="Helpers\EventCommand\ActionCommand.cs" />
     <Compile Include="Helpers\EventCommand\EventToCommandBehavior.cs" />
     <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="Helpers\MultipleSelectionListView\MultipleSelectionListView.xaml.cs">
-      <DependentUpon>MultipleSelectionListView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\SimpleLine.cs" />
     <Compile Include="Helpers\SizeObserver.cs" />
     <Compile Include="Helpers\Vector4.cs" />
@@ -136,10 +133,6 @@
     <Compile Include="ViewModel\RayViewModel.cs" />
     <Compile Include="ViewModel\Transformations.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Page Include="Helpers\MultipleSelectionListView\MultipleSelectionListView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

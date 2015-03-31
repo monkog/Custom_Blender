@@ -1,12 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
-using RayTracer.Model;
-using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {
@@ -198,21 +194,13 @@ namespace RayTracer.ViewModel
                     && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
                 {
                     if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-                    {
-                        if (PointManager.Instance.SelectedItems.Contains(point))
-                            PointManager.Instance.SelectedItems.Remove(point);
-                        else
-                            PointManager.Instance.SelectedItems.Add(point);
-                    }
+                        point.IsSelected = !point.IsSelected;
                     else
                     {
-                        PointManager.Instance.SelectedItems = new ObservableCollection<PointEx>();
-                        PointManager.Instance.SelectedItems.Add(point);
-                        var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition,
-                            Cursor3D.Instance.ZPosition);
-                        var delta = new Vector3D(transformedPoint.X, transformedPoint.Y, transformedPoint.Z) - cursorPosition;
-                        Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(delta) *
-                                                           Cursor3D.Instance.ModelTransform;
+                        foreach (var p in PointManager.Instance.SelectedItems)
+                            p.IsSelected = false;
+                        
+                        point.IsSelected = true;
                     }
                     return;
                 }

@@ -9,7 +9,6 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         xmlns:model="clr-namespace:RayTracer.Model"
-        xmlns:multipleSelectionListView="clr-namespace:RayTracer.Helpers.MultipleSelectionListView"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
@@ -82,10 +81,13 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Points">
-                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple" multipleSelectionListView:MultipleSelectionListView.SelectedItems="{Binding SelectedItems, Source={x:Static viewModel:PointManager.Instance}, Mode=TwoWay}">
+                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding Name}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding IsSelected}"/>
+                                    <TextBox Text="{Binding Name}"/>
+                                </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
