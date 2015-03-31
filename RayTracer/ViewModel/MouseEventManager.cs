@@ -1,10 +1,12 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
 using RayTracer.Model;
+using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {
@@ -190,14 +192,31 @@ namespace RayTracer.ViewModel
             pos = reverseTransform * pos;
 
             foreach (var point in PointManager.Instance.Points)
-                if (point.X < pos.X + Tolernce && point.X > pos.X - Tolernce && point.Y < pos.Y + Tolernce && point.Y > pos.Y - Tolernce)
+            {
+                var transformedPoint = point.ModelTransform * new Vector4(point.X, point.Y, point.Z, 1);
+                if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
+                    && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
                 {
-                    PointManager.Instance.SelectedPoint = point;
-                    var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition, Cursor3D.Instance.ZPosition);
-                    var delta = new Vector3D(point.X, point.Y, point.Z) - cursorPosition;
-                    Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(delta) * Cursor3D.Instance.ModelTransform;
+                    if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                    {
+                        if (PointManager.Instance.SelectedItems.Contains(point))
+                            PointManager.Instance.SelectedItems.Remove(point);
+                        else
+                            PointManager.Instance.SelectedItems.Add(point);
+                    }
+                    else
+                    {
+                        PointManager.Instance.SelectedItems = new ObservableCollection<PointEx>();
+                        PointManager.Instance.SelectedItems.Add(point);
+                        var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition,
+                            Cursor3D.Instance.ZPosition);
+                        var delta = new Vector3D(transformedPoint.X, transformedPoint.Y, transformedPoint.Z) - cursorPosition;
+                        Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(delta) *
+                                                           Cursor3D.Instance.ModelTransform;
+                    }
                     return;
                 }
+            }
         }
         #endregion Commands
     }

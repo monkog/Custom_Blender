@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:RayTracer.ViewModel"
-        xmlns:sceneManager="clr-namespace:RayTracer.Model.Shapes"
         xmlns:converters="clr-namespace:RayTracer.Helpers.Converters"
         mc:Ignorable="d"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         xmlns:model="clr-namespace:RayTracer.Model"
+        xmlns:multipleSelectionListView="clr-namespace:RayTracer.Helpers.MultipleSelectionListView"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
@@ -27,7 +27,7 @@
         <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad6"/>
         <KeyBinding Command="{Binding Path=KeyDeleteCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Delete"/>
         <KeyBinding Command="{Binding Path=KeySelectCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad5"/>
-        <KeyBinding Command="{Binding Path=KeyReturnCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Return"/>
+        <KeyBinding Command="{Binding Path=KeyInsertCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="I"/>
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -82,7 +82,7 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20" Header="Points">
-                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Single" SelectedItem="{Binding SelectedPoint, Source={x:Static viewModel:PointManager.Instance}}">
+                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple" multipleSelectionListView:MultipleSelectionListView.SelectedItems="{Binding SelectedItems, Source={x:Static viewModel:PointManager.Instance}, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBox Text="{Binding Name}"/>

@@ -8,9 +8,19 @@ namespace RayTracer.Model.Shapes
     {
         #region Private Members
         private const double Size = 0.05;
+        private bool _isSelected;
         #endregion Private Members
         #region Public Properties
-
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged("IsSelected");
+            }
+        }
         #endregion Public Properties
         #region Constructors
         /// <summary>
@@ -24,6 +34,7 @@ namespace RayTracer.Model.Shapes
         {
             SetVertices();
             SetEdges();
+            IsSelected = true;
         }
         #endregion Constructors
         #region Private Methods

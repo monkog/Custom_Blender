@@ -10,7 +10,7 @@ namespace RayTracer.ViewModel
         /// Instance of PointManager
         /// </summary>
         private static PointManager _instance;
-        private PointEx _selectedPoint;
+        private ObservableCollection<PointEx> _selectedItems;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -30,14 +30,14 @@ namespace RayTracer.ViewModel
         /// <value>
         /// The selected point.
         /// </value>
-        public PointEx SelectedPoint
+        public ObservableCollection<PointEx> SelectedItems
         {
-            get { return _selectedPoint; }
+            get { return _selectedItems; }
             set
             {
-                if (_selectedPoint == value) return;
-                _selectedPoint = value;
-                OnPropertyChanged("SelectedPoint");
+                if (_selectedItems == value) return;
+                _selectedItems = value;
+                OnPropertyChanged("SelectedItems");
             }
         }
         #endregion Public Properties
@@ -48,6 +48,7 @@ namespace RayTracer.ViewModel
         private PointManager()
         {
             Points = new ObservableCollection<PointEx>();
+            SelectedItems = new ObservableCollection<PointEx>();
         }
         #endregion Constructors
         #region Private Methods
