@@ -14,7 +14,6 @@
         <viewModel:RayViewModel />
     </d:Window.DataContext>
     <Window.Resources>
-        <converters:TransformedPoint x:Key="TransformedPoint"/>
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
         <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
         <converters:DebugConverter x:Key="DebugConverter"/>
@@ -84,7 +83,9 @@
                     <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
-                                <MenuItem Header="More Info" Command="{Binding Path=DataContext.MoreInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}}" Background="WhiteSmoke" />
+                                <MenuItem Header="Add point to Bézier curve..." Command="{Binding Path=AddPointToBezierCurve}"/>
+                                <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=CreateBezierCurveC2}"/>
                             </ContextMenu>
                         </ListView.Resources>
                         <ListView.ItemTemplate>

@@ -23,6 +23,22 @@ namespace RayTracer.ViewModel
                                   , 0, 0, 0, 1);
             }
         }
+        /// <summary>
+        /// Gets the Bernstein basis matrix.
+        /// </summary>
+        /// <value>
+        /// The Bernstein basis matrix.
+        /// </value>
+        public static Matrix3D BernsteinBasisMatrix
+        {
+            get
+            {
+                return new Matrix3D(1, 0, 0, 0
+                                  , -3, 3, 0, 0
+                                  , 3, -6, 3, 0
+                                  , -1, 3, -3, 1);
+            }
+        }
         #endregion Public Properties
         #region Public Methods
         /// <summary>

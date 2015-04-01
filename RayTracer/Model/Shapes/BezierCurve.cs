@@ -32,12 +32,20 @@ namespace RayTracer.Model.Shapes
         }
         private void SetEdges()
         {
-            EdgesIndices.Add(new Tuple<int, int>(0, 1));
-            EdgesIndices.Add(new Tuple<int, int>(1, 2));
-            EdgesIndices.Add(new Tuple<int, int>(2, 3));
+            for (int i = 0; i < Vertices.Count; i++)
+                EdgesIndices.Add(new Tuple<int, int>(i, Math.Min(i + 1, Vertices.Count - 1)));
+        }
+        private void DrawBezierCurve()
+        {
+
         }
         #endregion Private Methods
         #region Public Methods
+        public override void Draw()
+        {
+            DrawBezierCurve();
+            base.Draw();
+        }
         #endregion Public Methods
     }
     /// <summary>

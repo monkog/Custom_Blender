@@ -11,7 +11,6 @@ namespace RayTracer.Model.Shapes
     public class PointEx : ShapeBase
     {
         #region Private Members
-        private const double Size = 0.05;
         private bool _isSelected;
         #endregion Private Members
         #region Public Properties
@@ -22,6 +21,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (_isSelected == value) return;
                 _isSelected = value;
+                Thickness = Math.Abs(8 - Thickness) + 4;
                 OnPropertyChanged("IsSelected");
             }
         }
@@ -36,7 +36,8 @@ namespace RayTracer.Model.Shapes
         public PointEx(double x, double y, double z)
             : base(x, y, z, "Point(" + x + ", " + y + ", " + z + ")")
         {
-            SetVertices();
+            Thickness = 4;
+            SetVertices(x, y, z);
             SetEdges();
             IsSelected = false;
             PropertyChanged += PointEx_PropertyChanged;
@@ -46,53 +47,16 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Sets the vertices.
         /// </summary>
-        private void SetVertices()
+        private void SetVertices(double x, double y, double z)
         {
-            Vertices.Add(new Vector4(X, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Size, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Size, Y + Size, Z, 1));
-            Vertices.Add(new Vector4(X, Y + Size, Z, 1));
-            Vertices.Add(new Vector4(X + Size, Y, Z + Size, 1));
-            Vertices.Add(new Vector4(X + Size, Y + Size, Z + Size, 1));
-            Vertices.Add(new Vector4(X, Y + Size, Z + Size, 1));
-            Vertices.Add(new Vector4(X, Y, Z + Size, 1));
+            Vertices.Add(new Vector4(x, y, z, 1));
         }
         /// <summary>
         /// Sets the edges.
         /// </summary>
         private void SetEdges()
         {
-            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
-            //up
-            EdgesIndices.Add(new Tuple<int, int>(0, 1));
-            EdgesIndices.Add(new Tuple<int, int>(1, 2));
-            EdgesIndices.Add(new Tuple<int, int>(2, 3));
-            EdgesIndices.Add(new Tuple<int, int>(3, 0));
-            ////back
-            EdgesIndices.Add(new Tuple<int, int>(0, 7));
-            EdgesIndices.Add(new Tuple<int, int>(7, 6));
-            EdgesIndices.Add(new Tuple<int, int>(6, 3));
-            EdgesIndices.Add(new Tuple<int, int>(3, 0));
-            ////left
-            EdgesIndices.Add(new Tuple<int, int>(0, 7));
-            EdgesIndices.Add(new Tuple<int, int>(7, 4));
-            EdgesIndices.Add(new Tuple<int, int>(4, 1));
-            EdgesIndices.Add(new Tuple<int, int>(1, 0));
-            //front
-            EdgesIndices.Add(new Tuple<int, int>(1, 2));
-            EdgesIndices.Add(new Tuple<int, int>(2, 5));
-            EdgesIndices.Add(new Tuple<int, int>(5, 4));
-            EdgesIndices.Add(new Tuple<int, int>(4, 1));
-            //right
-            EdgesIndices.Add(new Tuple<int, int>(2, 3));
-            EdgesIndices.Add(new Tuple<int, int>(3, 6));
-            EdgesIndices.Add(new Tuple<int, int>(6, 5));
-            EdgesIndices.Add(new Tuple<int, int>(5, 2));
-            //bottom
-            EdgesIndices.Add(new Tuple<int, int>(5, 4));
-            EdgesIndices.Add(new Tuple<int, int>(4, 7));
-            EdgesIndices.Add(new Tuple<int, int>(7, 6));
-            EdgesIndices.Add(new Tuple<int, int>(6, 5));
+            EdgesIndices = new ObservableCollection<Tuple<int, int>> {new Tuple<int, int>(0, 0)};
         }
         /// <summary>
         /// Sets the cursor to the point's position if it's the only one point selected
@@ -114,8 +78,6 @@ namespace RayTracer.Model.Shapes
             }
         }
         #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }
 

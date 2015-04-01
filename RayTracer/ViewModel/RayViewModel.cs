@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
@@ -14,17 +15,8 @@ namespace RayTracer.ViewModel
     public class RayViewModel : ViewModelBase
     {
         #region Private Members
-        /// <summary>
-        /// The collection of viewed meshes
-        /// </summary>
         private ObservableCollection<ShapeBase> _meshes;
-        /// <summary>
-        /// The viewport width
-        /// </summary>
         private double _viewportWidth;
-        /// <summary>
-        /// The viewport height
-        /// </summary>
         private double _viewportHeight;
         private int _l;
         private int _v;
@@ -32,17 +24,8 @@ namespace RayTracer.ViewModel
         private double _b;
         private double _c;
         private ShapeBase _selectedMesh;
-        /// <summary>
-        /// The x slider value
-        /// </summary>
         private int _xSlider;
-        /// <summary>
-        /// The y slider value
-        /// </summary>
         private int _ySlider;
-        /// <summary>
-        /// The z slider value
-        /// </summary>
         private int _zSlider;
         #endregion Private Members
         #region Public Properties
@@ -395,12 +378,6 @@ namespace RayTracer.ViewModel
         #endregion Private Methods
         #region Commands
         private ICommand _addTorusCommand;
-        /// <summary>
-        /// Gets the add torus command.
-        /// </summary>
-        /// <value>
-        /// The add torus command.
-        /// </value>
         public ICommand AddTorusCommand { get { return _addTorusCommand ?? (_addTorusCommand = new DelegateCommand(AddTorusExecuted)); } }
         /// <summary>
         /// Adds the torus.
@@ -414,12 +391,6 @@ namespace RayTracer.ViewModel
         }
 
         private ICommand _addEllipsoideCommand;
-        /// <summary>
-        /// Gets the add Ellipse command.
-        /// </summary>
-        /// <value>
-        /// The add Ellipse command.
-        /// </value>
         public ICommand AddEllipsoideCommand { get { return _addEllipsoideCommand ?? (_addEllipsoideCommand = new DelegateCommand(AddEllipsoideExecuted)); } }
         /// <summary>
         /// Adds the Ellipse.
@@ -430,6 +401,43 @@ namespace RayTracer.ViewModel
             Meshes.Clear();
             Meshes.Add(ellipsoide);
             Render();
+        }
+
+        private ICommand _createBezierCurveC0;
+        public ICommand CreateBezierCurveC0 { get { return _createBezierCurveC0 ?? (_createBezierCurveC0 = new DelegateCommand(CreateBezierCurveC0Executed)); } }
+        /// <summary>
+        /// Creates the bezier curve c0.
+        /// </summary>
+        private void CreateBezierCurveC0Executed()
+        {
+            if (!PointManager.SelectedItems.Any()) return;
+            var curve = new BezierCurve(0, 0, 0, "Bezier curve C0(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C0);
+            Meshes.Add(curve);
+            Render();
+        }
+
+        private ICommand _createBezierCurveC2;
+        public ICommand CreateBezierCurveC2 { get { return _createBezierCurveC2 ?? (_createBezierCurveC2 = new DelegateCommand(CreateBezierCurveC2Executed)); } }
+        /// <summary>
+        /// Creates the bezier curve c2.
+        /// </summary>
+        private void CreateBezierCurveC2Executed()
+        {
+            if (!PointManager.SelectedItems.Any()) return;
+            var curve = new BezierCurve(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C2);
+            Meshes.Add(curve);
+            Render();
+        }
+
+        private ICommand _addPointToBezierCurve;
+        public ICommand AddPointToBezierCurve { get { return _addPointToBezierCurve ?? (_addPointToBezierCurve = new DelegateCommand(AddPointToBezierCurveExecuted)); } }
+        /// <summary>
+        /// Adds the point to bezier curve.
+        /// </summary>
+        private void AddPointToBezierCurveExecuted()
+        {
+            if (!PointManager.SelectedItems.Any()) return;
+            // TODO
         }
         #endregion Commands
     }
