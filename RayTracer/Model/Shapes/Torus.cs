@@ -4,7 +4,7 @@ using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
-    public class Torus : ShapeBase
+    public sealed class Torus : ShapeBase
     {
         /// <summary>
         /// The donut divisions (beta)
@@ -67,7 +67,5 @@ namespace RayTracer.Model.Shapes
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, ((i + 1) % _donutDivision) * _circle_division + j));
         }
         #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }

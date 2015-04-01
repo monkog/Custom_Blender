@@ -71,9 +71,9 @@ namespace RayTracer.Helpers
                 c2 = color.CombinedColor(bitmap.GetPixel(x2, y2));
 
             if (x1 >= 0 && x1 < bitmap.Width && y1 >= 0 && y1 < bitmap.Height)
-                graphics.FillRectangle(new SolidBrush(c1), new Rectangle(new Point(x1, y1), new Size(1, 1)));
+                graphics.FillRectangle(new SolidBrush(c1), new Rectangle(new Point(x1, y1), new Size(thickness, thickness)));
             if (x2 >= 0 && x2 < bitmap.Width && y2 >= 0 && y2 < bitmap.Height)
-                graphics.FillRectangle(new SolidBrush(c2), new Rectangle(new Point(x2, y2), new Size(1, 1)));
+                graphics.FillRectangle(new SolidBrush(c2), new Rectangle(new Point(x2, y2), new Size(thickness, thickness)));
 
             if (dx > dy)
                 DrawLine(bitmap, graphics, color, x1, y1, x2, y2, dy, dx, incrX, incrY, upPixels, downPixels, isHorizontal: true);
@@ -130,6 +130,7 @@ namespace RayTracer.Helpers
         /// <summary>
         /// Draws the line segment.
         /// </summary>
+        /// <param name="bitmap">The bitmap.</param>
         /// <param name="graphics">The graphics.</param>
         /// <param name="x1">The x coordinate of the start point.</param>
         /// <param name="y1">The y coordinate of the start point.</param>

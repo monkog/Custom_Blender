@@ -82,6 +82,11 @@
                 </GroupBox>
                 <GroupBox Margin="20" Header="Points">
                     <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
+                        <ListView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem Header="More Info" Command="{Binding Path=DataContext.MoreInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}}" Background="WhiteSmoke" />
+                            </ContextMenu>
+                        </ListView.Resources>
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -90,6 +95,11 @@
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
                     </ListView>
                 </GroupBox>
             </StackPanel>

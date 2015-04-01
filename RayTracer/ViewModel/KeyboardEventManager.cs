@@ -140,8 +140,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void KeyDeleteExecuted(KeyEventArgs args)
         {
-            foreach (var point in PointManager.Instance.SelectedItems)
-                PointManager.Instance.Points.Remove(point);
+            for (int i = PointManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+                PointManager.Instance.Points.Remove(PointManager.Instance.SelectedItems.ElementAt(i));
         }
 
         private ActionCommand<KeyEventArgs> _keySelectCommand;

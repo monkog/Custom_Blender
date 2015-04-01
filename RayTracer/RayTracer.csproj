@@ -120,6 +120,7 @@
     <Compile Include="Model\Camera\OrthographicCamera.cs" />
     <Compile Include="Model\Camera\PerspectiveCamera.cs" />
     <Compile Include="Model\Cursor3D.cs" />
+    <Compile Include="Model\Shapes\BezierCurve.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
     <Compile Include="Model\Shapes\Ellipsoide.cs" />
     <Compile Include="Model\Shapes\PointEx.cs" />

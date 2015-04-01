@@ -45,10 +45,6 @@ namespace RayTracer.ViewModel
             Points = new ObservableCollection<PointEx>();
         }
         #endregion Constructors
-        #region Private Methods
-        #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }
 

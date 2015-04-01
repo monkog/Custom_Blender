@@ -27,6 +27,7 @@ namespace RayTracer.Model.Shapes
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
+        /// <param name="name">Name of the mesh</param>
         protected ShapeBase(double x, double y, double z, string name)
         {
             X = x;
@@ -148,6 +149,10 @@ namespace RayTracer.Model.Shapes
         /// Used for synchronising bitmap access
         /// </summary>
         protected readonly object BitmapLock = new object();
+        /// <summary>
+        /// The thickness of a line drawing the shape
+        /// </summary>
+        protected int Thickness = 1;
         #endregion Protected Properties
         #region Protected Methods
         /// <summary>
@@ -187,10 +192,11 @@ namespace RayTracer.Model.Shapes
         /// <param name="bmp">The bitmap to draw onto.</param>
         /// <param name="graphics">The graphics of the bitmap</param>
         /// <param name="color">The color of the shape</param>
-        protected void DrawShape(Bitmap bmp, Graphics graphics, Color color)
+        /// <param name="thickness">thickness of the line</param>
+        protected void DrawShape(Bitmap bmp, Graphics graphics, Color color, int thickness)
         {
             foreach (var edge in Edges)
-                edge.Draw(bmp, graphics, color, 1);
+                edge.Draw(bmp, graphics, color, thickness);
         }
         #endregion Protected Methods
         #region Public Methods
@@ -206,14 +212,14 @@ namespace RayTracer.Model.Shapes
                 if (SceneManager.Instance.IsStereoscopic)
                 {
                     Transform = Transformations.StereographicLeftViewMatrix(20, 400);
-                    DrawShape(bmp, g, Color.Red);
+                    DrawShape(bmp, g, Color.Red, Thickness);
                     Transform = Transformations.StereographicRightViewMatrix(20, 400);
-                    DrawShape(bmp, g, Color.Blue);
+                    DrawShape(bmp, g, Color.Blue, Thickness);
                 }
                 else
                 {
                     Transform = Transformations.ViewMatrix(400);
-                    DrawShape(bmp, g, Color.DarkCyan);
+                    DrawShape(bmp, g, Color.DarkCyan, Thickness);
                 }
             }
             SceneManager.Instance.SceneImage = bmp;

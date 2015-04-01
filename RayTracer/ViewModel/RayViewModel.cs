@@ -126,6 +126,8 @@ namespace RayTracer.ViewModel
                 Matrix3D matrix = Transformations.RotationMatrixX((Math.PI * 2.0f) * (value - _xSlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
+                foreach (var point in PointManager.Points)
+                    point.ModelTransform = matrix * point.ModelTransform;
                 Render();
                 _xSlider = value;
                 OnPropertyChanged("XSlider");
@@ -146,6 +148,8 @@ namespace RayTracer.ViewModel
                 Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * (value - _ySlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
+                foreach (var point in PointManager.Points)
+                    point.ModelTransform = matrix * point.ModelTransform;
                 Render();
                 _ySlider = value;
                 OnPropertyChanged("YSlider");
@@ -166,6 +170,8 @@ namespace RayTracer.ViewModel
                 Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * (value - _zSlider) / 360);
                 foreach (var mesh in Meshes)
                     mesh.ModelTransform = matrix * mesh.ModelTransform;
+                foreach (var point in PointManager.Points)
+                    point.ModelTransform = matrix * point.ModelTransform;
                 Render();
                 _zSlider = value;
                 OnPropertyChanged("ZSlider");
@@ -329,7 +335,6 @@ namespace RayTracer.ViewModel
             {
                 case "MouseDelta":
                     {
-                        if (SelectedMesh == null) return;
                         Point delta = MouseManager.MouseDelta;
                         Matrix3D matrix;
 
@@ -338,15 +343,20 @@ namespace RayTracer.ViewModel
                         else
                             matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
 
-                        SelectedMesh.ModelTransform = matrix * SelectedMesh.ModelTransform;
+                        foreach (var mesh in Meshes)
+                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+                        foreach (var point in PointManager.Points)
+                            point.ModelTransform = matrix * point.ModelTransform;
                     }
                     break;
                 case "MouseScale":
                     {
-                        if (SelectedMesh == null) return;
                         double delta = MouseManager.MouseScale;
                         Matrix3D matrix = Transformations.ScaleMatrix(delta);
-                        SelectedMesh.ModelTransform = matrix * SelectedMesh.ModelTransform;
+                        foreach (var mesh in Meshes)
+                            mesh.ModelTransform = matrix * mesh.ModelTransform;
+                        foreach (var point in PointManager.Points)
+                            point.ModelTransform = matrix * point.ModelTransform;
                     }
                     break;
                 default:
