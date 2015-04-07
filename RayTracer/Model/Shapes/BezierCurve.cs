@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Documents.Serialization;
 using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
     public sealed class BezierCurve : ShapeBase
     {
-        #region Private Methods
-        #endregion Private Methods
+        #region Private Members
+        #endregion Private Members
         #region Public Properties
         public Continuity Continuity { get; private set; }
+        public ObservableCollection<PointEx> Points { get; set; }
         #endregion Public Properties
         #region Constructors
 
@@ -26,9 +29,7 @@ namespace RayTracer.Model.Shapes
         #region Private Methods
         private void SetVertices(IEnumerable<PointEx> points)
         {
-            if (Continuity == Continuity.C0)
-                foreach (var point in points)
-                    Vertices.Add(new Vector4(point.X, point.Y, point.Z, 1));
+            Points = new ObservableCollection<PointEx>(points);
         }
         private void SetEdges()
         {

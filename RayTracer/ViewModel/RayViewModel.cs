@@ -177,6 +177,7 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("Meshes");
             }
         }
+        public ObservableCollection<BezierCurve> Curves { get { return Meshes.Where(x => x is BezierCurve); } }
         /// <summary>
         /// Gets or sets the selected Mesh.
         /// </summary>
