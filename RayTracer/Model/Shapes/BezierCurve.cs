@@ -74,7 +74,7 @@ namespace RayTracer.Model.Shapes
         {
             TransformedVertices = new ObservableCollection<Vector4>();
             foreach (var point in Points)
-                TransformedVertices.Add(point.TransformedVertices.First());
+                TransformedVertices.Add(Transformations.TransformPoint(point.Vertices.First(), Transform * point.ModelTransform).Normalized);
         }
         private void DrawBezierCurve()
         {
@@ -96,16 +96,9 @@ namespace RayTracer.Model.Shapes
         }
         private void DrawSingleCurve(Bitmap bmp, Graphics g, List<Vector4> curve)
         {
-            double minX = double.MaxValue, maxX = double.MinValue, minY = double.MaxValue, maxY = double.MinValue;
-            foreach (var point in curve)
-            {
-                if (point.X < minX) minX = point.X;
-                if (point.X > maxX) maxX = point.X;
-                if (point.Y < minY) minY = point.Y;
-                if (point.Y > maxY) maxY = point.Y;
-            }
+            double divisions = GetDivisionsForBezierCurve(curve);
 
-            for (double t = 1; t >= 0; t -= 0.01)
+            for (double t = 0; t <= 1; t += divisions)
             {
                 var point = Casteljeu(curve, t);
 
@@ -132,6 +125,18 @@ namespace RayTracer.Model.Shapes
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, Thickness, Thickness);
                 }
             }
+        }
+
+        private double GetDivisionsForBezierCurve(List<Vector4> curve)
+        {
+            double divisions = 0;
+
+            for (int i = 0; i < curve.Count - 1; i++)
+                divisions += (curve[i] - curve[i + 1]).Length;
+
+
+            divisions *= 400;
+            return 1 / divisions;
         }
         private Vector4 Casteljeu(List<Vector4> points, double t)
         {
@@ -170,7 +175,7 @@ namespace RayTracer.Model.Shapes
             int index = 0;
             for (int i = 0; i < Points.Count(); i++)
             {
-                curve.Add(Points.ElementAt(i).ModelTransform * Points.ElementAt(i).Vector4);
+                curve.Add(Transformations.TransformPoint(Points.ElementAt(i).Vertices.First(), Points.ElementAt(i).ModelTransform).Normalized);
                 index = (index + 1) % 4;
 
                 if (index == 0 && i < Points.Count - 1)
