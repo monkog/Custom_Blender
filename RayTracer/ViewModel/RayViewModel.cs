@@ -177,13 +177,9 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("Meshes");
             }
         }
-        public ObservableCollection<BezierCurve> Curves { get { return Meshes.Where(x => x is BezierCurve); } }
         /// <summary>
         /// Gets or sets the selected Mesh.
         /// </summary>
-        /// <value>
-        /// The selected Mesh.
-        /// </value>
         public ShapeBase SelectedMesh
         {
             get { return _selectedMesh; }
@@ -197,9 +193,6 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Gets or sets the width of the viewport.
         /// </summary>
-        /// <value>
-        /// The width of the viewport.
-        /// </value>
         public double ViewportWidth
         {
             get { return _viewportWidth; }
@@ -214,9 +207,6 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Gets or sets the height of the viewport.
         /// </summary>
-        /// <value>
-        /// The height of the viewport.
-        /// </value>
         public double ViewportHeight
         {
             get { return _viewportHeight; }
@@ -231,30 +221,18 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Gets the mouse manager.
         /// </summary>
-        /// <value>
-        /// The mouse manager.
-        /// </value>
         public MouseEventManager MouseManager { get { return MouseEventManager.Instance; } }
         /// <summary>
         /// Gets the keyboard manager.
         /// </summary>
-        /// <value>
-        /// The keyboard manager.
-        /// </value>
         public KeyboardEventManager KeyboardManager { get { return KeyboardEventManager.Instance; } }
         /// <summary>
         /// Gets the camera manager.
         /// </summary>
-        /// <value>
-        /// The camera manager.
-        /// </value>
         public CameraManager CameraManager { get { return CameraManager.Instance; } }
         /// <summary>
         /// Gets the scene manager.
         /// </summary>
-        /// <value>
-        /// The scene manager.
-        /// </value>
         public SceneManager SceneManager { get { return SceneManager.Instance; } }
         /// <summary>
         /// Gets the point manager.
@@ -264,14 +242,15 @@ namespace RayTracer.ViewModel
         /// </value>
         public PointManager PointManager { get { return PointManager.Instance; } }
         /// <summary>
+        /// Gets the curve manager.
+        /// </summary>
+        public CurveManager CurveManager { get { return CurveManager.Instance; } }
+        /// <summary>
         /// Gets the cursor.
         /// </summary>
-        /// <value>
-        /// The cursor.
-        /// </value>
         public Cursor3D Cursor { get { return Cursor3D.Instance; } }
         #endregion Public Properties
-        #region .ctor
+        #region Constructor
         /// <summary>
         /// Initializes a new instance of the <see cref="RayViewModel"/> class.
         /// </summary>
@@ -290,7 +269,7 @@ namespace RayTracer.ViewModel
             SceneManager.M = 4;
             Render();
         }
-        #endregion .ctor
+        #endregion Constructor
         #region Private Methods
         private void Render()
         {
@@ -298,12 +277,15 @@ namespace RayTracer.ViewModel
             {
                 g.Clear(Color.Black);
             }
+            
+            foreach (var point in PointManager.Instance.Points)
+                point.Draw();
+
+            foreach (var curve in CurveManager.Instance.Curves)
+                curve.Draw();
 
             foreach (ShapeBase mesh in Meshes)
                 mesh.Draw();
-
-            foreach (var point in PointManager.Instance.Points)
-                point.Draw();
 
             Cursor3D.Instance.Draw();
         }
@@ -376,6 +358,15 @@ namespace RayTracer.ViewModel
                     break;
             }
         }
+        void Curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "IsPolygonVisible":
+                    Render();
+                    break;
+            }
+        }
         #endregion Private Methods
         #region Commands
         private ICommand _addTorusCommand;
@@ -413,7 +404,9 @@ namespace RayTracer.ViewModel
         {
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurve(0, 0, 0, "Bezier curve C0(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C0);
-            Meshes.Add(curve);
+            curve.PropertyChanged += Curve_PropertyChanged;
+            curve.Points.CollectionChanged += (sender, e) => { Render(); };
+            CurveManager.Curves.Add(curve);
             Render();
         }
 
@@ -426,7 +419,9 @@ namespace RayTracer.ViewModel
         {
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurve(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C2);
-            Meshes.Add(curve);
+            curve.PropertyChanged += Curve_PropertyChanged;
+            curve.Points.CollectionChanged += (sender, e) => { Render(); };
+            CurveManager.Curves.Add(curve);
             Render();
         }
 
@@ -437,8 +432,10 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddPointToBezierCurveExecuted()
         {
-            if (!PointManager.SelectedItems.Any()) return;
-            // TODO
+            foreach (var point in PointManager.SelectedItems)
+                foreach (var curve in CurveManager.SelectedItems)
+                    if (!curve.Points.Contains(point))
+                        curve.Points.Add(point);
         }
         #endregion Commands
     }

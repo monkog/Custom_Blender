@@ -42,6 +42,56 @@
             </i:Interaction.Behaviors>
             <Image Source="{Binding SceneImage, Source={x:Static viewModel:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="800" Height="600" Canvas.Left="50" Canvas.Top="50"/>
         </Canvas>
+        <StackPanel Grid.Column="0" Margin="20, 700, 0, 0" Orientation="Horizontal">
+            <GroupBox Header="Scene Info">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor X:"/>
+                            <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor Y:"/>
+                            <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Cursor Z:"/>
+                            <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Margin="10, 0, 0, 0">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Screen X:"/>
+                                <Label Content="{Binding XScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Screen Y:"/>
+                                <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+            <StackPanel>
+                <GroupBox Header="Rotations">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="X rotation:" Margin="5"/>
+                            <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Y rotation:" Margin="5"/>
+                            <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Z rotation:" Margin="5"/>
+                            <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </StackPanel>
         <StackPanel Grid.Column="1" Margin="20">
             <StackPanel Orientation="Horizontal">
                 <GroupBox Margin="20" Header="Torus">
@@ -79,13 +129,24 @@
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Margin="20" Header="Points">
-                    <ListView Width="200" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
+                <GroupBox Margin="20, 0" Header="Meshes">
+                    <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single" SelectedItem="{Binding SelectedMesh}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </GroupBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <GroupBox Header="Points">
+                    <ListView Width="200" Height="400" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
-                                <MenuItem Header="Add point to Bézier curve..." Command="{Binding Path=AddPointToBezierCurve}"/>
+                                <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
                                 <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=CreateBezierCurveC2}"/>
+                                <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
                             </ContextMenu>
                         </ListView.Resources>
                         <ListView.ItemTemplate>
@@ -103,85 +164,29 @@
                         </ListView.ItemContainerStyle>
                     </ListView>
                 </GroupBox>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel>
-                    <GroupBox Margin="20" Header="Rotations">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="X rotation:" Margin="5"/>
-                                <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Y rotation:" Margin="5"/>
-                                <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Z rotation:" Margin="5"/>
-                                <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Margin="20" Header="Scene Info">
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="Cursor X:"/>
-                                    <Label Content="{Binding XPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="Cursor Y:"/>
-                                    <Label Content="{Binding YPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="Cursor Z:"/>
-                                    <Label Content="{Binding ZPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Margin="10, 0, 0, 0">
+                <GroupBox Margin="20, 0" Header="Curves">
+                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
                                 <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="Screen X:"/>
-                                        <Label Content="{Binding XScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="Screen Y:"/>
-                                        <Label Content="{Binding YScreenPosition, Source={x:Static model:Cursor3D.Instance}, StringFormat=F2}" Width="50"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </GroupBox>
-                </StackPanel>
-                <StackPanel>
-                    <GroupBox Margin="20, 0" Header="Meshes" Height="150">
-                        <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single" SelectedItem="{Binding SelectedMesh}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
+                                    <CheckBox IsChecked="{Binding IsPolygonVisible}" Content="View Polygon"/>
                                     <TextBox Text="{Binding Name}"/>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </GroupBox>
-                    <GroupBox Margin="20, 0" Header="Curves" Height="150">
-                        <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single" SelectedItem="{Binding SelectedMesh}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBox Text="{Binding Name}"/>
-                                        <TreeView ItemsSource="{Binding Points}">
-                                            <TreeView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBox Text="{Binding }"/>
-                                                </DataTemplate>
-                                            </TreeView.ItemTemplate>
-                                        </TreeView>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </GroupBox>
-                </StackPanel>
+                                    <TreeView ItemsSource="{Binding Points}">
+                                        <TreeView.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
+                                                    <TextBox Text="{Binding Name}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </GroupBox>
             </StackPanel>
         </StackPanel>
     </Grid>

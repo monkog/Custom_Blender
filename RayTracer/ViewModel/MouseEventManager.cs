@@ -189,7 +189,7 @@ namespace RayTracer.ViewModel
 
             foreach (var point in PointManager.Instance.Points)
             {
-                var transformedPoint = point.ModelTransform * new Vector4(point.X, point.Y, point.Z, 1);
+                var transformedPoint = point.ModelTransform * point.Vector4;
                 if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
                     && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
                 {

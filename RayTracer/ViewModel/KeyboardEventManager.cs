@@ -140,8 +140,18 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void KeyDeleteExecuted(KeyEventArgs args)
         {
+            for (int i = CurveManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+                CurveManager.Instance.Curves.Remove(CurveManager.Instance.SelectedItems.ElementAt(i));
             for (int i = PointManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
-                PointManager.Instance.Points.Remove(PointManager.Instance.SelectedItems.ElementAt(i));
+            {
+                var point = PointManager.Instance.SelectedItems.ElementAt(i);
+                foreach (var curve in CurveManager.Instance.Curves)
+                    curve.Points.Remove(point);
+                PointManager.Instance.Points.Remove(point);
+            }
+            foreach (var curve in CurveManager.Instance.Curves)
+                for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
+                    curve.Points.Remove(curve.SelectedItems.ElementAt(i));
         }
 
         private ActionCommand<KeyEventArgs> _keySelectCommand;
@@ -169,7 +179,7 @@ namespace RayTracer.ViewModel
 
             foreach (var p in PointManager.Instance.Points)
             {
-                var transformedPoint = p.ModelTransform * new Vector4(p.X, p.Y, p.Z, 1);
+                var transformedPoint = p.ModelTransform * p.Vector4;
                 if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
                     && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
                     && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
@@ -207,8 +217,11 @@ namespace RayTracer.ViewModel
             var point = PointManager.Instance.Points.FirstOrDefault(
                 p => p.X < x + Tolernce && p.X > x - Tolernce && p.Y < y + Tolernce && p.Y > y - Tolernce && p.Z < z + Tolernce && p.Z > z - Tolernce);
 
-            if (point == null)
-                PointManager.Instance.Points.Add(new PointEx(x, y, z));
+            if (point != null) return;
+            var newPoint = new PointEx(x, y, z);
+            PointManager.Instance.Points.Add(newPoint);
+            foreach (var curve in CurveManager.Instance.SelectedItems)
+                curve.Points.Add(newPoint);
         }
         #endregion Commands
     }

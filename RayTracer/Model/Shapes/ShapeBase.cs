@@ -13,9 +13,7 @@ namespace RayTracer.Model.Shapes
     public abstract class ShapeBase : ViewModelBase
     {
         #region Private Members
-        /// <summary>
-        /// The transform matrix
-        /// </summary>
+        private bool _isSelected;
         private Matrix3D _transform;
         private Matrix3D _modelTransform;
         private string _name;
@@ -35,16 +33,27 @@ namespace RayTracer.Model.Shapes
             Z = z;
 
             Name = name;
+            IsSelected = false;
 
             Vertices = new ObservableCollection<Vector4>();
             TransformedVertices = new ObservableCollection<Vector4>();
             Edges = new ObservableCollection<CustomLine>();
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
-            Transform = Transformations.Identity;
+            _transform = Transformations.Identity;
             ModelTransform = Transformations.Identity;
         }
         #endregion .ctor
         #region Public Properties
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged("IsSelected");
+            }
+        }
         /// <summary>
         /// Gets or sets the x position.
         /// </summary>

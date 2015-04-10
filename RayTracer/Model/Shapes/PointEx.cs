@@ -11,20 +11,20 @@ namespace RayTracer.Model.Shapes
     public class PointEx : ShapeBase
     {
         #region Private Members
-        private bool _isSelected;
+        private bool _isCurvePointSelected;
         #endregion Private Members
         #region Public Properties
-        public bool IsSelected
+        public bool IsCurvePointSelected
         {
-            get { return _isSelected; }
+            get { return _isCurvePointSelected; }
             set
             {
-                if (_isSelected == value) return;
-                _isSelected = value;
-                Thickness = Math.Abs(8 - Thickness) + 4;
-                OnPropertyChanged("IsSelected");
+                if (_isCurvePointSelected == value) return;
+                _isCurvePointSelected = value;
+                OnPropertyChanged("IsCurvePointSelected");
             }
         }
+        public Vector4 Vector4 { get { return new Vector4(X, Y, Z, 1); } }
         #endregion Public Properties
         #region Constructors
         /// <summary>
@@ -36,11 +36,11 @@ namespace RayTracer.Model.Shapes
         public PointEx(double x, double y, double z)
             : base(x, y, z, "Point(" + x + ", " + y + ", " + z + ")")
         {
-            Thickness = 4;
+            Thickness = 3;
             SetVertices(x, y, z);
             SetEdges();
-            IsSelected = false;
             PropertyChanged += PointEx_PropertyChanged;
+            IsCurvePointSelected = false;
         }
         #endregion Constructors
         #region Private Methods
@@ -56,7 +56,7 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private void SetEdges()
         {
-            EdgesIndices = new ObservableCollection<Tuple<int, int>> {new Tuple<int, int>(0, 0)};
+            EdgesIndices = new ObservableCollection<Tuple<int, int>> { new Tuple<int, int>(0, 0) };
         }
         /// <summary>
         /// Sets the cursor to the point's position if it's the only one point selected
@@ -67,7 +67,7 @@ namespace RayTracer.Model.Shapes
             {
                 case "IsSelected":
                     if (PointManager.Instance.SelectedItems.Count() != 1) return;
-                    var transformedPoint = ModelTransform * new Vector4(X, Y, Z, 1);
+                    var transformedPoint = ModelTransform * Vector4;
 
                     var cursorPosition = new Vector3D(Cursor3D.Instance.XPosition, Cursor3D.Instance.YPosition,
                         Cursor3D.Instance.ZPosition);
