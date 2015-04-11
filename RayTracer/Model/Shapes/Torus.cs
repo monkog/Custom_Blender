@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using RayTracer.Helpers;
+using System.Windows.Media.Media3D;
 
 namespace RayTracer.Model.Shapes
 {
@@ -26,7 +26,8 @@ namespace RayTracer.Model.Shapes
             _R = 0.2;
             SetVertices();
             SetEdges();
-            TransformVertices();
+            TransformVertices(Matrix3D.Identity);
+            DisplayVertices = false;
         }
         #endregion .ctor
         #region Private Methods
@@ -46,8 +47,8 @@ namespace RayTracer.Model.Shapes
                 for (int j = 0; j < _circle_division; j++)
                 {
                     alpha = j * circleStride;
-                    Vertices.Add(new Vector4((_r * Math.Cos(alpha) + _R) * Math.Cos(beta)
-                       , (_r * Math.Cos(alpha) + _R) * Math.Sin(beta), _r * Math.Sin(alpha), 1));
+                    Vertices.Add(new PointEx((_r * Math.Cos(alpha) + _R) * Math.Cos(beta)
+                       , (_r * Math.Cos(alpha) + _R) * Math.Sin(beta), _r * Math.Sin(alpha)));
                 }
             }
         }

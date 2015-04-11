@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Media.Media3D;
+using RayTracer.ViewModel;
 
 namespace RayTracer.Helpers
 {
@@ -29,6 +30,15 @@ namespace RayTracer.Helpers
             return Color.FromArgb(Math.Min(Math.Max(color.R + value.R, 0), 255)
                                 , Math.Min(Math.Max(color.G + value.G, 0), 255)
                                 , Math.Min(Math.Max(color.B + value.B, 0), 255));
+        }
+        /// <summary>
+        /// Trims the vector to the screen.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <returns>Vector with positions within the screen bounds</returns>
+        public static Vector4 TrimToScreen(this Vector4 vector)
+        {
+            return new Vector4(Math.Min(SceneManager.Width, Math.Max(0, vector.X)), Math.Min(SceneManager.Height, Math.Max(0, vector.Y)), vector.Z, vector.A);
         }
     }
 }

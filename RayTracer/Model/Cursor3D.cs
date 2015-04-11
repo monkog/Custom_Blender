@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Model.Shapes;
 
 namespace RayTracer.Model
 {
-    public class Cursor3D : ModelBase
+    public sealed class Cursor3D : ModelBase
     {
         #region Private Members
         public double _xPosition;
@@ -114,7 +115,8 @@ namespace RayTracer.Model
         {
             SetVertices();
             SetEdges();
-            TransformVertices();
+            CalculateShape();
+            DisplayVertices = false;
         }
         #endregion Constructors
         #region Private Methods
@@ -123,10 +125,10 @@ namespace RayTracer.Model
         /// </summary>
         private void SetVertices()
         {
-            Vertices.Add(new Vector4(-CursorSize, 0, 0, 1));
-            Vertices.Add(new Vector4(CursorSize, 0, 0, 1));
-            Vertices.Add(new Vector4(0, CursorSize, 0, 1));
-            Vertices.Add(new Vector4(0, -CursorSize, 0, 1));
+            Vertices.Add(new PointEx(-CursorSize, 0, 0));
+            Vertices.Add(new PointEx(CursorSize, 0, 0));
+            Vertices.Add(new PointEx(0, CursorSize, 0));
+            Vertices.Add(new PointEx(0, -CursorSize, 0));
         }
         /// <summary>
         /// Sets the edges.
@@ -139,21 +141,18 @@ namespace RayTracer.Model
             EdgesIndices.Add(new Tuple<int, int>(2, 3));
         }
         #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
         #region Protected Methods        
         /// <summary>
         /// Transforms the vertices.
         /// </summary>
-        protected override void TransformVertices()
+        protected override void TransformVertices(Matrix3D transform)
         {
-            base.TransformVertices();
-            if (TransformedVertices.Count == 0) return;
-            Vector4 position = ModelTransform * (Vertices[0] + ((Vertices[1] - Vertices[0]) / 2));
+            base.TransformVertices(transform);
+            Vector4 position = (Vertices[0].TransformedPosition + ((Vertices[1].TransformedPosition - Vertices[0].TransformedPosition) / 2));
             XPosition = position.X;
             YPosition = position.Y;
             ZPosition = position.Z;
-            Vector4 transformPosition = Transform * (Vertices[0] + ((Vertices[1] - Vertices[0]) / 2));
+            Vector4 transformPosition = (Vertices[0].PointOnScreen + ((Vertices[1].PointOnScreen - Vertices[0].PointOnScreen) / 2));
             XScreenPosition = transformPosition.X;
             YScreenPosition = transformPosition.Y;
         }

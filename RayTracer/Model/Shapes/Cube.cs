@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
-using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
@@ -22,7 +21,7 @@ namespace RayTracer.Model.Shapes
             Width = Height = Depth = size;
             SetVertices();
             SetEdges();
-            TransformVertices();
+            TransformVertices(Matrix3D.Identity);
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="Cube"/> class.
@@ -45,14 +44,14 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         private void SetVertices()
         {
-            Vertices.Add(new Vector4(X, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z, 1));
-            Vertices.Add(new Vector4(X, Y + Height, Z, 1));
-            Vertices.Add(new Vector4(X + Width, Y, Z + Depth, 1));
-            Vertices.Add(new Vector4(X + Width, Y + Height, Z + Depth, 1));
-            Vertices.Add(new Vector4(X, Y + Height, Z + Depth, 1));
-            Vertices.Add(new Vector4(X, Y, Z + Depth, 1));
+            Vertices.Add(new PointEx(X, Y, Z));
+            Vertices.Add(new PointEx(X + Width, Y, Z));
+            Vertices.Add(new PointEx(X + Width, Y + Height, Z));
+            Vertices.Add(new PointEx(X, Y + Height, Z));
+            Vertices.Add(new PointEx(X + Width, Y, Z + Depth));
+            Vertices.Add(new PointEx(X + Width, Y + Height, Z + Depth));
+            Vertices.Add(new PointEx(X, Y + Height, Z + Depth));
+            Vertices.Add(new PointEx(X, Y, Z + Depth));
         }
         /// <summary>
         /// Sets the edges.

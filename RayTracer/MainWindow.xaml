@@ -130,7 +130,7 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="20, 0" Header="Meshes">
-                    <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single" SelectedItem="{Binding SelectedMesh}">
+                    <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBox Text="{Binding Name}"/>
@@ -172,7 +172,7 @@
                                     <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
                                     <CheckBox IsChecked="{Binding IsPolygonVisible}" Content="View Polygon"/>
                                     <TextBox Text="{Binding Name}"/>
-                                    <TreeView ItemsSource="{Binding Points}">
+                                    <TreeView ItemsSource="{Binding Vertices}">
                                         <TreeView.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel>

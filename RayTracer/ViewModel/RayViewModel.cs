@@ -389,9 +389,9 @@ namespace RayTracer.ViewModel
         private void CreateBezierCurveC0Executed()
         {
             if (!PointManager.SelectedItems.Any()) return;
-            var curve = new BezierCurve(0, 0, 0, "Bezier curve C0(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C0);
+            var curve = new BezierCurve(0, 0, 0, "Bezier curve C0(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
             curve.PropertyChanged += Curve_PropertyChanged;
-            curve.Points.CollectionChanged += (sender, e) => { Render(); };
+            curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
         }
 
@@ -403,9 +403,9 @@ namespace RayTracer.ViewModel
         private void CreateBezierCurveC2Executed()
         {
             if (!PointManager.SelectedItems.Any()) return;
-            var curve = new BezierCurve(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, Continuity.C2);
+            var curve = new BezierCurve(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
             curve.PropertyChanged += Curve_PropertyChanged;
-            curve.Points.CollectionChanged += (sender, e) => { Render(); };
+            curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
         }
 
@@ -418,8 +418,8 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.SelectedItems)
                 foreach (var curve in CurveManager.SelectedItems)
-                    if (!curve.Points.Contains(point))
-                        curve.Points.Add(point);
+                    if (!curve.Vertices.Contains(point))
+                        curve.Vertices.Add(point);
         }
         #endregion Commands
     }

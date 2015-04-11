@@ -56,19 +56,17 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Gets the transform matrix.
         /// </summary>
-        /// <value>
-        /// The transform matrix.
-        /// </value>
         public Matrix3D TransformMatrix
         {
             get { return _transformMatrix; }
         }
         /// <summary>
+        /// The total transform matrix (transform * scale)
+        /// </summary>
+        public Matrix3D TotalMatrix { get { return TransformMatrix * ScaleMatrix; } }
+        /// <summary>
         /// Gets or sets the scene image.
         /// </summary>
-        /// <value>
-        /// The scene image.
-        /// </value>
         public Bitmap SceneImage
         {
             get { return _sceneImage; }
@@ -94,9 +92,6 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Gets or sets a value indicating whether the view is stereoscopic.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if the view is stereoscopic; otherwise, <c>false</c>.
-        /// </value>
         public bool IsStereoscopic
         {
             get { return _isStereoscopic; }
@@ -108,11 +103,13 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("IsStereoscopic");
             }
         }
+        public static int Width = 800;
+        public static int Height = 600;
         #endregion Public Properties
         #region .ctor
         private SceneManager()
         {
-            SceneImage = new Bitmap(800, 600);
+            SceneImage = new Bitmap(Width, Height);
         }
         #endregion .ctor
     }
