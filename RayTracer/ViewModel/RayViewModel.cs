@@ -403,7 +403,7 @@ namespace RayTracer.ViewModel
         private void CreateBezierCurveC2Executed()
         {
             if (!PointManager.SelectedItems.Any()) return;
-            var curve = new BezierCurve(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
+            var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
             curve.PropertyChanged += Curve_PropertyChanged;
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);

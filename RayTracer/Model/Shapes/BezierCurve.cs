@@ -9,42 +9,24 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public sealed class BezierCurve : ModelBase
+    public class BezierCurve : ModelBase
     {
         #region Private Members
         private static Matrix3D _bernsterinBasis = new Matrix3D(-1, 3, -3, 1
                                                                , 3, -6, 3, 0
                                                                , -3, 3, 0, 0
                                                                , 1, 0, 0, 0);
-        private ObservableCollection<Tuple<int, int>> _bezierPolygonIndices;
-        private bool _isPolygonVisible;
         #endregion Private Members
         #region Public Properties
         /// <summary>
         /// Gets the selected items, that can be removed from the Bezier curve.
         /// </summary>
         public IEnumerable<PointEx> SelectedItems { get { return Vertices.Where(p => p.IsCurvePointSelected); } }
-        /// <summary>
-        /// Gets or sets a value indicating whether this curve's polygon is visible.
-        /// </summary>
-        public bool IsPolygonVisible
-        {
-            get { return _isPolygonVisible; }
-            set
-            {
-                if (_isPolygonVisible == value) return;
-                _isPolygonVisible = value;
-                OnPropertyChanged("IsPolygonVisible");
-            }
-        }
         #endregion Public Properties
         #region Constructors
         public BezierCurve(double x, double y, double z, string name, IEnumerable<PointEx> points)
             : base(x, y, z, name)
         {
-            _bezierPolygonIndices = new ObservableCollection<Tuple<int, int>>();
-            _isPolygonVisible = true;
-
             SetVertices(points);
             SetEdges();
             TransformVertices(Matrix3D.Identity);
@@ -58,17 +40,15 @@ namespace RayTracer.Model.Shapes
         }
         private void SetEdges()
         {
-            _bezierPolygonIndices = new ObservableCollection<Tuple<int, int>>();
+            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
             for (int i = 0; i < Vertices.Count - 1; i++)
-                _bezierPolygonIndices.Add(new Tuple<int, int>(i, i + 1));
+                EdgesIndices.Add(new Tuple<int, int>(i, i + 1));
         }
         private void DrawBezierCurve()
         {
-            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
-            if (_isPolygonVisible)
+            if (DisplayEdges)
             {
                 SetEdges();
-                EdgesIndices = _bezierPolygonIndices;
                 CalculateShape();
             }
 
