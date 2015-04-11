@@ -4,12 +4,13 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Media.Media3D;
+using FakeItEasy.ExtensionSyntax.Full;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public sealed class BezierCurve : ShapeBase
+    public sealed class BezierCurve : ModelBase
     {
         #region Private Members
         private static Matrix3D _bernsterinBasis = new Matrix3D(-1, 3, -3, 1
@@ -91,13 +92,11 @@ namespace RayTracer.Model.Shapes
 
             using (Graphics g = Graphics.FromImage(bmp))
                 foreach (var curve in curves)
-                    DrawSingleCurve(bmp, g, curve);
+                    DrawSingleCurve(bmp, g, curve.Item1, curve.Item2);
             SceneManager.Instance.SceneImage = bmp;
         }
-        private void DrawSingleCurve(Bitmap bmp, Graphics g, List<Vector4> curve)
+        private void DrawSingleCurve(Bitmap bmp, Graphics g, List<Vector4> curve, double divisions)
         {
-            double divisions = GetDivisionsForBezierCurve(curve);
-
             for (double t = 0; t <= 1; t += divisions)
             {
                 var point = Casteljeu(curve, t);
@@ -125,18 +124,6 @@ namespace RayTracer.Model.Shapes
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, Thickness, Thickness);
                 }
             }
-        }
-
-        private double GetDivisionsForBezierCurve(List<Vector4> curve)
-        {
-            double divisions = 0;
-
-            for (int i = 0; i < curve.Count - 1; i++)
-                divisions += (curve[i] - curve[i + 1]).Length;
-
-
-            divisions *= 400;
-            return 1 / divisions;
         }
         private Vector4 Casteljeu(List<Vector4> points, double t)
         {
@@ -168,26 +155,30 @@ namespace RayTracer.Model.Shapes
         /// Gets the list of points creating curves
         /// </summary>
         /// <returns>The list of points creating curves</returns>
-        private List<List<Vector4>> GetBezierCurves()
+        private List<Tuple<List<Vector4>, double>> GetBezierCurves()
         {
-            var curves = new List<List<Vector4>>();
+            var curves = new List<Tuple<List<Vector4>, double>>();
             var curve = new List<Vector4>();
+            double divisions = 0;
             int index = 0;
             for (int i = 0; i < Points.Count(); i++)
             {
                 curve.Add(Transformations.TransformPoint(Points.ElementAt(i).Vertices.First(), Points.ElementAt(i).ModelTransform).Normalized);
                 index = (index + 1) % 4;
 
+                if (i < Points.Count - 1)
+                    divisions += (Points.ElementAt(i).TransformedVertices.First() - Points.ElementAt(i + 1).TransformedVertices.First()).Length;
+
                 if (index == 0 && i < Points.Count - 1)
                 {
                     i--;
-                    curves.Add(curve);
+                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
                     curve = new List<Vector4>();
                 }
             }
 
             if (curve.Count > 0)
-                curves.Add(curve);
+                curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions)); ;
 
             return curves;
         }

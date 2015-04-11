@@ -165,7 +165,7 @@
                     </ListView>
                 </GroupBox>
                 <GroupBox Margin="20, 0" Header="Curves">
-                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" >
+                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" Height="400">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>

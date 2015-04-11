@@ -8,7 +8,7 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class Ellipsoide : ShapeBase
+    public class Ellipsoide : ModelBase
     {
         #region Private Members
         /// <summary>

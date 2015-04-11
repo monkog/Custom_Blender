@@ -5,7 +5,7 @@ using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
-    public sealed class Cube : ShapeBase
+    public sealed class Cube : ModelBase
     {
         #region .ctor
         /// <summary>

@@ -5,7 +5,7 @@ using RayTracer.Model.Shapes;
 
 namespace RayTracer.Model
 {
-    public class Cursor3D : ShapeBase
+    public class Cursor3D : ModelBase
     {
         #region Private Members
         public double _xPosition;

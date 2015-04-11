@@ -10,7 +10,7 @@ namespace RayTracer.Model.Shapes
     /// <summary>
     /// Base class for shape objects
     /// </summary>
-    public abstract class ShapeBase : ViewModelBase
+    public abstract class ModelBase : ViewModelBase
     {
         #region Private Members
         private bool _isSelected;
@@ -26,7 +26,7 @@ namespace RayTracer.Model.Shapes
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
         /// <param name="name">Name of the mesh</param>
-        protected ShapeBase(double x, double y, double z, string name)
+        protected ModelBase(double x, double y, double z, string name)
         {
             X = x;
             Y = y;

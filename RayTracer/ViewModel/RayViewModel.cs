@@ -15,7 +15,7 @@ namespace RayTracer.ViewModel
     public class RayViewModel : ViewModelBase
     {
         #region Private Members
-        private ObservableCollection<ShapeBase> _meshes;
+        private ObservableCollection<ModelBase> _meshes;
         private double _viewportWidth;
         private double _viewportHeight;
         private int _l;
@@ -23,7 +23,6 @@ namespace RayTracer.ViewModel
         private double _a;
         private double _b;
         private double _c;
-        private ShapeBase _selectedMesh;
         private int _xSlider;
         private int _ySlider;
         private int _zSlider;
@@ -166,7 +165,7 @@ namespace RayTracer.ViewModel
         /// <value>
         /// The collection of viewed meshes.
         /// </value>
-        public ObservableCollection<ShapeBase> Meshes
+        public ObservableCollection<ModelBase> Meshes
         {
             get { return _meshes; }
             set
@@ -175,19 +174,6 @@ namespace RayTracer.ViewModel
                     return;
                 _meshes = value;
                 OnPropertyChanged("Meshes");
-            }
-        }
-        /// <summary>
-        /// Gets or sets the selected Mesh.
-        /// </summary>
-        public ShapeBase SelectedMesh
-        {
-            get { return _selectedMesh; }
-            set
-            {
-                if (_selectedMesh == value) return;
-                _selectedMesh = value;
-                OnPropertyChanged("SelectedMesh");
             }
         }
         /// <summary>
@@ -256,11 +242,13 @@ namespace RayTracer.ViewModel
         /// </summary>
         public RayViewModel()
         {
-            Meshes = new ObservableCollection<ShapeBase>();
+            Meshes = new ObservableCollection<ModelBase>();
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             SceneManager.PropertyChanged += SceneManager_PropertyChanged;
             Cursor.PropertyChanged += Cursor_PropertyChanged;
             PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
+            CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
+            Meshes.CollectionChanged += (sender, args) => { Render(); };
             L = 20;
             V = 20;
             A = 5;
@@ -277,14 +265,14 @@ namespace RayTracer.ViewModel
             {
                 g.Clear(Color.Black);
             }
-            
+
             foreach (var point in PointManager.Instance.Points)
                 point.Draw();
 
             foreach (var curve in CurveManager.Instance.Curves)
                 curve.Draw();
 
-            foreach (ShapeBase mesh in Meshes)
+            foreach (ModelBase mesh in Meshes)
                 mesh.Draw();
 
             Cursor3D.Instance.Draw();
@@ -378,8 +366,6 @@ namespace RayTracer.ViewModel
         {
             var torus = new Torus(0, 0, 0, "Torus(L:" + L + ", V:" + V + ")", L, V);
             Meshes.Add(torus);
-            SelectedMesh = torus;
-            Render();
         }
 
         private ICommand _addEllipsoideCommand;
@@ -407,7 +393,6 @@ namespace RayTracer.ViewModel
             curve.PropertyChanged += Curve_PropertyChanged;
             curve.Points.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
-            Render();
         }
 
         private ICommand _createBezierCurveC2;
@@ -422,7 +407,6 @@ namespace RayTracer.ViewModel
             curve.PropertyChanged += Curve_PropertyChanged;
             curve.Points.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
-            Render();
         }
 
         private ICommand _addPointToBezierCurve;

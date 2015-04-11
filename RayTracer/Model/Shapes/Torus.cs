@@ -4,7 +4,7 @@ using RayTracer.Helpers;
 
 namespace RayTracer.Model.Shapes
 {
-    public sealed class Torus : ShapeBase
+    public sealed class Torus : ModelBase
     {
         /// <summary>
         /// The donut divisions (beta)

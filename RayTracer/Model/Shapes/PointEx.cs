@@ -8,7 +8,7 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class PointEx : ShapeBase
+    public class PointEx : ModelBase
     {
         #region Private Members
         private bool _isCurvePointSelected;

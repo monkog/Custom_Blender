@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
-using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
 using RayTracer.Model;
 using RayTracer.Model.Shapes;
@@ -149,9 +148,14 @@ namespace RayTracer.ViewModel
                     curve.Points.Remove(point);
                 PointManager.Instance.Points.Remove(point);
             }
-            foreach (var curve in CurveManager.Instance.Curves)
+            for (int index = CurveManager.Instance.Curves.Count - 1; index >= 0; index--)
+            {
+                var curve = CurveManager.Instance.Curves[index];
                 for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
                     curve.Points.Remove(curve.SelectedItems.ElementAt(i));
+                if (curve.Points.Count == 0)
+                    CurveManager.Instance.Curves.Remove(curve);
+            }
         }
 
         private ActionCommand<KeyEventArgs> _keySelectCommand;
@@ -214,10 +218,6 @@ namespace RayTracer.ViewModel
             var y = Cursor3D.Instance.YPosition;
             var z = Cursor3D.Instance.ZPosition;
 
-            var point = PointManager.Instance.Points.FirstOrDefault(
-                p => p.X < x + Tolernce && p.X > x - Tolernce && p.Y < y + Tolernce && p.Y > y - Tolernce && p.Z < z + Tolernce && p.Z > z - Tolernce);
-
-            if (point != null) return;
             var newPoint = new PointEx(x, y, z);
             PointManager.Instance.Points.Add(newPoint);
             foreach (var curve in CurveManager.Instance.SelectedItems)
