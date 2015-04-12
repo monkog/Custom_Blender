@@ -9,6 +9,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         xmlns:model="clr-namespace:RayTracer.Model"
+        xmlns:shapes="clr-namespace:RayTracer.Model.Shapes"
         Title="Torus" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
@@ -17,6 +18,41 @@
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
         <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
         <converters:DebugConverter x:Key="DebugConverter"/>
+        <DataTemplate DataType="{x:Type shapes:BezierCurveC0}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
+                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
+                <TextBox Text="{Binding Name}"/>
+                <TreeView ItemsSource="{Binding Vertices}">
+                    <TreeView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
+                                <TextBox Text="{Binding Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type shapes:BezierCurveC2}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
+                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
+                <CheckBox IsChecked="{Binding IsBernsteinBasis}" Content="Bernstein Basis"/>
+                <TextBox Text="{Binding Name}"/>
+                <TreeView ItemsSource="{Binding Vertices}">
+                    <TreeView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
+                                <TextBox Text="{Binding Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad8"/>
@@ -165,27 +201,7 @@
                     </ListView>
                 </GroupBox>
                 <GroupBox Margin="20, 0" Header="Curves">
-                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" Height="400">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
-                                    <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
-                                    <TextBox Text="{Binding Name}"/>
-                                    <TreeView ItemsSource="{Binding Vertices}">
-                                        <TreeView.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel>
-                                                    <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
-                                                    <TextBox Text="{Binding Name}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </TreeView.ItemTemplate>
-                                    </TreeView>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" Height="400"/>
                 </GroupBox>
             </StackPanel>
         </StackPanel>

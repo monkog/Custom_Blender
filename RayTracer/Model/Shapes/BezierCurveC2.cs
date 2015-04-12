@@ -1,97 +1,125 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Media.Media3D;
-using RayTracer.Helpers;
-using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
     public class BezierCurveC2 : BezierCurve
     {
         #region Private Members
-        private ObservableCollection<PointEx> _deBooreVertices;
-        private ObservableCollection<PointEx> _bezierVertices;
+        private bool _isBernsteinBasis;
         #endregion Private Members
         #region Public Properties
+        /// <summary>
+        /// Vertices for the B-Spline basis.
+        /// </summary>
+        public ObservableCollection<PointEx> DeBooreVertices { get; private set; }
+        /// <summary>
+        /// Vertices for the Bernstein basis.
+        /// </summary>
+        public ObservableCollection<PointEx> BezierVertices { get; private set; }
+        /// <summary>
+        /// Determines whether the Bezier curve is being displayed using Bernstein basis.
+        /// If not, it's in B-Spline basis.
+        /// </summary>
+        public bool IsBernsteinBasis
+        {
+            get { return _isBernsteinBasis; }
+            set
+            {
+                if (_isBernsteinBasis == value) return;
+                _isBernsteinBasis = value;
+                OnPropertyChanged("IsBernsteinBasis");
+            }
+        }
         #endregion Public Properties
         #region Constructors
         public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points)
-            : base(x, y, z, name, points)
+            : base(x, y, z, name, points, Continuity.C2)
         {
-            _deBooreVertices = new ObservableCollection<PointEx>(points);
-            SetBezierVertices(points);
-            Vertices = _bezierVertices;
-
-            SetEdges();
+            DeBooreVertices = new ObservableCollection<PointEx>(points);
             DisplayVertices = true;
+            IsBernsteinBasis = true;
+            UpdateVertices();
         }
         #endregion Constructors
         #region Private Methods
-        private void AddPointInHalf(IEnumerable<PointEx> points, int startIndex, int endIndex)
+        private void AddPointInHalf(ObservableCollection<PointEx> oldPoints, ObservableCollection<PointEx> newPoints, int startIndex, int endIndex, bool isEndSegment = false)
         {
-            var start = points.ElementAt(startIndex);
-            var end = points.ElementAt(endIndex);
+            var start = oldPoints.ElementAt(startIndex);
+            var end = oldPoints.ElementAt(endIndex);
             var bezierPoint = start.TransformedPosition + (end.TransformedPosition - start.TransformedPosition) / 2;
 
-            _bezierVertices.Add(start);
-            _bezierVertices.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
+            newPoints.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
+            if (isEndSegment)
+                BezierVertices.Add(end);
         }
-        private void SetBezierVertices(IEnumerable<PointEx> points)
+        private void AddHalfPointsOnNewEdges()
         {
-            _bezierVertices = new ObservableCollection<PointEx>();
-            if (points.Count() > 0)
-                AddPointInHalf(points, startIndex: 0, endIndex: 1);
+            ObservableCollection<PointEx> bezierVertices = new ObservableCollection<PointEx>();
+            bezierVertices.Add(BezierVertices[0]);
+            if (BezierVertices.Count == 3)
+                bezierVertices.Add(BezierVertices[1]);
 
-            for (int i = 1; i < points.Count() - 2; i++)
+            for (int i = 1; i < BezierVertices.Count - 2; i += 2)
             {
-                var start = points.ElementAt(i);
-                var end = points.ElementAt(i + 1);
+                bezierVertices.Add(BezierVertices[i]);
+                AddPointInHalf(BezierVertices, bezierVertices, i, i + 1);
+                bezierVertices.Add(BezierVertices[i + 1]);
+            }
+            if (BezierVertices.Count > 1)
+                bezierVertices.Add(BezierVertices[BezierVertices.Count - 1]);
+            BezierVertices = bezierVertices;
+        }
+        /// <summary>
+        /// Updates the position of Bezier vertices depending on deBoore nodes.
+        /// </summary>
+        private void UpdateBezierVertices()
+        {
+            BezierVertices = new ObservableCollection<PointEx>();
+            if (DeBooreVertices.Count() == 0) return;
+
+            BezierVertices.Add(DeBooreVertices.ElementAt(0));
+            if (DeBooreVertices.Count() > 1)
+                AddPointInHalf(DeBooreVertices, BezierVertices, startIndex: 0, endIndex: 1, isEndSegment: DeBooreVertices.Count() == 2);
+
+            for (int i = 1; i < DeBooreVertices.Count() - 2; i++)
+            {
+                var start = DeBooreVertices.ElementAt(i);
+                var end = DeBooreVertices.ElementAt(i + 1);
                 var bezierPointStep = (end.TransformedPosition - start.TransformedPosition) / 3;
 
                 for (int j = 1; j < 3; j++)
                 {
                     var bezierPoint = start.TransformedPosition + bezierPointStep * j;
-                    _bezierVertices.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
+                    BezierVertices.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
                 }
             }
 
-            if (points.Count() > 2)
-                AddPointInHalf(points, startIndex: points.Count() - 2, endIndex: points.Count() - 1);
+            if (DeBooreVertices.Count() > 2)
+                AddPointInHalf(DeBooreVertices, BezierVertices, startIndex: DeBooreVertices.Count() - 2, endIndex: DeBooreVertices.Count() - 1, isEndSegment: true);
+
+            AddHalfPointsOnNewEdges();
         }
         #endregion Private Methods
         #region Protected Methods
-
-        protected override List<Tuple<List<Vector4>, double>> GetBezierCurves()
-        {
-            var curves = new List<Tuple<List<Vector4>, double>>();
-            var curve = new List<Vector4>();
-            double divisions = 0;
-            int index = 0;
-            for (int i = 0; i < Vertices.Count(); i++)
-            {
-                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
-                index = (index + 1) % 4;
-
-                if (i < Vertices.Count - 1)
-                    divisions += (Vertices.ElementAt(i).PointOnScreen - Vertices.ElementAt(i + 1).PointOnScreen).Length;
-
-                if (index == 0 && i < Vertices.Count - 1)
-                {
-                    i--;
-                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
-                    curve = new List<Vector4>();
-                }
-            }
-
-            if (curve.Count > 0)
-                curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
-
-            return curves;
-        }
         #endregion Protected Methods
         #region Public Methods
+        /// <summary>
+        /// Updates the position of vertices depending on current base.
+        /// </summary>
+        public void UpdateVertices()
+        {
+            if (IsBernsteinBasis)
+            {
+                UpdateBezierVertices();
+                Vertices = BezierVertices;
+            }
+            else
+            {
+                Vertices = DeBooreVertices;
+            }
+        }
         #endregion Public Methods
     }
 }

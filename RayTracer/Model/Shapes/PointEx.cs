@@ -51,7 +51,14 @@ namespace RayTracer.Model.Shapes
             Thickness = 3;
             PropertyChanged += PointEx_PropertyChanged;
             IsCurvePointSelected = false;
-            
+            PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == "ModelTransform" || e.PropertyName == "MeshTransform")
+                    foreach (var c in CurveManager.Instance.Curves.Where(c => c.Continuity == Continuity.C2)
+                        .Select(curve => curve as BezierCurveC2).Where(c => c.DeBooreVertices.Contains(this)))
+                        c.UpdateVertices();
+            };
+
             CalculateShape();
         }
         #endregion Constructors
@@ -97,7 +104,7 @@ namespace RayTracer.Model.Shapes
                 if (SceneManager.Instance.IsStereoscopic)
                 {
                     Color color;
-                    Transform =  Transformations.StereographicLeftViewMatrix(20, 400);
+                    Transform = Transformations.StereographicLeftViewMatrix(20, 400);
                     if (!(PointOnScreen.X < 0 || PointOnScreen.X > bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y > bmp.Height))
                     {
                         color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
