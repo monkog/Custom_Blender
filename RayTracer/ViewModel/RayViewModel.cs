@@ -406,15 +406,9 @@ namespace RayTracer.ViewModel
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
             curve.PropertyChanged += Curve_PropertyChanged;
-            curve.PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == "IsBernsteinBasis")
-                {
-                    curve.UpdateVertices();
-                    Render();
-                }
-            };
+            curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges") Render(); };
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
+            curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
         }
 

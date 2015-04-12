@@ -145,14 +145,22 @@ namespace RayTracer.ViewModel
             {
                 var point = PointManager.Instance.SelectedItems.ElementAt(i);
                 foreach (var curve in CurveManager.Instance.Curves)
-                    curve.Vertices.Remove(point);
+                {
+                    if (curve.Continuity == Continuity.C0)
+                        curve.Vertices.Remove(point);
+                    else
+                        ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
+                }
                 PointManager.Instance.Points.Remove(point);
             }
             for (int index = CurveManager.Instance.Curves.Count - 1; index >= 0; index--)
             {
                 var curve = CurveManager.Instance.Curves[index];
                 for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
-                    curve.Vertices.Remove(curve.SelectedItems.ElementAt(i));
+                    if (curve.Continuity == Continuity.C0)
+                        curve.Vertices.Remove(curve.SelectedItems.ElementAt(i));
+                    else
+                        ((BezierCurveC2)curve).DeBooreVertices.Remove(curve.SelectedItems.ElementAt(i));
                 if (curve.Vertices.Count == 0)
                     CurveManager.Instance.Curves.Remove(curve);
             }
@@ -223,8 +231,6 @@ namespace RayTracer.ViewModel
             foreach (var curve in CurveManager.Instance.SelectedItems)
                 if (curve.Continuity == Continuity.C0)
                     curve.Vertices.Add(newPoint);
-                else if (((BezierCurveC2)curve).IsBernsteinBasis)
-                    ((BezierCurveC2)curve).BezierVertices.Add(newPoint);
                 else
                     ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
         }

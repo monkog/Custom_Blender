@@ -41,7 +41,7 @@
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                 <CheckBox IsChecked="{Binding IsBernsteinBasis}" Content="Bernstein Basis"/>
                 <TextBox Text="{Binding Name}"/>
-                <TreeView ItemsSource="{Binding Vertices}">
+                <TreeView ItemsSource="{Binding DeBooreVertices}">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
