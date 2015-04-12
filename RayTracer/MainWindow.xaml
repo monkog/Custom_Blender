@@ -170,7 +170,7 @@
                             <DataTemplate>
                                 <StackPanel>
                                     <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
-                                    <CheckBox IsChecked="{Binding IsPolygonVisible}" Content="View Polygon"/>
+                                    <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                                     <TextBox Text="{Binding Name}"/>
                                     <TreeView ItemsSource="{Binding Vertices}">
                                         <TreeView.ItemTemplate>

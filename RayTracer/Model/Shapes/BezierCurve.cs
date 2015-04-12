@@ -9,14 +9,8 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class BezierCurve : ModelBase
+    public abstract class BezierCurve : ModelBase
     {
-        #region Private Members
-        private static Matrix3D _bernsterinBasis = new Matrix3D(-1, 3, -3, 1
-                                                               , 3, -6, 3, 0
-                                                               , -3, 3, 0, 0
-                                                               , 1, 0, 0, 0);
-        #endregion Private Members
         #region Public Properties
         /// <summary>
         /// Gets the selected items, that can be removed from the Bezier curve.
@@ -37,12 +31,6 @@ namespace RayTracer.Model.Shapes
         private void SetVertices(IEnumerable<PointEx> points)
         {
             Vertices = new ObservableCollection<PointEx>(points);
-        }
-        private void SetEdges()
-        {
-            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
-            for (int i = 0; i < Vertices.Count - 1; i++)
-                EdgesIndices.Add(new Tuple<int, int>(i, i + 1));
         }
         private void DrawBezierCurve()
         {
@@ -116,38 +104,20 @@ namespace RayTracer.Model.Shapes
 
             return new Vector4(xValues.X, yValues.X, zValues.X, 1);
         }
+        #endregion Private Methods
+        protected void SetEdges()
+        {
+            EdgesIndices = new ObservableCollection<Tuple<int, int>>();
+            for (int i = 0; i < Vertices.Count - 1; i++)
+                EdgesIndices.Add(new Tuple<int, int>(i, i + 1));
+        }
+        #region Protected Methods
         /// <summary>
         /// Gets the list of points creating curves
         /// </summary>
         /// <returns>The list of points creating curves</returns>
-        private List<Tuple<List<Vector4>, double>> GetBezierCurves()
-        {
-            var curves = new List<Tuple<List<Vector4>, double>>();
-            var curve = new List<Vector4>();
-            double divisions = 0;
-            int index = 0;
-            for (int i = 0; i < Vertices.Count(); i++)
-            {
-                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
-                index = (index + 1) % 4;
-
-                if (i < Vertices.Count - 1)
-                    divisions += (Vertices.ElementAt(i).PointOnScreen - Vertices.ElementAt(i + 1).PointOnScreen).Length;
-
-                if (index == 0 && i < Vertices.Count - 1)
-                {
-                    i--;
-                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
-                    curve = new List<Vector4>();
-                }
-            }
-
-            if (curve.Count > 0)
-                curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions)); 
-
-            return curves;
-        }
-        #endregion Private Methods
+        protected abstract List<Tuple<List<Vector4>, double>> GetBezierCurves();
+        #endregion Protected Methods
         #region Public Methods
         public override void Draw()
         {

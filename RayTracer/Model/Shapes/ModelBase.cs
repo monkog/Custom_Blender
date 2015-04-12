@@ -12,6 +12,9 @@ namespace RayTracer.Model.Shapes
     /// </summary>
     public abstract class ModelBase : ShapeBase
     {
+        #region Private Members
+        private bool _displayEdges;
+        #endregion Private Members
         #region .ctor
         /// <summary>
         /// Initializes a new instance of the <see cref="Cube"/> class.
@@ -56,14 +59,25 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         protected readonly object BitmapLock = new object();
         /// <summary>
-        /// Gets or sets a value indicating whether the edges should be displayed.
-        /// </summary>
-        protected bool DisplayEdges { get; set; }
-        /// <summary>
         /// Gets or sets a value indicating whether the vertices should be displayed.
         /// </summary>
         protected bool DisplayVertices { get; set; }
         #endregion Protected Properties
+        #region Public Properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the edges should be displayed.
+        /// </summary>
+        public bool DisplayEdges
+        {
+            get { return _displayEdges; }
+            set
+            {
+                if (_displayEdges == value) return;
+                _displayEdges = value;
+                OnPropertyChanged("DisplayEdges");
+            }
+        }
+        #endregion Public Properties
         #region Protected Methods
         protected override void CalculateShape()
         {
