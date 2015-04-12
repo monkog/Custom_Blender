@@ -41,6 +41,9 @@ namespace RayTracer.Model.Shapes
             DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
+
+            DeBooreVertices.CollectionChanged += (sender, e) => { UpdateVertices(); };
+            BezierVertices.CollectionChanged += (sender, e) => { UpdateBezierVertices(); };
         }
         #endregion Constructors
         #region Private Methods

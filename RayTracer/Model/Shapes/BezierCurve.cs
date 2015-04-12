@@ -16,15 +16,20 @@ namespace RayTracer.Model.Shapes
         /// Gets the selected items, that can be removed from the Bezier curve.
         /// </summary>
         public IEnumerable<PointEx> SelectedItems { get { return Vertices.Where(p => p.IsCurvePointSelected); } }
+        /// <summary>
+        /// Gets the continuity of the curve.
+        /// </summary>
+        public Continuity Continuity { get; private set; }
         #endregion Public Properties
         #region Constructors
-        public BezierCurve(double x, double y, double z, string name, IEnumerable<PointEx> points)
+        protected BezierCurve(double x, double y, double z, string name, IEnumerable<PointEx> points, Continuity continuity)
             : base(x, y, z, name)
         {
             SetVertices(points);
             SetEdges();
             TransformVertices(Matrix3D.Identity);
             DisplayVertices = false;
+            Continuity = continuity;
         }
         #endregion Constructors
         #region Private Methods
@@ -105,18 +110,47 @@ namespace RayTracer.Model.Shapes
             return new Vector4(xValues.X, yValues.X, zValues.X, 1);
         }
         #endregion Private Methods
+        #region Protected Methods        
+        /// <summary>
+        /// Sets the edges indices based on vertices.
+        /// </summary>
         protected void SetEdges()
         {
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
             for (int i = 0; i < Vertices.Count - 1; i++)
                 EdgesIndices.Add(new Tuple<int, int>(i, i + 1));
         }
-        #region Protected Methods
         /// <summary>
         /// Gets the list of points creating curves
         /// </summary>
         /// <returns>The list of points creating curves</returns>
-        protected abstract List<Tuple<List<Vector4>, double>> GetBezierCurves();
+        protected virtual List<Tuple<List<Vector4>, double>> GetBezierCurves()
+        {
+            var curves = new List<Tuple<List<Vector4>, double>>();
+            var curve = new List<Vector4>();
+            double divisions = 0;
+            int index = 0;
+            for (int i = 0; i < Vertices.Count(); i++)
+            {
+                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
+                index = (index + 1) % 4;
+
+                if (i < Vertices.Count - 1)
+                    divisions += (Vertices.ElementAt(i).PointOnScreen - Vertices.ElementAt(i + 1).PointOnScreen).Length;
+
+                if (index == 0 && i < Vertices.Count - 1)
+                {
+                    i--;
+                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
+                    curve = new List<Vector4>();
+                }
+            }
+
+            if (curve.Count > 0)
+                curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
+
+            return curves;
+        }
         #endregion Protected Methods
         #region Public Methods
         public override void Draw()
@@ -125,6 +159,13 @@ namespace RayTracer.Model.Shapes
             base.Draw();
         }
         #endregion Public Methods
+    }
+    /// <summary>
+    /// The continuity of the Bezier curve
+    /// </summary>
+    public enum Continuity
+    {
+        C0, C2
     }
 }
 

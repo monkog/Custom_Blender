@@ -221,7 +221,12 @@ namespace RayTracer.ViewModel
             var newPoint = new PointEx(x, y, z);
             PointManager.Instance.Points.Add(newPoint);
             foreach (var curve in CurveManager.Instance.SelectedItems)
-                curve.Vertices.Add(newPoint);
+                if (curve.Continuity == Continuity.C0)
+                    curve.Vertices.Add(newPoint);
+                else if (((BezierCurveC2)curve).IsBernsteinBasis)
+                    ((BezierCurveC2)curve).BezierVertices.Add(newPoint);
+                else
+                    ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
         }
         #endregion Commands
     }
