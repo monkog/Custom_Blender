@@ -41,11 +41,16 @@
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                 <CheckBox IsChecked="{Binding IsBernsteinBasis}" Content="Bernstein Basis"/>
                 <TextBox Text="{Binding Name}"/>
-                <TreeView ItemsSource="{Binding DeBooreVertices}">
+                <TreeView ItemsSource="{Binding Vertices}">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Selected "/>
+                                    <CheckBox IsChecked="{Binding IsSelected}"/>
+                                    <TextBlock Text="Delete? "/>
+                                    <CheckBox IsChecked="{Binding IsCurvePointSelected}"/>
+                                </StackPanel>
                                 <TextBox Text="{Binding Name}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -165,6 +170,35 @@
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel>
+                    <GroupBox Header="Points">
+                        <ListView Width="200" Height="400" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                    <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                    <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsSelected}"/>
+                                        <TextBox Text="{Binding Name}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </GroupBox>
+                    <Button Content="Deselect All" Margin="5" Command="{Binding DeselectAllCommand}"/>
+                </StackPanel>
                 <GroupBox Margin="20, 0" Header="Meshes">
                     <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single">
                         <ListView.ItemTemplate>
@@ -175,35 +209,9 @@
                     </ListView>
                 </GroupBox>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <GroupBox Header="Points">
-                    <ListView Width="200" Height="400" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
-                        <ListView.Resources>
-                            <ContextMenu x:Key="ItemContextMenu">
-                                <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                            </ContextMenu>
-                        </ListView.Resources>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected}"/>
-                                    <TextBox Text="{Binding Name}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}" >
-                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
-                </GroupBox>
-                <GroupBox Margin="20, 0" Header="Curves">
-                    <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" Height="400"/>
-                </GroupBox>
-            </StackPanel>
         </StackPanel>
+        <GroupBox Grid.Column="1" Margin="20, 0" Header="Curves" HorizontalAlignment="Right">
+            <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" />
+        </GroupBox>
     </Grid>
 </Window>

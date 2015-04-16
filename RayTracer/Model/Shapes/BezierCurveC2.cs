@@ -1,13 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Media.Media3D;
+using RayTracer.Helpers;
+using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class BezierCurveC2 : BezierCurve
+    public sealed class BezierCurveC2 : BezierCurve
     {
         #region Private Members
         private bool _isBernsteinBasis;
+        private double[] _knots;
+        private const int N = 3;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -29,6 +35,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (_isBernsteinBasis == value) return;
                 _isBernsteinBasis = value;
+                UpdateVertices();
                 OnPropertyChanged("IsBernsteinBasis");
             }
         }
@@ -37,13 +44,15 @@ namespace RayTracer.Model.Shapes
         public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points)
             : base(x, y, z, name, points, Continuity.C2)
         {
+            SetEdges();
+            TransformVertices(Matrix3D.Identity);
             DeBooreVertices = new ObservableCollection<PointEx>(points);
             DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
 
             DeBooreVertices.CollectionChanged += (sender, e) => { UpdateVertices(); };
-            BezierVertices.CollectionChanged += (sender, e) => { UpdateBezierVertices(); };
+            BezierVertices.CollectionChanged += (sender, e) => { UpdateVertices(); };
         }
         #endregion Constructors
         #region Private Methods
@@ -53,25 +62,27 @@ namespace RayTracer.Model.Shapes
             var end = oldPoints.ElementAt(endIndex);
             var bezierPoint = start.TransformedPosition + (end.TransformedPosition - start.TransformedPosition) / 2;
 
-            newPoints.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
+            var bPoint = new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, BezierPointType.Second);
+            newPoints.Add(bPoint);
+            PointManager.Instance.BezierPoints.Add(bPoint);
             if (isEndSegment)
                 BezierVertices.Add(end);
         }
         private void AddHalfPointsOnNewEdges()
         {
             ObservableCollection<PointEx> bezierVertices = new ObservableCollection<PointEx>();
+            if (BezierVertices.Count <= 4) return;
             bezierVertices.Add(BezierVertices[0]);
-            if (BezierVertices.Count == 3)
-                bezierVertices.Add(BezierVertices[1]);
+            bezierVertices.Add(BezierVertices[1]);
 
-            for (int i = 1; i < BezierVertices.Count - 2; i += 2)
+            for (int i = 2; i < BezierVertices.Count - 2; i += 2)
             {
                 bezierVertices.Add(BezierVertices[i]);
                 AddPointInHalf(BezierVertices, bezierVertices, i, i + 1);
                 bezierVertices.Add(BezierVertices[i + 1]);
             }
-            if (BezierVertices.Count > 1)
-                bezierVertices.Add(BezierVertices[BezierVertices.Count - 1]);
+            bezierVertices.Add(BezierVertices[BezierVertices.Count - 2]);
+            bezierVertices.Add(BezierVertices[BezierVertices.Count - 1]);
             BezierVertices = bezierVertices;
         }
         /// <summary>
@@ -80,32 +91,156 @@ namespace RayTracer.Model.Shapes
         private void UpdateBezierVertices()
         {
             BezierVertices = new ObservableCollection<PointEx>();
-            if (DeBooreVertices.Count() == 0) return;
+            PointManager.Instance.BezierPoints = new ObservableCollection<BezierPoint>();
+            if (!DeBooreVertices.Any()) return;
 
             BezierVertices.Add(DeBooreVertices.ElementAt(0));
-            if (DeBooreVertices.Count() > 1)
-                AddPointInHalf(DeBooreVertices, BezierVertices, startIndex: 0, endIndex: 1, isEndSegment: DeBooreVertices.Count() == 2);
-
-            for (int i = 1; i < DeBooreVertices.Count() - 2; i++)
+            for (int i = 1; i < DeBooreVertices.Count(); i++)
             {
-                var start = DeBooreVertices.ElementAt(i);
-                var end = DeBooreVertices.ElementAt(i + 1);
+                var start = DeBooreVertices.ElementAt(i - 1);
+                var end = DeBooreVertices.ElementAt(i);
                 var bezierPointStep = (end.TransformedPosition - start.TransformedPosition) / 3;
 
                 for (int j = 1; j < 3; j++)
                 {
                     var bezierPoint = start.TransformedPosition + bezierPointStep * j;
-                    BezierVertices.Add(new PointEx(bezierPoint.X, bezierPoint.Y, bezierPoint.Z));
+                    var bPoint = new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, j == 1 ? BezierPointType.First : BezierPointType.Third);
+                    BezierVertices.Add(bPoint);
+                    PointManager.Instance.BezierPoints.Add(bPoint);
                 }
             }
 
-            if (DeBooreVertices.Count() > 2)
-                AddPointInHalf(DeBooreVertices, BezierVertices, startIndex: DeBooreVertices.Count() - 2, endIndex: DeBooreVertices.Count() - 1, isEndSegment: true);
+            if (DeBooreVertices.Count() > 1)
+                BezierVertices.Add(DeBooreVertices.ElementAt(DeBooreVertices.Count() - 1));
 
             AddHalfPointsOnNewEdges();
         }
+        private Vector4 GetDeBoorTransformedPoint(Vector4 right, Vector4 movedPoint, double k)
+        {
+            return new Vector4(k * (right.X - movedPoint.X) + movedPoint.X, k * (right.Y - movedPoint.Y) + movedPoint.Y, k * (right.Z - movedPoint.Z) + movedPoint.Z, 1);
+        }
+        private void UpdateDeBooreVertices()
+        {
+            var point = Vertices.First(p => p.IsSelected) as BezierPoint;
+            if (point == null) return;
+            if (point.BezierPointType == BezierPointType.Second)
+            {
+            }
+            else
+            {
+                var leftParent = point.LeftParent.TransformedPosition;
+                Vector4 leftParentNew;
+                Matrix3D transformMatrix;
+
+                if (point.BezierPointType == BezierPointType.First)
+                {
+                    leftParentNew = (point.TransformedPosition * 3 - point.RightParent.TransformedPosition) * 0.5;
+                    transformMatrix = Transformations.TranslationMatrix(new Vector3D(leftParentNew.X - leftParent.X, leftParentNew.Y - leftParent.Y, leftParentNew.Z - leftParent.Z));
+                }
+                else
+                {
+                    leftParentNew = point.TransformedPosition * 3 - (point.RightParent.TransformedPosition * 2);
+                    transformMatrix = Transformations.TranslationMatrix(new Vector3D(leftParentNew.X - leftParent.X, leftParentNew.Y - leftParent.Y, leftParentNew.Z - leftParent.Z));
+                }
+                point.LeftParent.ModelTransform = transformMatrix * point.LeftParent.ModelTransform;
+            }
+        }
+        private Vector4 BSplinePoint(List<Vector4> curve, double t)
+        {
+            Vector4 sum = new Vector4(0, 0, 0, 1);
+
+            for (int i = 0; i < curve.Count; i++)
+                sum += curve[i] * GetNFunctionValue(i, N, t);
+
+            return new Vector4(sum.X, sum.Y, sum.Z, 1);
+        }
+        private double GetNFunctionValue(int i, int n, double ti)
+        {
+            if (n < 0)
+                return 0;
+            if (n == 0)
+            {
+                if (ti >= _knots[i] && ti < _knots[i + 1])
+                    return 1;
+                return 0;
+            }
+
+            double a = _knots[i + n] - _knots[i] != 0 ? (ti - _knots[i]) / (_knots[i + n] - _knots[i]) : 0;
+            double b = _knots[i + n + 1] - _knots[i + 1] != 0 ? (_knots[i + n + 1] - ti) / (_knots[i + n + 1] - _knots[i + 1]) : 0;
+            return a * GetNFunctionValue(i, n - 1, ti) + b * GetNFunctionValue(i + 1, n - 1, ti);
+        }
+        private void GetBezierCurveInBernsteinBasis(List<Tuple<List<Vector4>, double>> curves, ref List<Vector4> curve, ref double divisions)
+        {
+            int index = 0;
+            for (int i = 3; i < Vertices.Count() - 3; i++)
+            {
+                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
+                index = (index + 1) % 4;
+
+                if (i < Vertices.Count - 1)
+                    divisions += (Vertices.ElementAt(i).PointOnScreen - Vertices.ElementAt(i + 1).PointOnScreen).Length;
+
+                if (index == 0 && i < Vertices.Count - 1)
+                {
+                    i--;
+                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
+                    curve = new List<Vector4>();
+                }
+            }
+        }
+        private void SetSplineKnots(int n)
+        {
+            _knots = new double[n + N + 1];
+            double interval = 1 / (double)(n + N);
+
+            for (int i = 0; i < n + N + 1; i++)
+                _knots[i] = i * interval;
+        }
         #endregion Private Methods
         #region Protected Methods
+        /// <summary>
+        /// Gets the list of points creating curves
+        /// </summary>
+        /// <returns>The list of points creating curves</returns>
+        protected override List<Tuple<List<Vector4>, double>> GetBezierCurves()
+        {
+            var curves = new List<Tuple<List<Vector4>, double>>();
+            var curve = new List<Vector4>();
+            double divisions = 0;
+
+            if (IsBernsteinBasis)
+                GetBezierCurveInBernsteinBasis(curves, ref curve, ref divisions);
+            else if (Vertices.Count > 0)
+            {
+                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(0).Vector4, Vertices.ElementAt(0).ModelTransform).Normalized);
+
+                for (int i = 1; i < Vertices.Count(); i++)
+                {
+                    curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
+                    divisions += (Vertices.ElementAt(i - 1).PointOnScreen - Vertices.ElementAt(i).PointOnScreen).Length;
+                }
+                SetSplineKnots(curve.Count);
+            }
+
+            if (curve.Count > 0)
+                curves.Add(new Tuple<List<Vector4>, double>(curve, Math.Max(1 / divisions, 0)));
+
+            return curves;
+        }
+        protected override Vector4 GetCurvePoint(List<Vector4> curve, double t)
+        {
+            if (IsBernsteinBasis)
+                return base.GetCurvePoint(curve, t);
+
+            return (t < _knots[3] || t > _knots[_knots.Length - N - 1]) ? null : BSplinePoint(curve, t);
+        }
+        protected override void SetEdges()
+        {
+            if (IsBernsteinBasis)
+                SetEdgesInRange(from: N, to: Vertices.Count - N - 1);
+            else
+                base.SetEdges();
+        }
         #endregion Protected Methods
         #region Public Methods
         /// <summary>
@@ -120,8 +255,17 @@ namespace RayTracer.Model.Shapes
             }
             else
             {
+                UpdateDeBooreVertices();
                 Vertices = DeBooreVertices;
             }
+            SetEdges();
+            CalculateShape();
+        }
+        public override void Draw()
+        {
+            if (IsBernsteinBasis && Vertices.Any(p => p.IsSelected))
+                UpdateDeBooreVertices();
+            base.Draw();
         }
         #endregion Public Methods
     }

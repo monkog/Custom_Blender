@@ -175,7 +175,6 @@ namespace RayTracer.ViewModel
                        (_keySelectCommand = new ActionCommand<KeyEventArgs>(KeySelectExecuted));
             }
         }
-
         /// <summary>
         /// Selects / deselects the point
         /// </summary>
@@ -197,6 +196,15 @@ namespace RayTracer.ViewModel
                     && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
                     point = p;
             }
+            if (point == null)
+                foreach (var p in PointManager.Instance.BezierPoints)
+                {
+                    var transformedPoint = p.ModelTransform * p.Vector4;
+                    if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                        && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
+                        && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
+                        point = p;
+                }
 
             bool shouldSelect = point != null && !point.IsSelected;
 

@@ -199,9 +199,19 @@ namespace RayTracer.ViewModel
                     {
                         foreach (var p in PointManager.Instance.SelectedItems)
                             p.IsSelected = false;
-                        
+
                         point.IsSelected = true;
                     }
+                    return;
+                }
+            }
+            foreach (var point in PointManager.Instance.BezierPoints)
+            {
+                var transformedPoint = point.ModelTransform * point.Vector4;
+                if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
+                    && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
+                {
+                    point.IsSelected = !point.IsSelected;
                     return;
                 }
             }

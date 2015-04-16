@@ -421,9 +421,34 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.SelectedItems)
                 foreach (var curve in CurveManager.SelectedItems)
-                    if (!curve.Vertices.Contains(point))
-                        curve.Vertices.Add(point);
+                    if (curve.Continuity == Continuity.C0)
+                    {
+                        if (!curve.Vertices.Contains(point))
+                            curve.Vertices.Add(point);
+                    }
+                    else if (!((BezierCurveC2)curve).DeBooreVertices.Contains(point))
+                        ((BezierCurveC2)curve).DeBooreVertices.Add(point);
         }
-        #endregion Commands
+
+        private ICommand _deselectAllCommand;
+        public ICommand DeselectAllCommand { get { return _deselectAllCommand ?? (_deselectAllCommand = new DelegateCommand(DeselectAllExecuted)); } }
+        /// <summary>
+        /// Deselects all selections.
+        /// </summary>
+        private void DeselectAllExecuted()
+        {
+            foreach (var point in PointManager.Points)
+                point.IsSelected = false;
+
+            foreach (var point in PointManager.BezierPoints)
+                point.IsSelected = false;
+
+            foreach (var curve in CurveManager.Curves)
+                curve.IsSelected = false;
+
+            foreach (var mesh in Meshes)
+                mesh.IsSelected = false;
+        }
+        #endregion Commands DeselectAllCommand
     }
 }

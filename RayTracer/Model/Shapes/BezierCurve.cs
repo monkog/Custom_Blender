@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -26,8 +25,6 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name)
         {
             SetVertices(points);
-            SetEdges();
-            TransformVertices(Matrix3D.Identity);
             DisplayVertices = false;
             Continuity = continuity;
         }
@@ -57,7 +54,8 @@ namespace RayTracer.Model.Shapes
         {
             for (double t = 0; t <= 1; t += divisions)
             {
-                var point = Casteljeu(curve, t);
+                var point = GetCurvePoint(curve, t);
+                if (point == null) continue;
 
                 if (SceneManager.Instance.IsStereoscopic)
                 {
@@ -110,14 +108,21 @@ namespace RayTracer.Model.Shapes
             return new Vector4(xValues.X, yValues.X, zValues.X, 1);
         }
         #endregion Private Methods
-        #region Protected Methods        
+        #region Protected Methods
         /// <summary>
         /// Sets the edges indices based on vertices.
         /// </summary>
-        protected void SetEdges()
+        protected virtual void SetEdges()
+        {
+            SetEdgesInRange(from: 0, to: Vertices.Count - 1);
+        }
+        /// <summary>
+        /// Sets the edges indices based on first and last index.
+        /// </summary>
+        protected void SetEdgesInRange(int from, int to)
         {
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
-            for (int i = 0; i < Vertices.Count - 1; i++)
+            for (int i = from; i < to; i++)
                 EdgesIndices.Add(new Tuple<int, int>(i, i + 1));
         }
         /// <summary>
@@ -125,6 +130,16 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         /// <returns>The list of points creating curves</returns>
         protected abstract List<Tuple<List<Vector4>, double>> GetBezierCurves();
+        /// <summary>
+        /// Gets the curve point to draw.
+        /// </summary>
+        /// <param name="curve">The curve.</param>
+        /// <param name="t">The division point.</param>
+        /// <returns>Coordinates to draw</returns>
+        protected virtual Vector4 GetCurvePoint(List<Vector4> curve, double t)
+        {
+            return Casteljeu(curve, t);
+        }
         #endregion Protected Methods
         #region Public Methods
         public override void Draw()

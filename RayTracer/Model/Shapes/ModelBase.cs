@@ -14,6 +14,7 @@ namespace RayTracer.Model.Shapes
     {
         #region Private Members
         private bool _displayEdges;
+        private ObservableCollection<PointEx> _vertices;
         #endregion Private Members
         #region .ctor
         /// <summary>
@@ -40,7 +41,16 @@ namespace RayTracer.Model.Shapes
         /// <value>
         /// The vertices representing the mesh.
         /// </value>
-        public ObservableCollection<PointEx> Vertices { get; set; }
+        public ObservableCollection<PointEx> Vertices
+        {
+            get { return _vertices; }
+            set
+            {
+                if (_vertices == value) return;
+                _vertices = value;
+                OnPropertyChanged("Vertices");
+            }
+        }
         /// <summary>
         /// Gets or sets the edges representing the mesh.
         /// </summary>

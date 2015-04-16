@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class BezierCurveC0 : BezierCurve
+    public sealed class BezierCurveC0 : BezierCurve
     {
         #region Constructors
         public BezierCurveC0(double x, double y, double z, string name, IEnumerable<PointEx> points)
             : base(x, y, z, name, points, Continuity.C0)
-        { }
+        {
+            SetEdges();
+            TransformVertices(Matrix3D.Identity);
+        }
         #endregion Constructors
         #region Protected Methods
         /// <summary>
