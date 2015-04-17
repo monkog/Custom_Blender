@@ -26,10 +26,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         public ObservableCollection<PointEx> Points { get; set; }
         /// <summary>
-        /// Gets or sets the Bezier points.
-        /// </summary>
-        public ObservableCollection<BezierPoint> BezierPoints { get; set; }
-        /// <summary>
         /// Gets or sets the selected point.
         /// </summary>
         /// <value>
@@ -37,7 +33,7 @@ namespace RayTracer.ViewModel
         /// </value>
         public IEnumerable<PointEx> SelectedItems
         {
-            get { return Points.Where(p => p.IsSelected).Concat(BezierPoints.Where(p => p.IsSelected)); }
+            get { return Points.Where(p => p.IsSelected); }
         }
         #endregion Public Properties
         #region Constructors
@@ -47,7 +43,6 @@ namespace RayTracer.ViewModel
         private PointManager()
         {
             Points = new ObservableCollection<PointEx>();
-            BezierPoints = new ObservableCollection<BezierPoint>();
         }
         #endregion Constructors
     }

@@ -205,16 +205,17 @@ namespace RayTracer.ViewModel
                     return;
                 }
             }
-            foreach (var point in PointManager.Instance.BezierPoints)
-            {
-                var transformedPoint = point.ModelTransform * point.Vector4;
-                if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
-                    && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
+
+            foreach (var curve in CurveManager.Instance.Curves)
+                foreach (var point in curve.Vertices)
                 {
-                    point.IsSelected = !point.IsSelected;
-                    return;
+                    var transformedPoint = point.ModelTransform * point.Vector4;
+                    if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
+                        && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
+                        point.IsSelected = !point.IsSelected;
+                    else
+                        point.IsSelected = false;
                 }
-            }
         }
         #endregion Commands
     }

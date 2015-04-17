@@ -49,12 +49,18 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
             else
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
         }
@@ -77,12 +83,18 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
             else
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
         }
@@ -103,6 +115,9 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.Instance.SelectedItems)
                 point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
+            foreach (var curve in CurveManager.Instance.Curves)
+                foreach (var point in curve.SelectedItems)
+                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
 
@@ -122,6 +137,9 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.Instance.SelectedItems)
                 point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
+            foreach (var curve in CurveManager.Instance.Curves)
+                foreach (var point in curve.SelectedItems)
+                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
 
@@ -149,7 +167,10 @@ namespace RayTracer.ViewModel
                     if (curve.Continuity == Continuity.C0)
                         curve.Vertices.Remove(point);
                     else
+                    {
                         ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
+                        ((BezierCurveC2)curve).UpdateVertices();
+                    }
                 }
                 PointManager.Instance.Points.Remove(point);
             }
@@ -160,7 +181,10 @@ namespace RayTracer.ViewModel
                     if (curve.Continuity == Continuity.C0)
                         curve.Vertices.Remove(curve.SelectedItems.ElementAt(i));
                     else
+                    {
                         ((BezierCurveC2)curve).DeBooreVertices.Remove(curve.SelectedItems.ElementAt(i));
+                        ((BezierCurveC2)curve).UpdateVertices();
+                    }
                 if (curve.Vertices.Count == 0)
                     CurveManager.Instance.Curves.Remove(curve);
             }
@@ -197,14 +221,17 @@ namespace RayTracer.ViewModel
                     point = p;
             }
             if (point == null)
-                foreach (var p in PointManager.Instance.BezierPoints)
-                {
-                    var transformedPoint = p.ModelTransform * p.Vector4;
-                    if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
-                        && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
-                        && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
-                        point = p;
-                }
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var p in curve.Vertices)
+                    {
+                        var transformedPoint = p.ModelTransform * p.Vector4;
+                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
+                            && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
+                            point = p;
+                        else
+                            p.IsSelected = false;
+                    }
 
             bool shouldSelect = point != null && !point.IsSelected;
 
@@ -235,12 +262,15 @@ namespace RayTracer.ViewModel
             var z = Cursor3D.Instance.ZPosition;
 
             var newPoint = new PointEx(x, y, z);
-            PointManager.Instance.Points.Add(newPoint);
             foreach (var curve in CurveManager.Instance.SelectedItems)
                 if (curve.Continuity == Continuity.C0)
                     curve.Vertices.Add(newPoint);
                 else
+                {
                     ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
+                    ((BezierCurveC2)curve).UpdateVertices();
+                }
+            PointManager.Instance.Points.Add(newPoint);
         }
         #endregion Commands
     }

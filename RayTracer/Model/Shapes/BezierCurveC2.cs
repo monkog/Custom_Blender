@@ -14,6 +14,14 @@ namespace RayTracer.Model.Shapes
         private bool _isBernsteinBasis;
         private double[] _knots;
         private const int N = 3;
+        /// <summary>
+        /// Value for updating the selection after re-drawing the curve
+        /// </summary>
+        private int _selectedPointIndex;
+        /// <summary>
+        /// Value for updating the selected point to be middle point after the change
+        /// </summary>
+        private bool _isMiddlePointSelected;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -44,15 +52,10 @@ namespace RayTracer.Model.Shapes
         public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points)
             : base(x, y, z, name, points, Continuity.C2)
         {
-            SetEdges();
-            TransformVertices(Matrix3D.Identity);
             DeBooreVertices = new ObservableCollection<PointEx>(points);
             DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
-
-            DeBooreVertices.CollectionChanged += (sender, e) => { UpdateVertices(); };
-            BezierVertices.CollectionChanged += (sender, e) => { UpdateVertices(); };
         }
         #endregion Constructors
         #region Private Methods
@@ -62,9 +65,7 @@ namespace RayTracer.Model.Shapes
             var end = oldPoints.ElementAt(endIndex);
             var bezierPoint = start.TransformedPosition + (end.TransformedPosition - start.TransformedPosition) / 2;
 
-            var bPoint = new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, BezierPointType.Second);
-            newPoints.Add(bPoint);
-            PointManager.Instance.BezierPoints.Add(bPoint);
+            newPoints.Add(new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, BezierPointType.Second));
             if (isEndSegment)
                 BezierVertices.Add(end);
         }
@@ -91,7 +92,6 @@ namespace RayTracer.Model.Shapes
         private void UpdateBezierVertices()
         {
             BezierVertices = new ObservableCollection<PointEx>();
-            PointManager.Instance.BezierPoints = new ObservableCollection<BezierPoint>();
             if (!DeBooreVertices.Any()) return;
 
             BezierVertices.Add(DeBooreVertices.ElementAt(0));
@@ -104,9 +104,7 @@ namespace RayTracer.Model.Shapes
                 for (int j = 1; j < 3; j++)
                 {
                     var bezierPoint = start.TransformedPosition + bezierPointStep * j;
-                    var bPoint = new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, j == 1 ? BezierPointType.First : BezierPointType.Third);
-                    BezierVertices.Add(bPoint);
-                    PointManager.Instance.BezierPoints.Add(bPoint);
+                    BezierVertices.Add(new BezierPoint(bezierPoint.X, bezierPoint.Y, bezierPoint.Z, start, end, j == 1 ? BezierPointType.First : BezierPointType.Third));
                 }
             }
 
@@ -115,16 +113,25 @@ namespace RayTracer.Model.Shapes
 
             AddHalfPointsOnNewEdges();
         }
-        private Vector4 GetDeBoorTransformedPoint(Vector4 right, Vector4 movedPoint, double k)
-        {
-            return new Vector4(k * (right.X - movedPoint.X) + movedPoint.X, k * (right.Y - movedPoint.Y) + movedPoint.Y, k * (right.Z - movedPoint.Z) + movedPoint.Z, 1);
-        }
         private void UpdateDeBooreVertices()
         {
-            var point = Vertices.First(p => p.IsSelected) as BezierPoint;
-            if (point == null) return;
+            var pt = Vertices.FirstOrDefault(p => p.IsSelected);
+            if (!(pt is BezierPoint)) return;
+
+            var point = pt as BezierPoint;
+            _selectedPointIndex = Vertices.IndexOf(point);
+
             if (point.BezierPointType == BezierPointType.Second)
             {
+                var leftParent = point.LeftParent.TransformedPosition;
+
+                var leftParentNew = point.TransformedPosition * 2 - point.RightParent.TransformedPosition;
+                var transformMatrix = Transformations.TranslationMatrix(new Vector3D(leftParentNew.X - leftParent.X, leftParentNew.Y - leftParent.Y, leftParentNew.Z - leftParent.Z));
+                point.LeftParent.IsSelected = true;
+                point.IsSelected = false;
+                _isMiddlePointSelected = true;
+                point.LeftParent.ModelTransform = transformMatrix * point.LeftParent.ModelTransform;
+                UpdateDeBooreVertices();
             }
             else
             {
@@ -141,6 +148,12 @@ namespace RayTracer.Model.Shapes
                 {
                     leftParentNew = point.TransformedPosition * 3 - (point.RightParent.TransformedPosition * 2);
                     transformMatrix = Transformations.TranslationMatrix(new Vector3D(leftParentNew.X - leftParent.X, leftParentNew.Y - leftParent.Y, leftParentNew.Z - leftParent.Z));
+                }
+                if (_isMiddlePointSelected)
+                {
+                    Vertices[_selectedPointIndex + 1].IsSelected = true;
+                    point.IsSelected = false;
+                    _isMiddlePointSelected = false;
                 }
                 point.LeftParent.ModelTransform = transformMatrix * point.LeftParent.ModelTransform;
             }
@@ -264,7 +277,13 @@ namespace RayTracer.Model.Shapes
         public override void Draw()
         {
             if (IsBernsteinBasis && Vertices.Any(p => p.IsSelected))
+            {
+                Console.Write(Vertices[0].TransformedPosition.X + "" + Vertices[0].TransformedPosition.Y + "" + Vertices[0].TransformedPosition.Z);
                 UpdateDeBooreVertices();
+                Console.Write(Vertices[0].TransformedPosition.X + "" + Vertices[0].TransformedPosition.Y + "" + Vertices[0].TransformedPosition.Z);
+                Vertices[_selectedPointIndex].IsSelected = true;
+                SetEdges();
+            }
             base.Draw();
         }
         #endregion Public Methods

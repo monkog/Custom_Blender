@@ -266,11 +266,11 @@ namespace RayTracer.ViewModel
                 g.Clear(Color.Black);
             }
 
-            foreach (var point in PointManager.Instance.Points)
-                point.Draw();
-
             foreach (var curve in CurveManager.Instance.Curves)
                 curve.Draw();
+
+            foreach (var point in PointManager.Instance.Points)
+                point.Draw();
 
             foreach (ModelBase mesh in Meshes)
                 mesh.Draw();
@@ -440,8 +440,9 @@ namespace RayTracer.ViewModel
             foreach (var point in PointManager.Points)
                 point.IsSelected = false;
 
-            foreach (var point in PointManager.BezierPoints)
-                point.IsSelected = false;
+            foreach (var curve in CurveManager.Instance.Curves)
+                foreach (var point in curve.Vertices)
+                    point.IsSelected = false;
 
             foreach (var curve in CurveManager.Curves)
                 curve.IsSelected = false;

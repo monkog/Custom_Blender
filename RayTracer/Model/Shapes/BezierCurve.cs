@@ -14,7 +14,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Gets the selected items, that can be removed from the Bezier curve.
         /// </summary>
-        public IEnumerable<PointEx> SelectedItems { get { return Vertices.Where(p => p.IsCurvePointSelected); } }
+        public IEnumerable<PointEx> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         /// <summary>
         /// Gets the continuity of the curve.
         /// </summary>
