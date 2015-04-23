@@ -14,6 +14,7 @@ namespace RayTracer.Model.Shapes
         private bool _isBernsteinBasis;
         private double[] _knots;
         private const int N = 3;
+        private bool _isInterpolation;
         /// <summary>
         /// Value for updating the selection after re-drawing the curve
         /// </summary>
@@ -49,13 +50,17 @@ namespace RayTracer.Model.Shapes
         }
         #endregion Public Properties
         #region Constructors
-        public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points)
+        public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points, bool isInterpolation)
             : base(x, y, z, name, points, Continuity.C2)
         {
-            DeBooreVertices = new ObservableCollection<PointEx>(points);
+            if ((_isInterpolation = isInterpolation))
+                DeBooreVertices = CalculateInterpolationDeBoor(points);
+            else
+                DeBooreVertices = new ObservableCollection<PointEx>(points);
             DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
+            DisplayEdges = false;
         }
         #endregion Constructors
         #region Private Methods
@@ -167,7 +172,7 @@ namespace RayTracer.Model.Shapes
 
             return new Vector4(sum.X, sum.Y, sum.Z, 1);
         }
-        private double GetNFunctionValue(int i, int n, double ti)
+        public double GetNFunctionValue(int i, int n, double ti)
         {
             if (n < 0)
                 return 0;
@@ -203,11 +208,45 @@ namespace RayTracer.Model.Shapes
         }
         private void SetSplineKnots(int n)
         {
-            _knots = new double[n + N + 1];
-            double interval = 1 / (double)(n + N);
+            _knots = new double[n + N + 2];
+            double interval = 1 / (double)(n + N + 1);
 
-            for (int i = 0; i < n + N + 1; i++)
+            for (int i = 0; i < n + N + 2; i++)
                 _knots[i] = i * interval;
+        }
+        private ObservableCollection<PointEx> CalculateInterpolationDeBoor(IEnumerable<PointEx> points)
+        {
+            var mtx = CalculateSegments(points);
+            double[][] s = new double[3][];
+            for (int i = 0; i < 3; i++)
+                s[i] = new double[points.Count()];
+            for (int i = 0; i < points.Count(); i++)
+            {
+                s[0][i] = points.ElementAt(i).TransformedPosition.X;
+                s[1][i] = points.ElementAt(i).TransformedPosition.Y;
+                s[2][i] = points.ElementAt(i).TransformedPosition.Z;
+            }
+            double[][] result = { mtx.GaussElimination(s[0]), mtx.GaussElimination(s[1]), mtx.GaussElimination(s[2]) };
+            ObservableCollection<PointEx> vertices = new ObservableCollection<PointEx>();
+            for (int i = -1; i < points.Count() + 1; i++)
+                vertices.Add(new PointEx(result[0][Math.Min(Math.Max(i, 0), points.Count() - 1)], result[1][Math.Min(Math.Max(i, 0), points.Count() - 1)], result[2][Math.Min(Math.Max(i, 0), points.Count() - 1)]));
+            return vertices;
+        }
+        private double[,] CalculateSegments(IEnumerable<PointEx> points)
+        {
+            int m = points.Count();
+            SetSplineKnots(m);
+            double[,] nMatrix = new double[m, m];
+
+            for (int i = 1; i <= m; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    double t = _knots[i + N - 1] + (_knots[i + N] - _knots[i + N - 1]) / 2.0f;
+                    nMatrix[j - 1, i - 1] = GetNFunctionValue(j, N, t);
+                }
+            }
+            return nMatrix;
         }
         #endregion Private Methods
         #region Protected Methods

@@ -404,7 +404,23 @@ namespace RayTracer.ViewModel
         private void CreateBezierCurveC2Executed()
         {
             if (!PointManager.SelectedItems.Any()) return;
-            var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
+            var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: false);
+            curve.PropertyChanged += Curve_PropertyChanged;
+            curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges") Render(); };
+            curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
+            curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
+            CurveManager.Curves.Add(curve);
+        }
+
+        private ICommand _createBezierCurveC2WithPoints;
+        public ICommand CreateBezierCurveC2WithPoints { get { return _createBezierCurveC2WithPoints ?? (_createBezierCurveC2WithPoints = new DelegateCommand(CreateBezierCurveC2WithPointsExecuted)); } }
+        /// <summary>
+        /// Creates the bezier curve c2 that contains certain points.
+        /// </summary>
+        private void CreateBezierCurveC2WithPointsExecuted()
+        {
+            if (!PointManager.SelectedItems.Any()) return;
+            var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: true);
             curve.PropertyChanged += Curve_PropertyChanged;
             curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges") Render(); };
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
@@ -450,6 +466,6 @@ namespace RayTracer.ViewModel
             foreach (var mesh in Meshes)
                 mesh.IsSelected = false;
         }
-        #endregion Commands DeselectAllCommand
+        #endregion Commands
     }
 }

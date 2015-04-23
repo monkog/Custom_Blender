@@ -178,6 +178,7 @@
                                     <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
                                     <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
                                     <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                    <MenuItem Header="Create Bézier curve C2 with points"  Command="{Binding Path=DataContext.CreateBezierCurveC2WithPoints, RelativeSource={RelativeSource AncestorType=ListView}}"/>
                                 </ContextMenu>
                             </ListView.Resources>
                             <ListView.ItemTemplate>
