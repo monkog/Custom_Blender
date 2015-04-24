@@ -15,6 +15,7 @@ namespace RayTracer.Model.Shapes
         private double[] _knots;
         private const int N = 3;
         private bool _isInterpolation;
+        private bool _equidistantPoints;
         /// <summary>
         /// Value for updating the selection after re-drawing the curve
         /// </summary>
@@ -34,6 +35,10 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         public ObservableCollection<PointEx> BezierVertices { get; private set; }
         /// <summary>
+        /// Points to interpolate
+        /// </summary>
+        public ObservableCollection<PointEx> InterpolationPoints { get; private set; }
+        /// <summary>
         /// Determines whether the Bezier curve is being displayed using Bernstein basis.
         /// If not, it's in B-Spline basis.
         /// </summary>
@@ -48,19 +53,50 @@ namespace RayTracer.Model.Shapes
                 OnPropertyChanged("IsBernsteinBasis");
             }
         }
+        /// <summary>
+        /// Determines whether the points are equidistant
+        /// </summary>
+        public bool EquidistantPoints
+        {
+            get { return _equidistantPoints; }
+            set
+            {
+                if (_equidistantPoints == value) return;
+                _equidistantPoints = value;
+                OnPropertyChanged("EquidistantPoints");
+            }
+        }
+        /// <summary>
+        /// Determines whether this is an interpolation curve
+        /// </summary>
+        public bool IsInterpolation
+        {
+            get { return _isInterpolation; }
+            set
+            {
+                if (_isInterpolation == value) return;
+                _isInterpolation = value;
+                OnPropertyChanged("IsInterpolation");
+            }
+        }
         #endregion Public Properties
         #region Constructors
         public BezierCurveC2(double x, double y, double z, string name, IEnumerable<PointEx> points, bool isInterpolation)
             : base(x, y, z, name, points, Continuity.C2)
         {
-            if ((_isInterpolation = isInterpolation))
-                DeBooreVertices = CalculateInterpolationDeBoor(points);
+            if ((IsInterpolation = isInterpolation))
+            {
+                InterpolationPoints = new ObservableCollection<PointEx>(points);
+                EquidistantPoints = true;
+            }
             else
+            {
                 DeBooreVertices = new ObservableCollection<PointEx>(points);
+                InterpolationPoints = new ObservableCollection<PointEx>();
+            }
             DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
-            DisplayEdges = false;
         }
         #endregion Constructors
         #region Private Methods
@@ -208,41 +244,59 @@ namespace RayTracer.Model.Shapes
         }
         private void SetSplineKnots(int n)
         {
-            _knots = new double[n + N + 2];
-            double interval = 1 / (double)(n + N + 1);
+            _knots = new double[n + N + 4];
 
-            for (int i = 0; i < n + N + 2; i++)
+            double interval = 1 / (double)(n + N + 3);
+
+            for (int i = 0; i < n + N + 4; i++)
                 _knots[i] = i * interval;
+
+            if (!_equidistantPoints)
+            {
+                double totalDistance = 0;
+                double[] distances = new double[n - 1];
+
+                for (int i = 0; i < n - 1; i++)
+                {
+                    distances[i] = (InterpolationPoints.ElementAt(Math.Max(0, Math.Min(i + 1, InterpolationPoints.Count - 1))).TransformedPosition 
+                        - InterpolationPoints.ElementAt(Math.Max(0, Math.Min(i, InterpolationPoints.Count - 1))).TransformedPosition).Length;
+                    totalDistance += distances[i];
+                }
+
+                double inter = (n - 1) * interval;
+                for (int i = n; i < n + distances.Length; i++)
+                    _knots[i] = _knots[i - 1] + ((distances[i - n] * inter) / totalDistance);
+            }
         }
-        private ObservableCollection<PointEx> CalculateInterpolationDeBoor(IEnumerable<PointEx> points)
+        private ObservableCollection<PointEx> CalculateInterpolationDeBoor()
         {
-            var mtx = CalculateSegments(points);
+            var mtx = CalculateSegments(InterpolationPoints);
             double[][] s = new double[3][];
             for (int i = 0; i < 3; i++)
-                s[i] = new double[points.Count()];
-            for (int i = 0; i < points.Count(); i++)
+                s[i] = new double[InterpolationPoints.Count() + 2];
+            for (int i = -1; i <= InterpolationPoints.Count(); i++)
             {
-                s[0][i] = points.ElementAt(i).TransformedPosition.X;
-                s[1][i] = points.ElementAt(i).TransformedPosition.Y;
-                s[2][i] = points.ElementAt(i).TransformedPosition.Z;
+                s[0][i + 1] = InterpolationPoints.ElementAt(Math.Min(Math.Max(i, 0), InterpolationPoints.Count() - 1)).TransformedPosition.X;
+                s[1][i + 1] = InterpolationPoints.ElementAt(Math.Min(Math.Max(i, 0), InterpolationPoints.Count() - 1)).TransformedPosition.Y;
+                s[2][i + 1] = InterpolationPoints.ElementAt(Math.Min(Math.Max(i, 0), InterpolationPoints.Count() - 1)).TransformedPosition.Z;
             }
             double[][] result = { mtx.GaussElimination(s[0]), mtx.GaussElimination(s[1]), mtx.GaussElimination(s[2]) };
             ObservableCollection<PointEx> vertices = new ObservableCollection<PointEx>();
-            for (int i = -1; i < points.Count() + 1; i++)
-                vertices.Add(new PointEx(result[0][Math.Min(Math.Max(i, 0), points.Count() - 1)], result[1][Math.Min(Math.Max(i, 0), points.Count() - 1)], result[2][Math.Min(Math.Max(i, 0), points.Count() - 1)]));
+            for (int i = 0; i < InterpolationPoints.Count() + 2; i++)
+                vertices.Add(new PointEx(result[0][i], result[1][i], result[2][i]));
             return vertices;
         }
         private double[,] CalculateSegments(IEnumerable<PointEx> points)
         {
             int m = points.Count();
             SetSplineKnots(m);
-            double[,] nMatrix = new double[m, m];
+            double[,] nMatrix = new double[m + 2, m + 2];
 
-            for (int i = 1; i <= m; i++)
+            for (int i = 1; i <= m + 2; i++)
             {
-                for (int j = 1; j <= m; j++)
+                for (int j = 1; j <= m + 2; j++)
                 {
-                    double t = _knots[i + N - 1] + (_knots[i + N] - _knots[i + N - 1]) / 2.0f;
+                    double t = _knots[i + N - 1];
                     nMatrix[j - 1, i - 1] = GetNFunctionValue(j, N, t);
                 }
             }
@@ -284,7 +338,7 @@ namespace RayTracer.Model.Shapes
             if (IsBernsteinBasis)
                 return base.GetCurvePoint(curve, t);
 
-            return (t < _knots[3] || t > _knots[_knots.Length - N - 1]) ? null : BSplinePoint(curve, t);
+            return (t < _knots[3] || t > _knots[_knots.Length - N - 4]) ? null : BSplinePoint(curve, t);
         }
         protected override void SetEdges()
         {
@@ -300,6 +354,9 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         public void UpdateVertices()
         {
+            if (_isInterpolation)
+                DeBooreVertices = CalculateInterpolationDeBoor();
+
             if (IsBernsteinBasis)
             {
                 UpdateBezierVertices();

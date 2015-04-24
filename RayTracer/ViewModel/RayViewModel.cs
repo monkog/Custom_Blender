@@ -422,10 +422,25 @@ namespace RayTracer.ViewModel
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: true);
             curve.PropertyChanged += Curve_PropertyChanged;
-            curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges") Render(); };
+            curve.PropertyChanged += curve_PropertyChanged;
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
+        }
+
+        void curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "EquidistantPoints":
+                    ((BezierCurveC2)sender).UpdateVertices();
+                    Render();
+                    break;
+                case "IsBernsteinBasis":
+                case "DisplayEdges":
+                    Render();
+                    break;
+            }
         }
 
         private ICommand _addPointToBezierCurve;
@@ -455,6 +470,27 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.Points)
                 point.IsSelected = false;
+
+            foreach (var curve in CurveManager.Instance.Curves)
+                foreach (var point in curve.Vertices)
+                    point.IsSelected = false;
+
+            foreach (var curve in CurveManager.Curves)
+                curve.IsSelected = false;
+
+            foreach (var mesh in Meshes)
+                mesh.IsSelected = false;
+        }
+
+        private ICommand _selectAllCommand;
+        public ICommand SelectAllCommand { get { return _selectAllCommand ?? (_selectAllCommand = new DelegateCommand(SelectAllExecuted)); } }
+        /// <summary>
+        /// Selects all selections.
+        /// </summary>
+        private void SelectAllExecuted()
+        {
+            foreach (var point in PointManager.Points)
+                point.IsSelected = true;
 
             foreach (var curve in CurveManager.Instance.Curves)
                 foreach (var point in curve.Vertices)

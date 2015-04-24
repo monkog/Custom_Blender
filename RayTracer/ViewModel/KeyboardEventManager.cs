@@ -168,7 +168,10 @@ namespace RayTracer.ViewModel
                         curve.Vertices.Remove(point);
                     else
                     {
-                        ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
+                        if (((BezierCurveC2)curve).IsInterpolation)
+                            ((BezierCurveC2)curve).InterpolationPoints.Remove(point);
+                        else
+                            ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
                         ((BezierCurveC2)curve).UpdateVertices();
                     }
                 }
@@ -182,7 +185,10 @@ namespace RayTracer.ViewModel
                         curve.Vertices.Remove(curve.SelectedItems.ElementAt(i));
                     else
                     {
-                        ((BezierCurveC2)curve).DeBooreVertices.Remove(curve.SelectedItems.ElementAt(i));
+                        if (((BezierCurveC2)curve).IsInterpolation)
+                            ((BezierCurveC2)curve).InterpolationPoints.Remove(curve.SelectedItems.ElementAt(i));
+                        else
+                            ((BezierCurveC2)curve).DeBooreVertices.Remove(curve.SelectedItems.ElementAt(i));
                         ((BezierCurveC2)curve).UpdateVertices();
                     }
                 if (curve.Vertices.Count == 0)
@@ -267,7 +273,10 @@ namespace RayTracer.ViewModel
                     curve.Vertices.Add(newPoint);
                 else
                 {
-                    ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
+                    if (((BezierCurveC2)curve).IsInterpolation)
+                        ((BezierCurveC2)curve).InterpolationPoints.Add(newPoint);
+                    else
+                        ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
                     ((BezierCurveC2)curve).UpdateVertices();
                 }
             PointManager.Instance.Points.Add(newPoint);

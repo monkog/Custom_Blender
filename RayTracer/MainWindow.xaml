@@ -40,6 +40,7 @@
                 <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                 <CheckBox IsChecked="{Binding IsBernsteinBasis}" Content="Bernstein Basis"/>
+                <CheckBox IsChecked="{Binding EquidistantPoints}" Content="Equidistant" IsEnabled="{Binding IsInterpolation}"/>
                 <TextBox Text="{Binding Name}"/>
                 <TreeView ItemsSource="{Binding Vertices}">
                     <TreeView.ItemTemplate>
@@ -196,7 +197,10 @@
                             </ListView.ItemContainerStyle>
                         </ListView>
                     </GroupBox>
-                    <Button Content="Deselect All" Margin="5" Command="{Binding DeselectAllCommand}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Deselect All" Margin="5" Command="{Binding DeselectAllCommand}"/>
+                        <Button Content="Select All Points" Margin="5" Command="{Binding SelectAllCommand}"/>
+                    </StackPanel>
                 </StackPanel>
                 <GroupBox Margin="20, 0" Header="Meshes">
                     <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single">

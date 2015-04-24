@@ -55,7 +55,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (e.PropertyName == "ModelTransform" || e.PropertyName == "MeshTransform")
                     foreach (var c in CurveManager.Instance.Curves.Where(c => c.Continuity == Continuity.C2)
-                        .Select(curve => curve as BezierCurveC2).Where(c => c.DeBooreVertices.Contains(this)))
+                        .Select(curve => curve as BezierCurveC2).Where(c => c.DeBooreVertices.Contains(this) || c.InterpolationPoints.Contains(this)))
                         c.UpdateVertices();
             };
 
