@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Windows.Media.Media3D;
+﻿using System.Windows.Media.Media3D;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes

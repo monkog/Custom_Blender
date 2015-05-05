@@ -232,6 +232,10 @@ namespace RayTracer.ViewModel
         /// </summary>
         public CurveManager CurveManager { get { return CurveManager.Instance; } }
         /// <summary>
+        /// Gets the Patch manager.
+        /// </summary>
+        public PatchManager PatchManager { get { return PatchManager.Instance; } }
+        /// <summary>
         /// Gets the cursor.
         /// </summary>
         public Cursor3D Cursor { get { return Cursor3D.Instance; } }
@@ -379,6 +383,17 @@ namespace RayTracer.ViewModel
             Meshes.Clear();
             Meshes.Add(ellipsoide);
             Render();
+        }
+
+        private ICommand _addBezierPatchC0Command;
+        public ICommand AddBezierPatchC0Command { get { return _addBezierPatchC0Command ?? (_addBezierPatchC0Command = new DelegateCommand(AddBezierPatchC0Executed)); } }
+        /// <summary>
+        /// Adds the Bezier Patch with C0 continuity.
+        /// </summary>
+        private void AddBezierPatchC0Executed()
+        {
+            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")");
+            PatchManager.Patches.Add(patch);
         }
 
         private ICommand _createBezierCurveC0;

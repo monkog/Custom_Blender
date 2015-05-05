@@ -137,18 +137,18 @@
                 <GroupBox Margin="20" Header="Torus">
                     <StackPanel>
                         <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
-                        <StackPanel Orientation="Horizontal" Margin="20">
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="L: "/>
                             <TextBox Width="100" Text="{Binding L}"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20">
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="V: "/>
                             <TextBox Width="100" Text="{Binding V}"/>
                         </StackPanel>
-                        <CheckBox Content="Stereoscopic view" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
+                        <CheckBox Content="Stereoscopic view" Margin="20, 2" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Margin="20" Header="Ellipsoide">
+                <GroupBox Margin="20" Header="Ellipsoide" Visibility="Collapsed">
                     <StackPanel>
                         <Button Content="Add Ellipsoide" Command="{Binding AddEllipsoideCommand}" Margin="20"/>
                         <StackPanel Orientation="Horizontal" Margin="20">
@@ -166,6 +166,36 @@
                         <StackPanel Orientation="Horizontal" Margin="20">
                             <TextBlock Text="m: "/>
                             <TextBox Width="100" Text="{Binding M, Source={x:Static viewModel:SceneManager.Instance}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Margin="20" Header="Bezier Patch">
+                    <StackPanel>
+                        <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchC0Command}" Margin="20"/>
+                        <CheckBox Margin="20, 0" Content="Is Cylinder" IsChecked="{Binding IsCylinder, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Horizontal Patches: "/>
+                            <TextBox Width="50" Text="{Binding HorizontalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Vertical Patches: "/>
+                            <TextBox Width="50" Text="{Binding VerticalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Width/Radius: "/>
+                            <TextBox Width="50" Text="{Binding PatchWidth, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Height: "/>
+                            <TextBox Width="50" Text="{Binding PatchHeight, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Horizontal Patch Divisions: "/>
+                            <TextBox Width="50" Text="{Binding HorizontalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="Vertical Patch Divisions: "/>
+                            <TextBox Width="50" Text="{Binding VerticalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
