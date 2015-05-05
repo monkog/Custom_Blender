@@ -264,8 +264,8 @@ namespace RayTracer.Model.Shapes
                 }
 
                 double inter = (n - 1) * interval;
-                for (int i = n; i < n + distances.Length; i++)
-                    _knots[i] = _knots[i - 1] + ((distances[i - n] * inter) / totalDistance);
+                for (int i = N; i < N + distances.Length; i++)
+                    _knots[i] = _knots[Math.Max(0, Math.Min(i - 1, InterpolationPoints.Count - 1))] + ((distances[Math.Max(0, Math.Min(i - n, InterpolationPoints.Count - 1))] * inter) / totalDistance);
             }
         }
         private ObservableCollection<PointEx> CalculateInterpolationDeBoor()

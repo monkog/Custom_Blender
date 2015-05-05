@@ -61,21 +61,21 @@ namespace RayTracer.Model.Shapes
                 {
                     Color color;
                     var p = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.StereographicLeftViewMatrix(20, 400) * point;
-                    if (!(p.X < 0 || p.X > bmp.Width || p.Y < 0 || p.Y > bmp.Height))
+                    if (double.IsNaN(p.X) || double.IsNaN(p.Y) || !(p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height))
                     {
                         color = bmp.GetPixel((int)p.X, (int)p.Y);
                         g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Red)), (int)p.X, (int)p.Y, Thickness, Thickness);
                     }
 
                     p = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.StereographicRightViewMatrix(20, 400) * point;
-                    if (p.X < 0 || p.X > bmp.Width || p.Y < 0 || p.Y > bmp.Height) continue;
+                    if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height) continue;
                     color = bmp.GetPixel((int)p.X, (int)p.Y);
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)p.X, (int)p.Y, Thickness, Thickness);
                 }
                 else
                 {
                     var p = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.ViewMatrix(400) * point;
-                    if (p.X < 0 || p.X > bmp.Width || p.Y < 0 || p.Y > bmp.Height) continue;
+                    if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height) continue;
                     Color color = bmp.GetPixel((int)p.X, (int)p.Y);
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, Thickness, Thickness);
                 }

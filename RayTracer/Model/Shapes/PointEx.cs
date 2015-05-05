@@ -105,21 +105,21 @@ namespace RayTracer.Model.Shapes
                 {
                     Color color;
                     Transform = Transformations.StereographicLeftViewMatrix(20, 400);
-                    if (!(PointOnScreen.X < 0 || PointOnScreen.X > bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y > bmp.Height))
+                    if (!(double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height))
                     {
                         color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
                         g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Red)), (int)PointOnScreen.X, (int)PointOnScreen.Y, Thickness, Thickness);
                     }
 
                     Transform = Transformations.StereographicRightViewMatrix(20, 400);
-                    if (PointOnScreen.X < 0 || PointOnScreen.X > bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y > bmp.Height) return;
+                    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X > bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y > bmp.Height) return;
                     color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X, (int)PointOnScreen.Y, Thickness, Thickness);
                 }
                 else
                 {
                     Transform = Transformations.ViewMatrix(400);
-                    if (PointOnScreen.X < 0 || PointOnScreen.X > bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y > bmp.Height) return;
+                    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) return;
                     Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
                     g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)PointOnScreen.X, (int)PointOnScreen.Y, Thickness, Thickness);
                 }
