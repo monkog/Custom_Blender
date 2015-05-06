@@ -94,7 +94,6 @@ namespace RayTracer.Model.Shapes
                 DeBooreVertices = new ObservableCollection<PointEx>(points);
                 InterpolationPoints = new ObservableCollection<PointEx>();
             }
-            DisplayVertices = true;
             IsBernsteinBasis = true;
             UpdateVertices();
         }

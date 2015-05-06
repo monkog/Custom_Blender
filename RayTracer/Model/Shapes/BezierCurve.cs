@@ -25,7 +25,7 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name)
         {
             SetVertices(points);
-            DisplayVertices = false;
+            DisplayVertices = true;
             Continuity = continuity;
         }
         #endregion Constructors

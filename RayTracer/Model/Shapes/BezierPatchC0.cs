@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Media.Media3D;
 using RayTracer.ViewModel;
 
@@ -12,6 +13,7 @@ namespace RayTracer.Model.Shapes
         private const int BezierSegmentPoints = 3;
         #endregion Private Members
         #region Public Properties
+        public System.Collections.Generic.IEnumerable<object> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         #endregion Public Properties
         #region Constructors
         public BezierPatchC0(double x, double y, double z, string name)
@@ -31,7 +33,6 @@ namespace RayTracer.Model.Shapes
             if (_isCylinder) SetCylinderVertices();
             else SetPlaneVertices();
         }
-
         private void SetPlaneVertices()
         {
             var manager = PatchManager.Instance;
@@ -43,7 +44,11 @@ namespace RayTracer.Model.Shapes
 
             for (int i = 0; i < points.GetLength(0); i++)
                 for (int j = 0; j < points.GetLength(1); j++)
-                    points[i, j] = new PointEx(topLeft.X + (j * dx), topLeft.Y + (i * dy), topLeft.Z);
+                {
+                    var point = new PointEx(topLeft.X + (j * dx), topLeft.Y + (i * dy), topLeft.Z);
+                    points[i, j] = point;
+                    Vertices.Add(point);
+                }
 
             for (int i = 0; i < points.GetLength(0); i++)
                 for (int j = 0; j < points.GetLength(1) - 1; j += BezierSegmentPoints)
@@ -93,11 +98,7 @@ namespace RayTracer.Model.Shapes
         public override void Draw()
         {
             foreach (var curve in _curves)
-            {
                 curve.Draw();
-                foreach (var vertex in curve.Vertices)
-                    vertex.Draw();
-            }
         }
         #endregion Public Methods
     }

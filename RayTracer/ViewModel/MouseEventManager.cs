@@ -216,6 +216,17 @@ namespace RayTracer.ViewModel
                     else
                         point.IsSelected = false;
                 }
+
+            foreach (var patch in PatchManager.Instance.Patches)
+                foreach (var point in patch.Vertices)
+                {
+                    var transformedPoint = point.ModelTransform * point.Vector4;
+                    if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
+                        && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
+                        point.IsSelected = !point.IsSelected;
+                    else
+                        point.IsSelected = false;
+                }
         }
         #endregion Commands
     }

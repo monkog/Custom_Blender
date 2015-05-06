@@ -52,6 +52,9 @@ namespace RayTracer.ViewModel
                 foreach (var curve in CurveManager.Instance.Curves)
                     foreach (var point in curve.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (PointEx point in patch.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
             else
@@ -60,6 +63,9 @@ namespace RayTracer.ViewModel
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
                 foreach (var curve in CurveManager.Instance.Curves)
                     foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (PointEx point in patch.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
@@ -86,6 +92,9 @@ namespace RayTracer.ViewModel
                 foreach (var curve in CurveManager.Instance.Curves)
                     foreach (var point in curve.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (PointEx point in patch.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
             else
@@ -94,6 +103,9 @@ namespace RayTracer.ViewModel
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
                 foreach (var curve in CurveManager.Instance.Curves)
                     foreach (var point in curve.SelectedItems)
+                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (PointEx point in patch.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
@@ -118,6 +130,9 @@ namespace RayTracer.ViewModel
             foreach (var curve in CurveManager.Instance.Curves)
                 foreach (var point in curve.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
+            foreach (var patch in PatchManager.Instance.Patches)
+                foreach (PointEx point in patch.SelectedItems)
+                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
 
@@ -139,6 +154,9 @@ namespace RayTracer.ViewModel
                 point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
             foreach (var curve in CurveManager.Instance.Curves)
                 foreach (var point in curve.SelectedItems)
+                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
+            foreach (var patch in PatchManager.Instance.Patches)
+                foreach (PointEx point in patch.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }

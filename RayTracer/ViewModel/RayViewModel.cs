@@ -251,8 +251,10 @@ namespace RayTracer.ViewModel
             B = 6;
             C = 8;
             SceneManager.M = 4;
-            PatchManager.HorizontalPatches = 4;
-            PatchManager.VerticalPatches = 4;
+            PatchManager.HorizontalPatches = 1;
+            PatchManager.VerticalPatches = 1;
+            PatchManager.PatchHeight = 3;
+            PatchManager.PatchWidth = 3;
             Render();
         }
         #endregion Constructor
@@ -298,20 +300,14 @@ namespace RayTracer.ViewModel
                         else
                             matrix = Transformations.TranslationMatrix(new Vector3D(delta.X, delta.Y, 0));
 
-                        foreach (var mesh in Meshes)
-                            mesh.ModelTransform = matrix * mesh.ModelTransform;
-                        foreach (var point in PointManager.Points)
-                            point.ModelTransform = matrix * point.ModelTransform;
+                        TransformScene(matrix);
                     }
                     break;
                 case "MouseScale":
                     {
                         double delta = MouseManager.MouseScale;
                         Matrix3D matrix = Transformations.ScaleMatrix(delta);
-                        foreach (var mesh in Meshes)
-                            mesh.ModelTransform = matrix * mesh.ModelTransform;
-                        foreach (var point in PointManager.Points)
-                            point.ModelTransform = matrix * point.ModelTransform;
+                        TransformScene(matrix);
                     }
                     break;
                 default:
