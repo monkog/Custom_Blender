@@ -12,15 +12,18 @@ namespace RayTracer.Helpers.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            MemoryStream ms = new MemoryStream();
-            ((Bitmap)value).Save(ms, ImageFormat.Bmp);
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            ms.Seek(0, SeekOrigin.Begin);
-            image.StreamSource = ms;
-            image.EndInit();
+            BitmapImage bitmapImage = new BitmapImage();
+            using (MemoryStream memory = new MemoryStream())
+            {
+                ((Bitmap)value).Save(memory, ImageFormat.Png);
+                memory.Position = 0;
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
 
-            return image;
+            return bitmapImage;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

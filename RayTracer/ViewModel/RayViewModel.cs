@@ -106,10 +106,7 @@ namespace RayTracer.ViewModel
             {
                 if (_xSlider == value) return;
                 Matrix3D matrix = Transformations.RotationMatrixX((Math.PI * 2.0f) * (value - _xSlider) / 360);
-                foreach (var mesh in Meshes)
-                    mesh.ModelTransform = matrix * mesh.ModelTransform;
-                foreach (var point in PointManager.Points)
-                    point.ModelTransform = matrix * point.ModelTransform;
+                TransformScene(matrix);
                 Render();
                 _xSlider = value;
                 OnPropertyChanged("XSlider");
@@ -128,10 +125,7 @@ namespace RayTracer.ViewModel
             {
                 if (_ySlider == value) return;
                 Matrix3D matrix = Transformations.RotationMatrixY((Math.PI * 2.0f) * (value - _ySlider) / 360);
-                foreach (var mesh in Meshes)
-                    mesh.ModelTransform = matrix * mesh.ModelTransform;
-                foreach (var point in PointManager.Points)
-                    point.ModelTransform = matrix * point.ModelTransform;
+                TransformScene(matrix);
                 Render();
                 _ySlider = value;
                 OnPropertyChanged("YSlider");
@@ -150,10 +144,7 @@ namespace RayTracer.ViewModel
             {
                 if (_zSlider == value) return;
                 Matrix3D matrix = Transformations.RotationMatrixZ((Math.PI * 2.0f) * (value - _zSlider) / 360);
-                foreach (var mesh in Meshes)
-                    mesh.ModelTransform = matrix * mesh.ModelTransform;
-                foreach (var point in PointManager.Points)
-                    point.ModelTransform = matrix * point.ModelTransform;
+                TransformScene(matrix);
                 Render();
                 _zSlider = value;
                 OnPropertyChanged("ZSlider");
@@ -252,6 +243,7 @@ namespace RayTracer.ViewModel
             Cursor.PropertyChanged += Cursor_PropertyChanged;
             PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
             CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
+            PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
             Meshes.CollectionChanged += (sender, args) => { Render(); };
             L = 20;
             V = 20;
@@ -259,6 +251,8 @@ namespace RayTracer.ViewModel
             B = 6;
             C = 8;
             SceneManager.M = 4;
+            PatchManager.HorizontalPatches = 4;
+            PatchManager.VerticalPatches = 4;
             Render();
         }
         #endregion Constructor
@@ -275,6 +269,9 @@ namespace RayTracer.ViewModel
 
             foreach (var point in PointManager.Instance.Points)
                 point.Draw();
+
+            foreach (var patch in PatchManager.Patches)
+                patch.Draw();
 
             foreach (ModelBase mesh in Meshes)
                 mesh.Draw();
@@ -358,6 +355,15 @@ namespace RayTracer.ViewModel
                     Render();
                     break;
             }
+        }
+        private void TransformScene(Matrix3D matrix)
+        {
+            foreach (var mesh in Meshes)
+                mesh.ModelTransform = matrix * mesh.ModelTransform;
+            foreach (var point in PointManager.Points)
+                point.ModelTransform = matrix * point.ModelTransform;
+            foreach (var patch in PatchManager.Patches)
+                patch.TransformPatch(matrix);
         }
         #endregion Private Methods
         #region Commands

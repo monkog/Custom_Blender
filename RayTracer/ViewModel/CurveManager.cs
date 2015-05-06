@@ -44,10 +44,6 @@ namespace RayTracer.ViewModel
             Curves = new ObservableCollection<BezierCurve>();
         }
         #endregion Constructor
-        #region Private Methods
-        #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }
 

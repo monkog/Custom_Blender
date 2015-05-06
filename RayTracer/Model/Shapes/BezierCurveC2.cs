@@ -374,9 +374,7 @@ namespace RayTracer.Model.Shapes
         {
             if (IsBernsteinBasis && Vertices.Any(p => p.IsSelected))
             {
-                Console.Write(Vertices[0].TransformedPosition.X + "" + Vertices[0].TransformedPosition.Y + "" + Vertices[0].TransformedPosition.Z);
                 UpdateDeBooreVertices();
-                Console.Write(Vertices[0].TransformedPosition.X + "" + Vertices[0].TransformedPosition.Y + "" + Vertices[0].TransformedPosition.Z);
                 Vertices[_selectedPointIndex].IsSelected = true;
                 SetEdges();
             }

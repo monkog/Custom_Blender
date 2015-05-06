@@ -30,7 +30,7 @@ namespace RayTracer.Model.Shapes
             int index = 0;
             for (int i = 0; i < Vertices.Count(); i++)
             {
-                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).ModelTransform).Normalized);
+                curve.Add(Transformations.TransformPoint(Vertices.ElementAt(i).Vector4, Vertices.ElementAt(i).MeshTransform * Vertices.ElementAt(i).ModelTransform).Normalized);
                 index = (index + 1) % 4;
 
                 if (i < Vertices.Count - 1)

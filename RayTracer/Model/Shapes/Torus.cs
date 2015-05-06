@@ -6,6 +6,7 @@ namespace RayTracer.Model.Shapes
 {
     public sealed class Torus : ModelBase
     {
+        #region Private Members
         /// <summary>
         /// The donut divisions (beta)
         /// </summary>
@@ -16,6 +17,7 @@ namespace RayTracer.Model.Shapes
         private int _circle_division;
         private double _r;
         private double _R;
+        #endregion Private Members
         #region .ctor
         public Torus(double x, double y, double z, string name, int l, int v)
             : base(x, y, z, name)
