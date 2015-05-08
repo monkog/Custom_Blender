@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using RayTracer.Model.Shapes;
+using System.Linq;
 
 namespace RayTracer.ViewModel
 {
@@ -126,13 +128,13 @@ namespace RayTracer.ViewModel
         {
             get { return _instance ?? (_instance = new PatchManager()); }
         }
-        /// <summary>
-        /// Gets or sets the selected Patches.
-        /// </summary>
-        //public IEnumerable<BezierCurve> SelectedItems
-        //{
-        //    get { return Patches.Where(p => p.IsSelected); }
-        //}
+         ///<summary>
+         ///Gets or sets the selected Patches.
+         ///</summary>
+        public IEnumerable<BezierPatchC0> SelectedItems
+        {
+            get { return Patches.Where(p => p.IsSelected); }
+        }
         #endregion Public Properties
         #region Constructor
         public PatchManager()

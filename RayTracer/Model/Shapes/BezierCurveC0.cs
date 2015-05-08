@@ -39,13 +39,13 @@ namespace RayTracer.Model.Shapes
                 if (index == 0 && i < Vertices.Count - 1)
                 {
                     i--;
-                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
+                    curves.Add(new Tuple<List<Vector4>, double>(curve, 1.0 / divisions));
                     curve = new List<Vector4>();
                 }
             }
 
             if (curve.Count > 0)
-                curves.Add(new Tuple<List<Vector4>, double>(curve, 1 / divisions));
+                curves.Add(new Tuple<List<Vector4>, double>(curve, 1.0 / divisions));
 
             return curves;
         }

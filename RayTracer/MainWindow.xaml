@@ -57,6 +57,25 @@
                 </TreeView>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type shapes:BezierPatchC0}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
+                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
+                <TextBox Text="{Binding Name}"/>
+                <TreeView ItemsSource="{Binding Vertices}">
+                    <TreeView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
+                                </StackPanel>
+                                <TextBox Text="{Binding Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad8"/>
@@ -232,19 +251,24 @@
                         <Button Content="Select All Points" Margin="5" Command="{Binding SelectAllCommand}"/>
                     </StackPanel>
                 </StackPanel>
-                <GroupBox Margin="20, 0" Header="Meshes">
-                    <ListView Width="200" ItemsSource="{Binding Meshes}" SelectionMode="Single">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBox Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </GroupBox>
+                <TabControl Height="500">
+                    <TabItem Header="Meshes">
+                        <ListView ItemsSource="{Binding Meshes}" SelectionMode="Single">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </TabItem>
+                    <TabItem Header="Curves">
+                        <ListView ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single"/>
+                    </TabItem>
+                    <TabItem Header="Patches">
+                        <ListView ItemsSource="{Binding Patches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
+                    </TabItem>
+                </TabControl>
             </StackPanel>
         </StackPanel>
-        <GroupBox Grid.Column="1" Margin="20, 0" Header="Curves" HorizontalAlignment="Right">
-            <ListView Width="200" ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single" />
-        </GroupBox>
     </Grid>
 </Window>

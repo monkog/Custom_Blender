@@ -91,7 +91,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (_modelTransform == value)
                     return;
-                _modelTransform = value;
+                this._modelTransform = value;
                 CalculateShape();
                 OnPropertyChanged("ModelTransform");
             }

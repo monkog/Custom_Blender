@@ -244,6 +244,7 @@ namespace RayTracer.ViewModel
             PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
             CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
             PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
+            PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions") Render(); };
             Meshes.CollectionChanged += (sender, args) => { Render(); };
             L = 20;
             V = 20;
@@ -251,10 +252,12 @@ namespace RayTracer.ViewModel
             B = 6;
             C = 8;
             SceneManager.M = 4;
-            PatchManager.HorizontalPatches = 1;
+            PatchManager.HorizontalPatches = 2;
             PatchManager.VerticalPatches = 1;
             PatchManager.PatchHeight = 3;
             PatchManager.PatchWidth = 3;
+            PatchManager.HorizontalPatchDivisions = 15;
+            PatchManager.VerticalPatchDivisions = 15;
             Render();
         }
         #endregion Constructor
@@ -266,10 +269,10 @@ namespace RayTracer.ViewModel
                 g.Clear(Color.Black);
             }
 
-            foreach (var curve in CurveManager.Instance.Curves)
+            foreach (var curve in CurveManager.Curves)
                 curve.Draw();
 
-            foreach (var point in PointManager.Instance.Points)
+            foreach (var point in PointManager.Points)
                 point.Draw();
 
             foreach (var patch in PatchManager.Patches)
@@ -343,6 +346,20 @@ namespace RayTracer.ViewModel
                     break;
             }
         }
+        private void curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "EquidistantPoints":
+                    ((BezierCurveC2)sender).UpdateVertices();
+                    Render();
+                    break;
+                case "IsBernsteinBasis":
+                case "DisplayEdges":
+                    Render();
+                    break;
+            }
+        }
         void Curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -395,6 +412,7 @@ namespace RayTracer.ViewModel
         private void AddBezierPatchC0Executed()
         {
             var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")");
+            patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.Patches.Add(patch);
         }
 
@@ -445,21 +463,6 @@ namespace RayTracer.ViewModel
             CurveManager.Curves.Add(curve);
         }
 
-        void curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "EquidistantPoints":
-                    ((BezierCurveC2)sender).UpdateVertices();
-                    Render();
-                    break;
-                case "IsBernsteinBasis":
-                case "DisplayEdges":
-                    Render();
-                    break;
-            }
-        }
-
         private ICommand _addPointToBezierCurve;
         public ICommand AddPointToBezierCurve { get { return _addPointToBezierCurve ?? (_addPointToBezierCurve = new DelegateCommand(AddPointToBezierCurveExecuted)); } }
         /// <summary>
@@ -502,7 +505,7 @@ namespace RayTracer.ViewModel
         private ICommand _selectAllCommand;
         public ICommand SelectAllCommand { get { return _selectAllCommand ?? (_selectAllCommand = new DelegateCommand(SelectAllExecuted)); } }
         /// <summary>
-        /// Selects all selections.
+        /// Selects all items.
         /// </summary>
         private void SelectAllExecuted()
         {

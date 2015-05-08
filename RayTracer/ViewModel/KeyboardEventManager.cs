@@ -212,6 +212,8 @@ namespace RayTracer.ViewModel
                 if (curve.Vertices.Count == 0)
                     CurveManager.Instance.Curves.Remove(curve);
             }
+            for (int i = PatchManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+                PatchManager.Instance.Patches.Remove(PatchManager.Instance.SelectedItems.ElementAt(i));
         }
 
         private ActionCommand<KeyEventArgs> _keySelectCommand;
