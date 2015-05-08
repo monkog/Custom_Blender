@@ -34,7 +34,7 @@ namespace RayTracer.Model.Shapes
         {
             Vertices = new ObservableCollection<PointEx>(points);
         }
-        private void DrawBezierCurve(double? divisions)
+        private void DrawBezierCurve()
         {
             if (DisplayEdges)
             {
@@ -47,7 +47,7 @@ namespace RayTracer.Model.Shapes
 
             using (Graphics g = Graphics.FromImage(bmp))
                 foreach (var curve in curves)
-                    DrawSingleCurve(bmp, g, curve.Item1, divisions ?? curve.Item2);
+                    DrawSingleCurve(bmp, g, curve.Item1, curve.Item2);
             SceneManager.Instance.SceneImage = bmp;
         }
         private void DrawSingleCurve(Bitmap bmp, Graphics g, List<Vector4> curve, double divisions)
@@ -142,9 +142,9 @@ namespace RayTracer.Model.Shapes
         }
         #endregion Protected Methods
         #region Public Methods
-        public void Draw(double? divisions = null)
+        public override void Draw()
         {
-            DrawBezierCurve(divisions);
+            DrawBezierCurve();
             base.Draw();
         }
         #endregion Public Methods

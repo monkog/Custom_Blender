@@ -218,10 +218,9 @@ namespace RayTracer.ViewModel
                 }
 
             foreach (var patch in PatchManager.Instance.Patches)
-                foreach (var curve in patch.Curves)
-                    foreach (var point in curve.Vertices)
+                foreach (var point in patch.Vertices)
                     {
-                        var transformedPoint = patch.ModelTransform * curve.ModelTransform * point.ModelTransform * point.Vector4;
+                        var transformedPoint = patch.ModelTransform * point.ModelTransform * point.Vector4;
                         if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
                             && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
                             point.IsSelected = !point.IsSelected;

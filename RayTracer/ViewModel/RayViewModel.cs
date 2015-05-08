@@ -376,7 +376,7 @@ namespace RayTracer.ViewModel
             foreach (var point in PointManager.Points)
                 point.ModelTransform = matrix * point.ModelTransform;
             foreach (var patch in PatchManager.Patches)
-                patch.TransformPatch(matrix);
+                patch.ModelTransform = matrix*patch.ModelTransform;
         }
         #endregion Private Methods
         #region Commands
