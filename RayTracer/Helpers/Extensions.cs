@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Media.Media3D;
+using RayTracer.Model.Shapes;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Helpers
@@ -119,5 +120,21 @@ namespace RayTracer.Helpers
 
         //    return x;
         //}
+        public static void FindMaxMinCoords(this PointEx[,] points, out double minX, out double minY, out double maxX, out double maxY)
+        {
+            maxX = double.MinValue;
+            maxY = double.MinValue;
+            minX = double.MaxValue;
+            minY = double.MaxValue;
+            for (int i = 0; i < points.GetLength(0); i++)
+                for (int j = 0; j < points.GetLength(1); j++)
+                {
+                    var point = points[i, j].PointOnScreen;
+                    if (maxX < point.X) maxX = point.X;
+                    if (maxY < point.Y) maxY = point.Y;
+                    if (minX > point.X) minX = point.X;
+                    if (minY > point.Y) minY = point.Y;
+                }
+        }
     }
 }

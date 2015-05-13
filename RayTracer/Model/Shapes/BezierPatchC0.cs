@@ -8,25 +8,15 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class BezierPatchC0 : ModelBase
+    public class BezierPatchC0 : BezierPatch
     {
         #region Private Members
-        private bool _isCylinder;
         private PointEx[,] _points;
-        private const int BezierSegmentPoints = 3;
-        private int _horizontalPatches;
-        private int _verticalPatches;
         #endregion Private Members
-        #region Public Properties
-        public IEnumerable<object> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
-        #endregion Public Properties
         #region Constructors
         public BezierPatchC0(double x, double y, double z, string name)
             : base(x, y, z, name)
         {
-            _verticalPatches = PatchManager.Instance.VerticalPatches;
-            _horizontalPatches = PatchManager.Instance.HorizontalPatches;
-            _isCylinder = PatchManager.Instance.IsCylinder;
             SetVertices();
         }
         #endregion Constructors
@@ -67,7 +57,7 @@ namespace RayTracer.Model.Shapes
             var manager = PatchManager.Instance;
             _points = new PointEx[manager.VerticalPatches * BezierSegmentPoints + 1, manager.HorizontalPatches * BezierSegmentPoints + 1];
 
-            if (_isCylinder)
+            if (IsCylinder)
             {
                 SetCylinderVertices();
                 SetCylinderEdges();
@@ -145,13 +135,18 @@ namespace RayTracer.Model.Shapes
         {
             base.Draw();
             var manager = PatchManager.Instance;
+            double maxX, maxY, minX, minY;
+            _points.FindMaxMinCoords(out minX, out minY, out maxX, out maxY);
+
+            var xDiv = 1.0 / ((maxX - minX) * 4);
+            var yDiv = 1.0 / ((maxY - minY) * 4);
 
             Bitmap bmp = SceneManager.Instance.SceneImage;
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                for (int i = 0; i < _verticalPatches; i++)
+                for (int i = 0; i < VerticalPatches; i++)
                 {
-                    for (int j = 0; j < _horizontalPatches; j++)
+                    for (int j = 0; j < HorizontalPatches; j++)
                     {
                         Matrix3D matX = new Matrix3D(_points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 3].TransformedPosition.X
                                                    , _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 3].TransformedPosition.X
@@ -166,8 +161,6 @@ namespace RayTracer.Model.Shapes
                                                    , _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 3].TransformedPosition.Z
                                                    , _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 3].TransformedPosition.Z);
 
-                        var xDiv = 1.0 / ((_points[i * BezierSegmentPoints, j * BezierSegmentPoints].PointOnScreen - _points[i * BezierSegmentPoints, j * BezierSegmentPoints + 1].PointOnScreen).Length * 4);
-                        var yDiv = 1.0 / ((_points[i * BezierSegmentPoints, j * BezierSegmentPoints].PointOnScreen - _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints].PointOnScreen).Length * 4);
                         DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: false);
                         DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: true);
                     }
