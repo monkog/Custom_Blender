@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Windows;
 using System.Windows.Media.Media3D;
+using RayTracer.Helpers;
 
 namespace RayTracer.ViewModel
 {
@@ -112,5 +114,44 @@ namespace RayTracer.ViewModel
             SceneImage = new Bitmap(Width, Height);
         }
         #endregion .ctor
+        #region Public Methods        
+        /// <summary>
+        /// Draws the curve point on the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="g">The g.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="thickness">The thickness of the point.</param>
+        public static void DrawCurvePoint(Bitmap bmp, Graphics g, Vector4 point, int thickness)
+        {
+            if (Instance.IsStereoscopic)
+            {
+                Color color;
+                var p = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.StereographicLeftViewMatrix(20, 400) * point;
+                if (double.IsNaN(p.X) || double.IsNaN(p.Y) || !(p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height))
+                {
+                    color = bmp.GetPixel((int)p.X, (int)p.Y);
+                    g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Red)), (int)p.X, (int)p.Y, thickness, thickness);
+                }
+
+                p = Instance.TransformMatrix * Instance.ScaleMatrix *
+                    Transformations.StereographicRightViewMatrix(20, 400) * point;
+                if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height)
+                    return;
+                color = bmp.GetPixel((int)p.X, (int)p.Y);
+                g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)p.X, (int)p.Y, thickness, thickness);
+            }
+            else
+            {
+                var p = Instance.TransformMatrix * Instance.ScaleMatrix * Transformations.ViewMatrix(400) *
+                        point;
+                if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height)
+                    return;
+                Color color = bmp.GetPixel((int)p.X, (int)p.Y);
+                g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, thickness, thickness);
+            }
+        }
+        #endregion Public Methods
     }
 }

@@ -44,6 +44,11 @@ namespace RayTracer.Helpers
             return new Vector4(vector.X * value, vector.Y * value, vector.Z * value, vector.A * value);
         }
 
+        public static double operator *(Vector4 vector, Vector4 value)
+        {
+            return vector.X * value.X + vector.Y * value.Y + vector.Z * value.Z + vector.A * value.A;
+        }
+
         public static Vector4 operator /(Vector4 vector, double value)
         {
             return new Vector4(vector.X / value, vector.Y / value, vector.Z / value, vector.A / value);
@@ -65,6 +70,14 @@ namespace RayTracer.Helpers
                                 , vector.X * matrix.M21 + vector.Y * matrix.M22 + vector.Z * matrix.M23 + vector.A * matrix.M24
                                 , vector.X * matrix.M31 + vector.Y * matrix.M32 + vector.Z * matrix.M33 + vector.A * matrix.M34
                                 , vector.X * matrix.OffsetX + vector.Y * matrix.OffsetY + vector.Z * matrix.OffsetZ + vector.A * matrix.M44);
+        }
+
+        public static Vector4 operator *(Vector4 vector, Matrix3D matrix)
+        {
+            return new Vector4(vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31 + vector.A * matrix.OffsetX
+                                , vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32 + vector.A * matrix.OffsetY
+                                , vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33 + vector.A * matrix.OffsetZ
+                                , vector.X * matrix.M14 + vector.Y * matrix.M24 + vector.Z * matrix.M34 + vector.A * matrix.M44);
         }
     }
 }
