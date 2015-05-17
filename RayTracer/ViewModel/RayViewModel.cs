@@ -388,9 +388,23 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void LoadSceneExecuted()
         {
-            SaveFileDialog dialog = new SaveFileDialog();
+            OpenFileDialog dialog = new OpenFileDialog();
             dialog.ShowDialog();
-            var x = dialog.CheckPathExists;
+            if (dialog.CheckPathExists)
+                SceneManager.LoadScene(dialog.FileName);
+        }
+
+        private ICommand _clearSceneCommand;
+        public ICommand ClearSceneCommand { get { return _clearSceneCommand ?? (_clearSceneCommand = new DelegateCommand(ClearSceneExecuted)); } }
+        /// <summary>
+        /// Clears the scene.
+        /// </summary>
+        private void ClearSceneExecuted()
+        {
+            PointManager.Points.Clear();
+            MeshManager.Meshes.Clear();
+            PatchManager.Patches.Clear();
+            CurveManager.Curves.Clear();
         }
 
         private ICommand _addTorusCommand;

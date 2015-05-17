@@ -94,6 +94,9 @@
         <Menu>
             <MenuItem Header="Save Scene" Command="{Binding SaveSceneCommand}"/>
             <MenuItem Header="Load Scene" Command="{Binding LoadSceneCommand}"/>
+            <MenuItem Header="Clear Scene" Command="{Binding ClearSceneCommand}"/>
+            <MenuItem Header="Deselect All" Command="{Binding DeselectAllCommand}"/>
+            <MenuItem Header="Select All Points" Command="{Binding SelectAllCommand}"/>
         </Menu>
         <Canvas Grid.Column="0" ClipToBounds="True">
             <i:Interaction.Behaviors>
@@ -250,10 +253,6 @@
                             </ListView.ItemContainerStyle>
                         </ListView>
                     </GroupBox>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Deselect All" Margin="5" Command="{Binding DeselectAllCommand}"/>
-                        <Button Content="Select All Points" Margin="5" Command="{Binding SelectAllCommand}"/>
-                    </StackPanel>
                 </StackPanel>
                 <TabControl Height="500">
                     <TabItem Header="Meshes">

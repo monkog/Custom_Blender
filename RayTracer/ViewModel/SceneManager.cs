@@ -207,7 +207,8 @@ namespace RayTracer.ViewModel
         /// <summary>
         /// Loads the scene from file.
         /// </summary>
-        public static void LoadScene()
+        /// <param name="fileName">Name of the file.</param>
+        public static void LoadScene(string fileName)
         { }
         #endregion Public Methods
     }
