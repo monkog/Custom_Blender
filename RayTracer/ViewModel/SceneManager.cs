@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Markup.Localizer;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Model.Shapes;
@@ -125,6 +125,10 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("IsStereoscopic");
             }
         }
+        /// <summary>
+        /// Degree of bezier segment
+        /// </summary>
+        public const int BezierSegmentPoints = 3;
         public static int Width = 800;
         public static int Height = 600;
         #endregion Public Properties
@@ -211,6 +215,9 @@ namespace RayTracer.ViewModel
         /// <param name="fileName">Name of the file.</param>
         public void LoadScene(string fileName)
         {
+            var points = new ObservableCollection<PointEx>();
+            var curves = new ObservableCollection<BezierCurve>();
+            var patches = new ObservableCollection<BezierPatch>();
             using (var streamReader = new StreamReader(fileName))
             {
                 string line;
@@ -222,27 +229,30 @@ namespace RayTracer.ViewModel
                             LoadTorus(streamReader);
                             break;
                         case "Point":
-                            LoadPoint(streamReader);
+                            points.Add(LoadPoint(streamReader));
                             break;
-                        case "Ellipsoid":
-                            LoadElipsoide(streamReader);
-                            break;
+                        //case "Ellipsoid":
+                        //    LoadElipsoide(streamReader);
+                        //    break;
                         case "BezierCurveC0":
-                            LoadCurve(streamReader, Continuity.C0);
+                            curves.Add(LoadCurve(streamReader, points, Continuity.C0));
                             break;
                         case "BezierCurveC2":
-                            LoadCurve(streamReader, Continuity.C2);
+                            curves.Add(LoadCurve(streamReader, points, Continuity.C2));
                             break;
                         case "InterpolationCurve":
-                            LoadCurve(streamReader, Continuity.C2, isInterpolation: true);
+                            curves.Add(LoadCurve(streamReader, points, Continuity.C2, isInterpolation: true));
                             break;
                         case "BezierSurfaceC0":
-                            LoadSurface(streamReader, Continuity.C0);
+                            patches.Add(LoadSurface(streamReader, points, Continuity.C0));
                             break;
-                        case "BezierSurfaceC2":
-                            LoadSurface(streamReader, Continuity.C2);
-                            break;
+                        //case "BezierSurfaceC2":
+                        //    patches.Add(LoadSurface(streamReader, points, Continuity.C2));
+                        //    break;
                         case "Selected":
+                            PointManager.Instance.Points = points;
+                            CurveManager.Instance.Curves = curves;
+                            PatchManager.Instance.Patches = patches;
                             SelectObjects(streamReader);
                             break;
 
@@ -273,7 +283,7 @@ namespace RayTracer.ViewModel
             MeshManager.Instance.Meshes.Add(torus);
             streamReader.ReadLine();
         }
-        private void LoadPoint(StreamReader streamReader)
+        private PointEx LoadPoint(StreamReader streamReader)
         {
             var id = ReadInt(streamReader.ReadLine());
             var name = ReadString(streamReader.ReadLine());
@@ -290,8 +300,8 @@ namespace RayTracer.ViewModel
                 Color = color,
                 ModelTransform = matrix
             };
-            PointManager.Instance.Points.Add(point);
             streamReader.ReadLine();
+            return point;
         }
         private void LoadElipsoide(StreamReader streamReader)
         {
@@ -313,7 +323,7 @@ namespace RayTracer.ViewModel
             };
             streamReader.ReadLine();
         }
-        private void LoadCurve(StreamReader streamReader, Continuity continuity, bool isInterpolation = false)
+        private BezierCurve LoadCurve(StreamReader streamReader, ObservableCollection<PointEx> pts, Continuity continuity, bool isInterpolation = false)
         {
             var id = ReadInt(streamReader.ReadLine());
             var name = ReadString(streamReader.ReadLine());
@@ -323,7 +333,7 @@ namespace RayTracer.ViewModel
             var matrix = ReadMatrix(streamReader);
             var colorName = ReadString(streamReader.ReadLine());
             var color = Color.FromName(colorName);
-            var points = ReadPoints(streamReader);
+            var points = ReadPoints(streamReader, pts);
             BezierCurve curve = null;
             switch (continuity)
             {
@@ -344,16 +354,16 @@ namespace RayTracer.ViewModel
                     };
                     break;
             }
-            CurveManager.Instance.Curves.Add(curve);
+            return curve;
         }
-        private void LoadSurface(StreamReader streamReader, Continuity continuity)
+        private BezierPatch LoadSurface(StreamReader streamReader, ObservableCollection<PointEx> pts, Continuity continuity)
         {
             var id = ReadInt(streamReader.ReadLine());
             var name = ReadString(streamReader.ReadLine());
             var width = ReadDouble(streamReader.ReadLine());
             var height = ReadDouble(streamReader.ReadLine());
-            var patchesLengthCount = ReadInt(streamReader.ReadLine());
-            var patchesBreadthCount = ReadInt(streamReader.ReadLine());
+            var horizontalPatches = ReadInt(streamReader.ReadLine());
+            var verticalPatches = ReadInt(streamReader.ReadLine());
             var isCylindrical = ReadBool(streamReader.ReadLine());
             var x = ReadDouble(streamReader.ReadLine());
             var y = ReadDouble(streamReader.ReadLine());
@@ -361,12 +371,23 @@ namespace RayTracer.ViewModel
             var matrix = ReadMatrix(streamReader);
             var colorName = ReadString(streamReader.ReadLine());
             var color = Color.FromName(colorName);
-            var points = ReadPoints(streamReader);
+            var points = ReadPoints(streamReader, pts);
             BezierPatch patch = null;
+
+            var p = new PointEx[horizontalPatches * BezierSegmentPoints + 1, verticalPatches * BezierSegmentPoints + 1];
+            int index = 0;
+            for (int i = 0; i < verticalPatches * BezierSegmentPoints + 1; i++)
+                for (int j = 0; j < horizontalPatches * BezierSegmentPoints + 1; j++)
+                {
+                    var point = points.ElementAt(index++);
+                    point.CanBeDeleted = false;
+                    p[j, i] = point;
+                }
+
             switch (continuity)
             {
                 case Continuity.C0:
-                    patch = new BezierPatchC0(x, y, z, name, isCylindrical)
+                    patch = new BezierPatchC0(x, y, z, name, isCylindrical, width, height, verticalPatches, horizontalPatches, p, points)
                     {
                         Id = id,
                         Color = color,
@@ -374,7 +395,7 @@ namespace RayTracer.ViewModel
                     };
                     break;
                 //case Continuity.C2:
-                //    patch = new BezierPatchC2(x, y, z, name,isCylindrical);
+                //    patch = new BezierPatchC2(x, y, z, name,isCylindrical, width, height, verticalPatches, horizontalPatches)
                 //    {
                 //        Id = id,
                 //        Color = color,
@@ -382,18 +403,17 @@ namespace RayTracer.ViewModel
                 //    };
                 //    break;
             }
-            PatchManager.Instance.Patches.Add(patch);
+            return patch;
         }
-        private IEnumerable<PointEx> ReadPoints(StreamReader streamReader)
+        private IEnumerable<PointEx> ReadPoints(StreamReader streamReader, ObservableCollection<PointEx> pts)
         {
-            var currentPoints = PointManager.Instance.Points;
             var points = new List<PointEx>();
             while (true)
             {
                 var line = streamReader.ReadLine();
                 if (string.IsNullOrEmpty(line)) break;
                 var id = ReadInt(line);
-                points.Add(currentPoints.First(p => p.Id == id));
+                points.Add(pts.First(p => p.Id == id));
             }
             return points;
         }
@@ -425,6 +445,7 @@ namespace RayTracer.ViewModel
             data = data + streamReader.ReadLine() + "\r\n";
             data = data + streamReader.ReadLine() + "\r\n";
             data = data + streamReader.ReadLine() + "\r\n";
+            data = data.Replace(",", ".");
             return Matrix3D.Parse(data);
         }
         private double ReadDouble(string line)

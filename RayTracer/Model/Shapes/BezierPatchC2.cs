@@ -32,7 +32,8 @@
         }
         #endregion Public Properties
         #region Constructors
-        public BezierPatchC2(double x, double y, double z, string name, bool isCylinder) : base(x, y, z, name, isCylinder)
+        public BezierPatchC2(double x, double y, double z, string name, bool isCylinder, double width, double height, int verticalPatches, int horizontalPatches)
+            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches)
         {
             //SetVertices();
         }

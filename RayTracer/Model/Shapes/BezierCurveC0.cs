@@ -53,12 +53,14 @@ namespace RayTracer.Model.Shapes
 
             return curves;
         }
+        #endregion Protected Methods
+        #region Public Methods
         public override void SaveControlPoints(StringBuilder stringBuilder)
         {
             foreach (var point in Vertices)
                 stringBuilder.AppendLine("CP=" + point.Id);
         }
-        #endregion Protected Methods
+        #endregion Public Methods
     }
 }
 

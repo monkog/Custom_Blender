@@ -173,9 +173,9 @@ namespace RayTracer.Model.Shapes
                 {
                     Transform = Transformations.ViewMatrix(400);
                     if (DisplayEdges)
-                        DrawEdges(bmp, g, Color.DarkCyan, Thickness);
+                        DrawEdges(bmp, g, Color, Thickness);
                     if (DisplayVertices)
-                        DrawVertices(bmp, g, Color.Red, Thickness);
+                        DrawVertices(bmp, g, Color, Thickness);
                 }
             }
             SceneManager.Instance.SceneImage = bmp;

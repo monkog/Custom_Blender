@@ -162,6 +162,7 @@ namespace RayTracer.ViewModel
             for (int i = PointManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
             {
                 var point = PointManager.Instance.SelectedItems.ElementAt(i);
+                if (!point.CanBeDeleted) continue;
                 foreach (var curve in CurveManager.Instance.Curves)
                 {
                     if (curve.Continuity == Continuity.C0)

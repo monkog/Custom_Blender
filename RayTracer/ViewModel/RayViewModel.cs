@@ -201,7 +201,7 @@ namespace RayTracer.ViewModel
             PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
             CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
             PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
-            PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions") Render(); };
+            PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions" || args.PropertyName == "Patches") Render(); };
             MeshManager.Meshes.CollectionChanged += (sender, args) => { Render(); };
             MeshManager.SmallR = 0.1;
             MeshManager.BigR = 0.2;
@@ -319,15 +319,6 @@ namespace RayTracer.ViewModel
                     break;
             }
         }
-        void Curve_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "IsPolygonVisible":
-                    Render();
-                    break;
-            }
-        }
         private void TransformScene(Matrix3D matrix)
         {
             foreach (var mesh in MeshManager.Meshes)
@@ -367,6 +358,24 @@ namespace RayTracer.ViewModel
             {
                 ClearSceneExecuted();
                 SceneManager.LoadScene(dialog.FileName);
+                foreach (var curve in CurveManager.Curves)
+                {
+                    if (curve.Continuity == Continuity.C0)
+                    {
+                        curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
+                        curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render(); };
+                    }
+                    else
+                    {
+                        curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" || e.PropertyName == "IsPolygonVisible") Render(); };
+                        curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
+                        ((BezierCurveC2)curve).DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
+                        if (((BezierCurveC2)curve).IsInterpolation)
+                            curve.PropertyChanged += curve_PropertyChanged;
+                    }
+                }
+                foreach (var patch in PatchManager.Patches)
+                    patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             }
         }
 
@@ -414,7 +423,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddBezierPatchC0Executed()
         {
-            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder);
+            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder
+                , PatchManager.PatchWidth, PatchManager.PatchHeight, PatchManager.VerticalPatches, PatchManager.HorizontalPatches);
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.Patches.Add(patch);
         }
@@ -428,9 +438,8 @@ namespace RayTracer.ViewModel
         {
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC0(0, 0, 0, "Bezier curve C0(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems);
-            curve.PropertyChanged += Curve_PropertyChanged;
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
-            curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges") Render(); };
+            curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render(); };
             CurveManager.Curves.Add(curve);
         }
 
@@ -443,8 +452,7 @@ namespace RayTracer.ViewModel
         {
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: false);
-            curve.PropertyChanged += Curve_PropertyChanged;
-            curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges") Render(); };
+            curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" || e.PropertyName == "IsPolygonVisible") Render(); };
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
@@ -459,7 +467,6 @@ namespace RayTracer.ViewModel
         {
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: true);
-            curve.PropertyChanged += Curve_PropertyChanged;
             curve.PropertyChanged += curve_PropertyChanged;
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
@@ -473,7 +480,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddPointToBezierCurveExecuted()
         {
-            foreach (var point in PointManager.SelectedItems)
+            foreach (var point in PointManager.SelectedItems.Where(p => p.CanBeDeleted))
                 foreach (var curve in CurveManager.SelectedItems)
                     if (curve.Continuity == Continuity.C0)
                     {

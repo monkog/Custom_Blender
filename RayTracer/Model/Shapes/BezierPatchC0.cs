@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Media.Media3D;
@@ -16,10 +18,11 @@ namespace RayTracer.Model.Shapes
         public override string Type { get { return "BezierSurfaceC0"; } }
         #endregion Public Properties
         #region Constructors
-        public BezierPatchC0(double x, double y, double z, string name, bool isCylinder)
-            : base(x, y, z, name, isCylinder)
+        public BezierPatchC0(double x, double y, double z, string name, bool isCylinder, double width, double height
+            , int verticalPatches, int horizontalPatches, PointEx[,] points = null, IEnumerable<PointEx> vertices = null)
+            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches)
         {
-            SetVertices();
+            SetVertices(points, vertices);
         }
         #endregion Constructors
         #region Private Methods
@@ -51,19 +54,40 @@ namespace RayTracer.Model.Shapes
                 }
             }
         }
-        private void SetVertices()
+        private void SetVertices(PointEx[,] points, IEnumerable<PointEx> vertices = null)
         {
             var manager = PatchManager.Instance;
-            _points = new PointEx[manager.VerticalPatches * BezierSegmentPoints + 1, manager.HorizontalPatches * BezierSegmentPoints + 1];
 
             if (IsCylinder)
             {
-                SetCylinderVertices();
+                if (points == null)
+                {
+                    _points = new PointEx[manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1];
+                    SetCylinderVertices();
+                }
+                else
+                {
+                    _points = points;
+                    Vertices = new ObservableCollection<PointEx>(vertices);
+                    foreach (var vertex in vertices)
+                        PointManager.Instance.Points.Add(vertex);
+                }
                 SetCylinderEdges();
             }
             else
             {
-                SetPlaneVertices();
+                if (points == null)
+                {
+                    _points = new PointEx[manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1];
+                    SetPlaneVertices();
+                }
+                else
+                {
+                    _points = points;
+                    Vertices = new ObservableCollection<PointEx>(vertices);
+                    foreach (var vertex in vertices)
+                        PointManager.Instance.Points.Add(vertex);
+                }
                 SetPlaneEdges();
             }
         }
@@ -72,28 +96,31 @@ namespace RayTracer.Model.Shapes
             var manager = PatchManager.Instance;
 
             Vector3D topLeft = new Vector3D(X - (manager.PatchWidth / 2), Y - (manager.PatchHeight / 2), 0);
-            double dx = manager.PatchWidth / (manager.HorizontalPatches * BezierSegmentPoints);
-            double dy = manager.PatchHeight / (manager.VerticalPatches * BezierSegmentPoints);
+            double dx = manager.PatchWidth / (manager.HorizontalPatches * SceneManager.BezierSegmentPoints);
+            double dy = manager.PatchHeight / (manager.VerticalPatches * SceneManager.BezierSegmentPoints);
 
             for (int i = 0; i < _points.GetLength(0); i++)
                 for (int j = 0; j < _points.GetLength(1); j++)
                 {
-                    var point = new PointEx(topLeft.X + (j * dx), topLeft.Y + (i * dy), topLeft.Z);
+                    var point = new PointEx(topLeft.X + (j * dx), topLeft.Y + (i * dy), topLeft.Z) { CanBeDeleted = false };
                     _points[i, j] = point;
                     Vertices.Add(point);
+                    PointManager.Instance.Points.Add(point);
                 }
         }
         private void SetPlaneEdges()
         {
-            for (int i = 0; i < PatchManager.Instance.VerticalPatches * BezierSegmentPoints + 1; i++)
-                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * BezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j
-                        , i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j + 1));
+            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
 
-            for (int i = 0; i < PatchManager.Instance.VerticalPatches * BezierSegmentPoints; i++)
-                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j
-                        , (i + 1) * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j));
+            for (int i = 0; i < VerticalPatches * bezierSegmentPoints + 1; i++)
+                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
+                        , i * (HorizontalPatches * bezierSegmentPoints + 1) + j + 1));
+
+            for (int i = 0; i < VerticalPatches * bezierSegmentPoints; i++)
+                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints + 1; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
+                        , (i + 1) * (HorizontalPatches * bezierSegmentPoints + 1) + j));
 
             CalculateShape();
         }
@@ -103,28 +130,31 @@ namespace RayTracer.Model.Shapes
 
             double topLeftY = Y - (manager.PatchHeight / 2);
             double radius = manager.PatchWidth;
-            double alpha = (Math.PI * 2.0f) / (BezierSegmentPoints * manager.HorizontalPatches);
-            double dy = manager.PatchHeight / (manager.VerticalPatches * BezierSegmentPoints);
+            double alpha = (Math.PI * 2.0f) / (SceneManager.BezierSegmentPoints * manager.HorizontalPatches);
+            double dy = manager.PatchHeight / (manager.VerticalPatches * SceneManager.BezierSegmentPoints);
 
             for (int i = 0; i < _points.GetLength(0); i++)
                 for (int j = 0; j < _points.GetLength(1); j++)
                 {
-                    var point = new PointEx(radius * Math.Cos(alpha * j), topLeftY + (i * dy), radius * Math.Sin(alpha * j));
+                    var point = new PointEx(radius * Math.Cos(alpha * j), topLeftY + (i * dy), radius * Math.Sin(alpha * j)) { CanBeDeleted = false };
                     _points[i, j] = point;
                     Vertices.Add(point);
+                    PointManager.Instance.Points.Add(point);
                 }
         }
         private void SetCylinderEdges()
         {
-            for (int i = 0; i < PatchManager.Instance.VerticalPatches * BezierSegmentPoints + 1; i++)
-                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * BezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j
-                        , i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j + 1));
+            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
 
-            for (int i = 0; i < PatchManager.Instance.VerticalPatches * BezierSegmentPoints; i++)
-                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * BezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j
-                        , (i + 1) * (PatchManager.Instance.HorizontalPatches * BezierSegmentPoints + 1) + j));
+            for (int i = 0; i < PatchManager.Instance.VerticalPatches * bezierSegmentPoints + 1; i++)
+                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * bezierSegmentPoints; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * bezierSegmentPoints + 1) + j
+                        , i * (PatchManager.Instance.HorizontalPatches * bezierSegmentPoints + 1) + j + 1));
+
+            for (int i = 0; i < PatchManager.Instance.VerticalPatches * bezierSegmentPoints; i++)
+                for (int j = 0; j < PatchManager.Instance.HorizontalPatches * bezierSegmentPoints; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * (PatchManager.Instance.HorizontalPatches * bezierSegmentPoints + 1) + j
+                        , (i + 1) * (PatchManager.Instance.HorizontalPatches * bezierSegmentPoints + 1) + j));
 
             CalculateShape();
         }
@@ -134,6 +164,7 @@ namespace RayTracer.Model.Shapes
         {
             base.Draw();
             var manager = PatchManager.Instance;
+            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
             double maxX, maxY, minX, minY;
             _points.FindMaxMinCoords(out minX, out minY, out maxX, out maxY);
 
@@ -147,18 +178,18 @@ namespace RayTracer.Model.Shapes
                 {
                     for (int j = 0; j < HorizontalPatches; j++)
                     {
-                        Matrix3D matX = new Matrix3D(_points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 3].TransformedPosition.X
-                                                   , _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 3].TransformedPosition.X
-                                                   , _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 3].TransformedPosition.X
-                                                   , _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints].TransformedPosition.X, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 1].TransformedPosition.X, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 2].TransformedPosition.X, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 3].TransformedPosition.X);
-                        Matrix3D matY = new Matrix3D(_points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints].TransformedPosition.Y, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 1].TransformedPosition.Y, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 2].TransformedPosition.Y, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 3].TransformedPosition.Y
-                                                   , _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints].TransformedPosition.Y, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 1].TransformedPosition.Y, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 2].TransformedPosition.Y, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 3].TransformedPosition.Y
-                                                   , _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints].TransformedPosition.Y, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 1].TransformedPosition.Y, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 2].TransformedPosition.Y, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 3].TransformedPosition.Y
-                                                   , _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints].TransformedPosition.Y, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 1].TransformedPosition.Y, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 2].TransformedPosition.Y, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 3].TransformedPosition.Y);
-                        Matrix3D matZ = new Matrix3D(_points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 0, j * BezierSegmentPoints + 3].TransformedPosition.Z
-                                                   , _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 1, j * BezierSegmentPoints + 3].TransformedPosition.Z
-                                                   , _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 2, j * BezierSegmentPoints + 3].TransformedPosition.Z
-                                                   , _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 1].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 2].TransformedPosition.Z, _points[i * BezierSegmentPoints + 3, j * BezierSegmentPoints + 3].TransformedPosition.Z);
+                        Matrix3D matX = new Matrix3D(_points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints].TransformedPosition.X, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 1].TransformedPosition.X, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 2].TransformedPosition.X, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 3].TransformedPosition.X
+                                                   , _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints].TransformedPosition.X, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 1].TransformedPosition.X, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 2].TransformedPosition.X, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 3].TransformedPosition.X
+                                                   , _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition.X, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition.X, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition.X, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition.X
+                                                   , _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition.X, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition.X, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition.X, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition.X);
+                        Matrix3D matY = new Matrix3D(_points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints].TransformedPosition.Y, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 1].TransformedPosition.Y, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 2].TransformedPosition.Y, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 3].TransformedPosition.Y
+                                                   , _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints].TransformedPosition.Y, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 1].TransformedPosition.Y, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 2].TransformedPosition.Y, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 3].TransformedPosition.Y
+                                                   , _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition.Y, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition.Y, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition.Y, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition.Y
+                                                   , _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition.Y, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition.Y, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition.Y, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition.Y);
+                        Matrix3D matZ = new Matrix3D(_points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints].TransformedPosition.Z, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 1].TransformedPosition.Z, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 2].TransformedPosition.Z, _points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 3].TransformedPosition.Z
+                                                   , _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints].TransformedPosition.Z, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 1].TransformedPosition.Z, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 2].TransformedPosition.Z, _points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 3].TransformedPosition.Z
+                                                   , _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition.Z, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition.Z, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition.Z, _points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition.Z
+                                                   , _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition.Z, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition.Z, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition.Z, _points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition.Z);
 
                         DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: false);
                         DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: true);
