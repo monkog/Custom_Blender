@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
+using Microsoft.Win32;
 using RayTracer.Model;
 using RayTracer.Model.Shapes;
 using Point = System.Windows.Point;
@@ -15,7 +16,6 @@ namespace RayTracer.ViewModel
     public class RayViewModel : ViewModelBase
     {
         #region Private Members
-        private ObservableCollection<ModelBase> _meshes;
         private double _viewportWidth;
         private double _viewportHeight;
         private int _l;
@@ -151,23 +151,6 @@ namespace RayTracer.ViewModel
             }
         }
         /// <summary>
-        /// Gets or sets the collection of viewed meshes.
-        /// </summary>
-        /// <value>
-        /// The collection of viewed meshes.
-        /// </value>
-        public ObservableCollection<ModelBase> Meshes
-        {
-            get { return _meshes; }
-            set
-            {
-                if (_meshes == value)
-                    return;
-                _meshes = value;
-                OnPropertyChanged("Meshes");
-            }
-        }
-        /// <summary>
         /// Gets or sets the width of the viewport.
         /// </summary>
         public double ViewportWidth
@@ -227,6 +210,10 @@ namespace RayTracer.ViewModel
         /// </summary>
         public PatchManager PatchManager { get { return PatchManager.Instance; } }
         /// <summary>
+        /// Gets the mesh manager.
+        /// </summary>
+        public MeshManager MeshManager { get { return MeshManager.Instance; } }
+        /// <summary>
         /// Gets the cursor.
         /// </summary>
         public Cursor3D Cursor { get { return Cursor3D.Instance; } }
@@ -237,7 +224,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         public RayViewModel()
         {
-            Meshes = new ObservableCollection<ModelBase>();
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             SceneManager.PropertyChanged += SceneManager_PropertyChanged;
             Cursor.PropertyChanged += Cursor_PropertyChanged;
@@ -245,7 +231,7 @@ namespace RayTracer.ViewModel
             CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
             PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
             PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions") Render(); };
-            Meshes.CollectionChanged += (sender, args) => { Render(); };
+            MeshManager.Meshes.CollectionChanged += (sender, args) => { Render(); };
             L = 20;
             V = 20;
             A = 5;
@@ -278,7 +264,7 @@ namespace RayTracer.ViewModel
             foreach (var patch in PatchManager.Patches)
                 patch.Draw();
 
-            foreach (ModelBase mesh in Meshes)
+            foreach (var mesh in MeshManager.Meshes)
                 mesh.Draw();
 
             Cursor3D.Instance.Draw();
@@ -371,15 +357,43 @@ namespace RayTracer.ViewModel
         }
         private void TransformScene(Matrix3D matrix)
         {
-            foreach (var mesh in Meshes)
+            foreach (var mesh in MeshManager.Meshes)
                 mesh.ModelTransform = matrix * mesh.ModelTransform;
             foreach (var point in PointManager.Points)
                 point.ModelTransform = matrix * point.ModelTransform;
             foreach (var patch in PatchManager.Patches)
-                patch.ModelTransform = matrix*patch.ModelTransform;
+                patch.ModelTransform = matrix * patch.ModelTransform;
         }
         #endregion Private Methods
         #region Commands
+        private ICommand _saveSceneCommand;
+        public ICommand SaveSceneCommand { get { return _saveSceneCommand ?? (_saveSceneCommand = new DelegateCommand(SaveSceneExecuted)); } }
+        /// <summary>
+        /// Saves the scene.
+        /// </summary>
+        private void SaveSceneExecuted()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Filter = @"Model files (*.mg1)|*.mg1"
+            };
+            dialog.ShowDialog();
+            if (dialog.CheckPathExists)
+                SceneManager.SaveScene(dialog.FileName);
+        }
+
+        private ICommand _loadSceneCommand;
+        public ICommand LoadSceneCommand { get { return _loadSceneCommand ?? (_loadSceneCommand = new DelegateCommand(LoadSceneExecuted)); } }
+        /// <summary>
+        /// Loads the scene.
+        /// </summary>
+        private void LoadSceneExecuted()
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.ShowDialog();
+            var x = dialog.CheckPathExists;
+        }
+
         private ICommand _addTorusCommand;
         public ICommand AddTorusCommand { get { return _addTorusCommand ?? (_addTorusCommand = new DelegateCommand(AddTorusExecuted)); } }
         /// <summary>
@@ -388,7 +402,7 @@ namespace RayTracer.ViewModel
         private void AddTorusExecuted()
         {
             var torus = new Torus(0, 0, 0, "Torus(L:" + L + ", V:" + V + ")", L, V);
-            Meshes.Add(torus);
+            MeshManager.Meshes.Add(torus);
         }
 
         private ICommand _addEllipsoideCommand;
@@ -399,8 +413,8 @@ namespace RayTracer.ViewModel
         private void AddEllipsoideExecuted()
         {
             var ellipsoide = new Ellipsoide(0, 0, 0, "Ellipsoide(a:" + A + ", b:" + B + ", c:" + C + ")", 1 / A, 1 / B, 1 / C);
-            Meshes.Clear();
-            Meshes.Add(ellipsoide);
+            MeshManager.Meshes.Clear();
+            MeshManager.Meshes.Add(ellipsoide);
             Render();
         }
 
@@ -488,18 +502,11 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void DeselectAllExecuted()
         {
+            foreach (var model in SceneManager.Models)
+                model.IsSelected = false;
+
             foreach (var point in PointManager.Points)
                 point.IsSelected = false;
-
-            foreach (var curve in CurveManager.Instance.Curves)
-                foreach (var point in curve.Vertices)
-                    point.IsSelected = false;
-
-            foreach (var curve in CurveManager.Curves)
-                curve.IsSelected = false;
-
-            foreach (var mesh in Meshes)
-                mesh.IsSelected = false;
         }
 
         private ICommand _selectAllCommand;
@@ -512,15 +519,8 @@ namespace RayTracer.ViewModel
             foreach (var point in PointManager.Points)
                 point.IsSelected = true;
 
-            foreach (var curve in CurveManager.Instance.Curves)
-                foreach (var point in curve.Vertices)
-                    point.IsSelected = false;
-
-            foreach (var curve in CurveManager.Curves)
-                curve.IsSelected = false;
-
-            foreach (var mesh in Meshes)
-                mesh.IsSelected = false;
+            foreach (var model in SceneManager.Models)
+                model.IsSelected = false;
         }
         #endregion Commands
     }

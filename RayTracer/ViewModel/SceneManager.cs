@@ -1,13 +1,23 @@
-﻿using System.Drawing;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Media.Media3D;
+using Microsoft.Win32;
 using RayTracer.Helpers;
+using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {
     public class SceneManager : ViewModelBase
     {
         #region Private Members
+        private int _currentModelId = 1;
         /// <summary>
         /// Is the view stereoscopic
         /// </summary>
@@ -92,6 +102,19 @@ namespace RayTracer.ViewModel
             }
         }
         /// <summary>
+        /// Gets all the models in the scene.
+        /// </summary>
+        public IEnumerable<ModelBase> Models
+        {
+            get
+            {
+                IEnumerable<ModelBase> models = PatchManager.Instance.Patches;
+                models = models.Union(CurveManager.Instance.Curves);
+                models = models.Union(MeshManager.Instance.Meshes);
+                return models;
+            }
+        }
+        /// <summary>
         /// Gets or sets a value indicating whether the view is stereoscopic.
         /// </summary>
         public bool IsStereoscopic
@@ -114,7 +137,7 @@ namespace RayTracer.ViewModel
             SceneImage = new Bitmap(Width, Height);
         }
         #endregion .ctor
-        #region Public Methods        
+        #region Public Methods
         /// <summary>
         /// Draws the curve point on the bitmap.
         /// </summary>
@@ -152,6 +175,44 @@ namespace RayTracer.ViewModel
                 g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, thickness, thickness);
             }
         }
+        /// <summary>
+        /// Gets the next identifier.
+        /// </summary>
+        /// <returns>Next Id</returns>
+        public int GetNextId()
+        {
+            return _currentModelId++;
+        }
+        /// <summary>
+        /// Saves the current scene.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        public void SaveScene(string fileName)
+        {
+            var stringBuilder = new StringBuilder();
+
+            foreach (var model in Models)
+                model.Save(stringBuilder);
+            foreach (var point in PointManager.Instance.Points)
+                point.Save(stringBuilder);
+
+            stringBuilder.AppendLine("Selected");
+            foreach (var model in Models)
+            {
+                if (model.IsSelected)
+                    stringBuilder.AppendLine(model.Id.ToString(CultureInfo.InvariantCulture));
+                foreach (var item in model.SelectedItems)
+                    stringBuilder.AppendLine(item.Id.ToString(CultureInfo.InvariantCulture));
+            }
+
+            using (var streamWriter = new StreamWriter(fileName))
+                streamWriter.Write(stringBuilder.ToString());
+        }
+        /// <summary>
+        /// Loads the scene from file.
+        /// </summary>
+        public static void LoadScene()
+        { }
         #endregion Public Methods
     }
 }

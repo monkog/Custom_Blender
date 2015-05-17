@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
@@ -22,19 +23,13 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         public Matrix3D D { get; private set; }
         /// <summary>
-        /// Gets the color of the Ellipsoide.
-        /// </summary>
-        /// <value>
-        /// The color of the Ellipsoide.
-        /// </value>
-        public static Color Color { get { return Color.FromArgb(255, 255, 1); } }
-        /// <summary>
         /// Gets the color of the back.
         /// </summary>
         /// <value>
         /// The color of the back.
         /// </value>
         public static Color DefaultColor { get { return Color.Black; } }
+        public override IEnumerable<ShapeBase> SelectedItems { get { return new List<ShapeBase>(); } }
         #endregion Public Properties
         #region .ctor
         public Ellipsoide(double x, double y, double z, string name, double a, double b, double c)
@@ -45,6 +40,7 @@ namespace RayTracer.Model.Shapes
                            , 0, b, 0, 0
                            , 0, 0, c, 0
                            , 0, 0, 0, -1);
+            Color = Color.FromArgb(255, 255, 1);
         }
         #endregion .ctor
         #region Protected Methods

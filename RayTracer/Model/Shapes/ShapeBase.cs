@@ -1,4 +1,6 @@
-﻿using System.Windows.Media.Media3D;
+﻿using System.Drawing;
+using System.Text;
+using System.Windows.Media.Media3D;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
@@ -25,10 +27,12 @@ namespace RayTracer.Model.Shapes
             Y = y;
             Z = z;
 
+            Id = SceneManager.Instance.GetNextId();
             Name = name;
             IsSelected = false;
             _transform = Transformations.Identity;
             ModelTransform = Transformations.Identity;
+            Color = Color.DarkCyan;
         }
         #endregion .ctor
         #region Public Properties
@@ -63,6 +67,10 @@ namespace RayTracer.Model.Shapes
         /// The z position.
         /// </value>
         public double Z { get; set; }
+        /// <summary>
+        /// Gets the identifier.
+        /// </summary>
+        public int Id { get; private set; }
         /// <summary>
         /// Gets or sets the transform multiplied by the projection transformations.
         /// </summary>
@@ -113,6 +121,10 @@ namespace RayTracer.Model.Shapes
             }
         }
         /// <summary>
+        /// Gets the color of the model.
+        /// </summary>
+        public Color Color { get; set; }
+        /// <summary>
         /// The thickness of a line drawing the shape
         /// </summary>
         protected int Thickness = 1;
@@ -127,6 +139,37 @@ namespace RayTracer.Model.Shapes
         #region Private Methods
         #endregion Private Methods
         #region Public Methods
+        /// <summary>
+        /// Saves the specified string builder.
+        /// </summary>
+        /// <param name="stringBuilder">The string builder.</param>
+        public void Save(StringBuilder stringBuilder)
+        {
+            stringBuilder.AppendLine(GetType().ToString());
+            stringBuilder.AppendLine("Id=" + Id);
+            stringBuilder.AppendLine("Name=" + Name);
+            SaveParameters(stringBuilder);
+            stringBuilder.AppendLine("X=" + X);
+            stringBuilder.AppendLine("Y=" + Y);
+            stringBuilder.AppendLine("Z=" + Z);
+            stringBuilder.AppendLine("TMtx=\n" + ModelTransform.M11 + ModelTransform.M12 + ModelTransform.M13 + ModelTransform.M14
+                                        + "\n" + ModelTransform.M21 + ModelTransform.M22 + ModelTransform.M23 + ModelTransform.M24
+                                        + "\n" + ModelTransform.M31 + ModelTransform.M32 + ModelTransform.M33 + ModelTransform.M34
+                                        + "\n" + ModelTransform.OffsetX + ModelTransform.OffsetY + ModelTransform.OffsetZ + ModelTransform.M44);
+            stringBuilder.AppendLine("Color=" + Color.Name);
+            SaveControlPoints(stringBuilder);
+            stringBuilder.AppendLine();
+        }
+        /// <summary>
+        /// Saves the parameters.
+        /// </summary>
+        /// <param name="stringBuilder">The string builder.</param>
+        public virtual void SaveParameters(StringBuilder stringBuilder) { }
+        /// <summary>
+        /// Saves the control points.
+        /// </summary>
+        /// <param name="stringBuilder">The string builder.</param>
+        public virtual void SaveControlPoints(StringBuilder stringBuilder) { }
         #endregion Public Methods
     }
 }

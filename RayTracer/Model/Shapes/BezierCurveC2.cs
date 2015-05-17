@@ -267,7 +267,7 @@ namespace RayTracer.Model.Shapes
                     _knots[i] = _knots[Math.Max(0, Math.Min(i - 1, InterpolationPoints.Count - 1))] + ((distances[Math.Max(0, Math.Min(i - n, InterpolationPoints.Count - 1))] * inter) / totalDistance);
             }
         }
-        private ObservableCollection<PointEx> CalculateInterpolationDeBoor()
+        private ObservableCollection<PointEx> CalculateInterpolationDeBoore()
         {
             var mtx = CalculateSegments(InterpolationPoints);
             double[][] s = new double[3][];
@@ -354,7 +354,7 @@ namespace RayTracer.Model.Shapes
         public void UpdateVertices()
         {
             if (_isInterpolation)
-                DeBooreVertices = CalculateInterpolationDeBoor();
+                DeBooreVertices = CalculateInterpolationDeBoore();
 
             if (IsBernsteinBasis)
             {

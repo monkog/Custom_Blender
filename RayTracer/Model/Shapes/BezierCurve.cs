@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -14,7 +15,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Gets the selected items, that can be removed from the Bezier curve.
         /// </summary>
-        public IEnumerable<PointEx> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
+        public override IEnumerable<ShapeBase> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         /// <summary>
         /// Gets the continuity of the curve.
         /// </summary>

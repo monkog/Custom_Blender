@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -49,9 +47,6 @@ namespace RayTracer.Model.Shapes
                 }
             }
         }
-        /// <summary>
-        /// Sets the vertices.
-        /// </summary>
         private void SetVertices()
         {
             var manager = PatchManager.Instance;

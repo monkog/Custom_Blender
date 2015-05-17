@@ -13,7 +13,7 @@ namespace RayTracer.Model.Shapes
         protected int VerticalPatches { get; private set; }
         #endregion Protected Properties
         #region Public Properties
-        public IEnumerable<object> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
+        public override IEnumerable<ShapeBase> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         #endregion Public Properties
         #region Constructors
         public BezierPatch(double x, double y, double z, string name)
@@ -26,8 +26,6 @@ namespace RayTracer.Model.Shapes
         #endregion Constructors
         #region Private Methods
         #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }
 

@@ -142,10 +142,6 @@ namespace RayTracer.ViewModel
             Patches = new ObservableCollection<BezierPatchC0>();
         }
         #endregion Constructor
-        #region Private Methods
-        #endregion Private Methods
-        #region Public Methods
-        #endregion Public Methods
     }
 }
 

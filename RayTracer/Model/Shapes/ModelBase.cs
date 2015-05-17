@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -35,6 +37,7 @@ namespace RayTracer.Model.Shapes
         }
         #endregion .ctor
         #region Public Properties
+        abstract public IEnumerable<ShapeBase> SelectedItems { get; }
         /// <summary>
         /// Gets or sets the vertices representing the mesh.
         /// </summary>

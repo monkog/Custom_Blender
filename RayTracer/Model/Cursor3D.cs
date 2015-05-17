@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
@@ -101,6 +102,10 @@ namespace RayTracer.Model
                 _yScreenPosition = value;
                 OnPropertyChanged("YScreenPosition");
             }
+        }
+        public override IEnumerable<ShapeBase> SelectedItems
+        {
+            get { return new List<ShapeBase>(); }
         }
         #endregion Public Properties
         #region Constructors

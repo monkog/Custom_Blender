@@ -49,11 +49,8 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
-                foreach (var curve in CurveManager.Instance.Curves)
-                    foreach (var point in curve.SelectedItems)
-                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
-                foreach (var patch in PatchManager.Instance.Patches)
-                    foreach (PointEx point in patch.SelectedItems)
+                foreach (var model in SceneManager.Instance.Models)
+                    foreach (var point in model.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
@@ -61,11 +58,8 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
-                foreach (var curve in CurveManager.Instance.Curves)
-                    foreach (var point in curve.SelectedItems)
-                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
-                foreach (var patch in PatchManager.Instance.Patches)
-                    foreach (PointEx point in patch.SelectedItems)
+                foreach (var model in SceneManager.Instance.Models)
+                    foreach (var point in model.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, -MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
@@ -89,11 +83,8 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
-                foreach (var curve in CurveManager.Instance.Curves)
-                    foreach (var point in curve.SelectedItems)
-                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
-                foreach (var patch in PatchManager.Instance.Patches)
-                    foreach (PointEx point in patch.SelectedItems)
+                foreach (var model in SceneManager.Instance.Models)
+                    foreach (var point in model.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, 0, -MoveStep)) * Cursor3D.Instance.ModelTransform;
             }
@@ -101,11 +92,8 @@ namespace RayTracer.ViewModel
             {
                 foreach (var point in PointManager.Instance.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
-                foreach (var curve in CurveManager.Instance.Curves)
-                    foreach (var point in curve.SelectedItems)
-                        point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
-                foreach (var patch in PatchManager.Instance.Patches)
-                    foreach (PointEx point in patch.SelectedItems)
+                foreach (var model in SceneManager.Instance.Models)
+                    foreach (var point in model.SelectedItems)
                         point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * point.ModelTransform;
                 Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(0, MoveStep, 0)) * Cursor3D.Instance.ModelTransform;
             }
@@ -127,11 +115,8 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.Instance.SelectedItems)
                 point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
-            foreach (var curve in CurveManager.Instance.Curves)
-                foreach (var point in curve.SelectedItems)
-                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
-            foreach (var patch in PatchManager.Instance.Patches)
-                foreach (PointEx point in patch.SelectedItems)
+            foreach (var model in SceneManager.Instance.Models)
+                foreach (var point in model.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(-MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
@@ -152,11 +137,8 @@ namespace RayTracer.ViewModel
         {
             foreach (var point in PointManager.Instance.SelectedItems)
                 point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
-            foreach (var curve in CurveManager.Instance.Curves)
-                foreach (var point in curve.SelectedItems)
-                    point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
-            foreach (var patch in PatchManager.Instance.Patches)
-                foreach (PointEx point in patch.SelectedItems)
+            foreach (var model in SceneManager.Instance.Models)
+                foreach (var point in model.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
         }
@@ -200,13 +182,13 @@ namespace RayTracer.ViewModel
                 var curve = CurveManager.Instance.Curves[index];
                 for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
                     if (curve.Continuity == Continuity.C0)
-                        curve.Vertices.Remove(curve.SelectedItems.ElementAt(i));
+                        curve.Vertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
                     else
                     {
                         if (((BezierCurveC2)curve).IsInterpolation)
-                            ((BezierCurveC2)curve).InterpolationPoints.Remove(curve.SelectedItems.ElementAt(i));
+                            ((BezierCurveC2)curve).InterpolationPoints.Remove((PointEx)curve.SelectedItems.ElementAt(i));
                         else
-                            ((BezierCurveC2)curve).DeBooreVertices.Remove(curve.SelectedItems.ElementAt(i));
+                            ((BezierCurveC2)curve).DeBooreVertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
                         ((BezierCurveC2)curve).UpdateVertices();
                     }
                 if (curve.Vertices.Count == 0)
@@ -247,6 +229,7 @@ namespace RayTracer.ViewModel
                     point = p;
             }
             if (point == null)
+            {
                 foreach (var curve in CurveManager.Instance.Curves)
                     foreach (var p in curve.Vertices)
                     {
@@ -258,6 +241,18 @@ namespace RayTracer.ViewModel
                         else
                             p.IsSelected = false;
                     }
+
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (var p in patch.Vertices)
+                    {
+                        var transformedPoint = patch.ModelTransform * p.ModelTransform * p.Vector4;
+                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce)
+                            p.IsSelected = !p.IsSelected;
+                        else
+                            p.IsSelected = false;
+                    }
+            }
 
             bool shouldSelect = point != null && !point.IsSelected;
 

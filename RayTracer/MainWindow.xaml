@@ -91,6 +91,10 @@
             <ColumnDefinition Width="900"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <Menu>
+            <MenuItem Header="Save Scene" Command="{Binding SaveSceneCommand}"/>
+            <MenuItem Header="Load Scene" Command="{Binding LoadSceneCommand}"/>
+        </Menu>
         <Canvas Grid.Column="0" ClipToBounds="True">
             <i:Interaction.Behaviors>
                 <eventCommand:EventToCommandBehavior Command="{Binding Path=MouseClickCommand, Source={x:Static viewModel:MouseEventManager.Instance}}" Event="MouseLeftButtonDown" PassArguments="True" />
@@ -253,7 +257,7 @@
                 </StackPanel>
                 <TabControl Height="500">
                     <TabItem Header="Meshes">
-                        <ListView ItemsSource="{Binding Meshes}" SelectionMode="Single">
+                        <ListView ItemsSource="{Binding Meshes, Source={x:Static viewModel:MeshManager.Instance}}" SelectionMode="Single">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding Name}"/>

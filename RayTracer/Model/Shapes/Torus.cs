@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
 
@@ -18,6 +19,12 @@ namespace RayTracer.Model.Shapes
         private double _r;
         private double _R;
         #endregion Private Members
+        #region Public Properties
+        public override IEnumerable<ShapeBase> SelectedItems
+        {
+            get { return new List<ShapeBase>(); }
+        }
+        #endregion Public Properties
         #region .ctor
         public Torus(double x, double y, double z, string name, int l, int v)
             : base(x, y, z, name)

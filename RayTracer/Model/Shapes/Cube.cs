@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
 
@@ -37,6 +38,10 @@ namespace RayTracer.Model.Shapes
         public double Width { get; set; }
         public double Height { get; set; }
         public double Depth { get; set; }
+        public override IEnumerable<ShapeBase> SelectedItems
+        {
+            get { return new List<ShapeBase>(); }
+        }
         #endregion Public Properties
         #region Private Methods
         /// <summary>
