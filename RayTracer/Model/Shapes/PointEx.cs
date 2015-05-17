@@ -37,6 +37,7 @@ namespace RayTracer.Model.Shapes
         /// Gets or sets the vertex transform.
         /// </summary>
         public Matrix3D MeshTransform { get; set; }
+        public override string Type { get { return "Point"; } }
         #endregion Public Properties
         #region Constructors
         /// <summary>

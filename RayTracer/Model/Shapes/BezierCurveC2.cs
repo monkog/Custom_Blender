@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -26,6 +27,18 @@ namespace RayTracer.Model.Shapes
         private bool _isMiddlePointSelected;
         #endregion Private Members
         #region Public Properties
+
+        public override string Type
+        {
+            get
+            {
+                if (IsInterpolation)
+                    return "InterpolationCurve";
+
+                return "BezierCurveC2";
+            }
+        }
+
         /// <summary>
         /// Vertices for the B-Spline basis.
         /// </summary>
@@ -257,7 +270,7 @@ namespace RayTracer.Model.Shapes
 
                 for (int i = 0; i < n - 1; i++)
                 {
-                    distances[i] = (InterpolationPoints.ElementAt(Math.Max(0, Math.Min(i + 1, InterpolationPoints.Count - 1))).TransformedPosition 
+                    distances[i] = (InterpolationPoints.ElementAt(Math.Max(0, Math.Min(i + 1, InterpolationPoints.Count - 1))).TransformedPosition
                         - InterpolationPoints.ElementAt(Math.Max(0, Math.Min(i, InterpolationPoints.Count - 1))).TransformedPosition).Length;
                     totalDistance += distances[i];
                 }
@@ -378,6 +391,15 @@ namespace RayTracer.Model.Shapes
                 SetEdges();
             }
             base.Draw();
+        }
+        public override void SaveControlPoints(StringBuilder stringBuilder)
+        {
+            if (IsInterpolation)
+                foreach (var point in InterpolationPoints)
+                    stringBuilder.AppendLine("CP=" + point.Id);
+            else
+                foreach (var point in DeBooreVertices)
+                    stringBuilder.AppendLine("CP=" + point.Id);
         }
         #endregion Public Methods
     }

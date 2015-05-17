@@ -5,7 +5,7 @@ using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class ShapeBase : ViewModelBase
+    public abstract class ShapeBase : ViewModelBase
     {
         #region Private Members
         private bool _isSelected;
@@ -36,6 +36,9 @@ namespace RayTracer.Model.Shapes
         }
         #endregion .ctor
         #region Public Properties
+        /// <summary>
+        /// Gets or sets a value indicating whether this shape is selected.
+        /// </summary>
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -46,6 +49,10 @@ namespace RayTracer.Model.Shapes
                 OnPropertyChanged("IsSelected");
             }
         }
+        /// <summary>
+        /// Gets the type of the shape.
+        /// </summary>
+        public abstract string Type { get; }
         /// <summary>
         /// Gets or sets the x position.
         /// </summary>
@@ -99,7 +106,7 @@ namespace RayTracer.Model.Shapes
             {
                 if (_modelTransform == value)
                     return;
-                this._modelTransform = value;
+                _modelTransform = value;
                 CalculateShape();
                 OnPropertyChanged("ModelTransform");
             }
@@ -145,17 +152,17 @@ namespace RayTracer.Model.Shapes
         /// <param name="stringBuilder">The string builder.</param>
         public void Save(StringBuilder stringBuilder)
         {
-            stringBuilder.AppendLine(GetType().ToString());
+            stringBuilder.AppendLine(Type);
             stringBuilder.AppendLine("Id=" + Id);
             stringBuilder.AppendLine("Name=" + Name);
             SaveParameters(stringBuilder);
             stringBuilder.AppendLine("X=" + X);
             stringBuilder.AppendLine("Y=" + Y);
             stringBuilder.AppendLine("Z=" + Z);
-            stringBuilder.AppendLine("TMtx=\n" + ModelTransform.M11 + ModelTransform.M12 + ModelTransform.M13 + ModelTransform.M14
-                                        + "\n" + ModelTransform.M21 + ModelTransform.M22 + ModelTransform.M23 + ModelTransform.M24
-                                        + "\n" + ModelTransform.M31 + ModelTransform.M32 + ModelTransform.M33 + ModelTransform.M34
-                                        + "\n" + ModelTransform.OffsetX + ModelTransform.OffsetY + ModelTransform.OffsetZ + ModelTransform.M44);
+            stringBuilder.AppendLine("TMtx=\n" + ModelTransform.M11 + " " + ModelTransform.M12 + " " + ModelTransform.M13 + " " + ModelTransform.M14
+                                        + "\n" + ModelTransform.M21 + " " + ModelTransform.M22 + " " + ModelTransform.M23 + " " + ModelTransform.M24
+                                        + "\n" + ModelTransform.M31 + " " + ModelTransform.M32 + " " + ModelTransform.M33 + " " + ModelTransform.M34
+                                        + "\n" + ModelTransform.OffsetX + " " + ModelTransform.OffsetY + " " + ModelTransform.OffsetZ + " " + ModelTransform.M44);
             stringBuilder.AppendLine("Color=" + Color.Name);
             SaveControlPoints(stringBuilder);
             stringBuilder.AppendLine();

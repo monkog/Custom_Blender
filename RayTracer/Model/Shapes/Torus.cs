@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Windows.Media.Media3D;
 
 namespace RayTracer.Model.Shapes
@@ -24,6 +25,7 @@ namespace RayTracer.Model.Shapes
         {
             get { return new List<ShapeBase>(); }
         }
+        public override string Type { get { return "Torus"; } }
         #endregion Public Properties
         #region .ctor
         public Torus(double x, double y, double z, string name, int l, int v)
@@ -77,5 +79,12 @@ namespace RayTracer.Model.Shapes
                     EdgesIndices.Add(new Tuple<int, int>(i * _circle_division + j, ((i + 1) % _donutDivision) * _circle_division + j));
         }
         #endregion Private Methods
+        #region Public Methods
+        public override void SaveParameters(StringBuilder stringBuilder)
+        {
+            stringBuilder.AppendLine("R=" + _R);
+            stringBuilder.AppendLine("r=" + _r);
+        }
+        #endregion Public Methods
     }
 }

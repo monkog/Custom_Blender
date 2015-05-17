@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -20,7 +19,7 @@ namespace RayTracer.Model.Shapes
         #endregion Private Members
         #region .ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="Cube"/> class.
+        /// Initializes a new instance of the <see cref="ModelBase"/> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>

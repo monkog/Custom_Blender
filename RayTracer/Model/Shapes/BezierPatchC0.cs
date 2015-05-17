@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -11,6 +12,9 @@ namespace RayTracer.Model.Shapes
         #region Private Members
         private PointEx[,] _points;
         #endregion Private Members
+        #region Public Properties
+        public override string Type { get { return "BezierSurfaceC0"; } }
+        #endregion Public Properties
         #region Constructors
         public BezierPatchC0(double x, double y, double z, string name)
             : base(x, y, z, name)
@@ -162,6 +166,11 @@ namespace RayTracer.Model.Shapes
                 }
             }
             SceneManager.Instance.SceneImage = bmp;
+        }
+        public override void SaveControlPoints(StringBuilder stringBuilder)
+        {
+            foreach (var point in Vertices)
+                stringBuilder.AppendLine("CP=" + point.Id);
         }
         #endregion Public Methods
     }

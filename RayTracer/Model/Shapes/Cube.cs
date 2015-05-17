@@ -42,6 +42,7 @@ namespace RayTracer.Model.Shapes
         {
             get { return new List<ShapeBase>(); }
         }
+        public override string Type { get { return "Cube"; } }
         #endregion Public Properties
         #region Private Methods
         /// <summary>

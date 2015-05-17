@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
@@ -9,6 +10,9 @@ namespace RayTracer.Model.Shapes
 {
     public sealed class BezierCurveC0 : BezierCurve
     {
+        #region Public Properties
+        public override string Type { get { return "BezierCurveC0"; } }
+        #endregion Public Properties
         #region Constructors
         public BezierCurveC0(double x, double y, double z, string name, IEnumerable<PointEx> points)
             : base(x, y, z, name, points, Continuity.C0)
@@ -48,6 +52,11 @@ namespace RayTracer.Model.Shapes
                 curves.Add(new Tuple<List<Vector4>, double>(curve, 1.0 / divisions));
 
             return curves;
+        }
+        public override void SaveControlPoints(StringBuilder stringBuilder)
+        {
+            foreach (var point in Vertices)
+                stringBuilder.AppendLine("CP=" + point.Id);
         }
         #endregion Protected Methods
     }

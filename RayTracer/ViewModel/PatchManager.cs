@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using RayTracer.Model.Shapes;
 using System.Linq;
+using RayTracer.Model.Shapes;
 
 namespace RayTracer.ViewModel
 {

@@ -30,6 +30,7 @@ namespace RayTracer.Model.Shapes
         /// </value>
         public static Color DefaultColor { get { return Color.Black; } }
         public override IEnumerable<ShapeBase> SelectedItems { get { return new List<ShapeBase>(); } }
+        public override string Type { get { return "Ellipsoid"; } }
         #endregion Public Properties
         #region .ctor
         public Ellipsoide(double x, double y, double z, string name, double a, double b, double c)

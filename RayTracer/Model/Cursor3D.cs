@@ -107,6 +107,7 @@ namespace RayTracer.Model
         {
             get { return new List<ShapeBase>(); }
         }
+        public override string Type { get { return "Cursor"; } }
         #endregion Public Properties
         #region Constructors
         /// <summary>
@@ -146,7 +147,7 @@ namespace RayTracer.Model
             EdgesIndices.Add(new Tuple<int, int>(2, 3));
         }
         #endregion Private Methods
-        #region Protected Methods        
+        #region Protected Methods
         /// <summary>
         /// Transforms the vertices.
         /// </summary>

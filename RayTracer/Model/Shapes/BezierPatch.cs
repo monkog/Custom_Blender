@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
 {
-    public class BezierPatch : ModelBase
+    public abstract class BezierPatch : ModelBase
     {
         #region Protected Properties
+        protected double Width { get; private set; }
+        protected double Height { get; private set; }
         protected bool IsCylinder { get; private set; }
         protected const int BezierSegmentPoints = 3;
         protected int HorizontalPatches { get; private set; }
@@ -16,16 +19,27 @@ namespace RayTracer.Model.Shapes
         public override IEnumerable<ShapeBase> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         #endregion Public Properties
         #region Constructors
-        public BezierPatch(double x, double y, double z, string name)
+        protected BezierPatch(double x, double y, double z, string name)
             : base(x, y, z, name)
         {
-            VerticalPatches = PatchManager.Instance.VerticalPatches;
-            HorizontalPatches = PatchManager.Instance.HorizontalPatches;
-            IsCylinder = PatchManager.Instance.IsCylinder;
+            var patchManager = PatchManager.Instance;
+            VerticalPatches = patchManager.VerticalPatches;
+            HorizontalPatches = patchManager.HorizontalPatches;
+            IsCylinder = patchManager.IsCylinder;
+            Width = patchManager.PatchWidth;
+            Height = patchManager.PatchHeight;
         }
         #endregion Constructors
-        #region Private Methods
-        #endregion Private Methods
+        #region Public Methods
+        public override void SaveParameters(StringBuilder stringBuilder)
+        {
+            stringBuilder.AppendLine("Width=" + Width);
+            stringBuilder.AppendLine("Height=" + Height);
+            stringBuilder.AppendLine("PatchesXCount=" + HorizontalPatches);
+            stringBuilder.AppendLine("PatchesYCount=" + VerticalPatches);
+            stringBuilder.AppendLine("Cylindrical=" + IsCylinder);
+        }
+        #endregion Public Methods
     }
 }
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using RayTracer.ViewModel;
-namespace RayTracer.Model.Shapes
+﻿namespace RayTracer.Model.Shapes
 {
     public class BezierPatchC2 : BezierPatch
     {
@@ -8,6 +6,7 @@ namespace RayTracer.Model.Shapes
         private bool _isBernsteinBasis;
         #endregion Private Members
         #region Public Properties
+        public override string Type { get { return "BezierSurfaceC2"; } }
         /// <summary>
         /// Vertices for the B-Spline basis.
         /// </summary>
