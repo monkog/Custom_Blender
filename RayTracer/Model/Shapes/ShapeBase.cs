@@ -77,7 +77,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Gets the identifier.
         /// </summary>
-        public int Id { get; private set; }
+        public int Id { get; set; }
         /// <summary>
         /// Gets or sets the transform multiplied by the projection transformations.
         /// </summary>

@@ -164,12 +164,20 @@
                     <StackPanel>
                         <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
                         <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="r: "/>
+                            <TextBox Width="100" Text="{Binding SmallR, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
+                            <TextBlock Text="R: "/>
+                            <TextBox Width="100" Text="{Binding BigR, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="L: "/>
-                            <TextBox Width="100" Text="{Binding L}"/>
+                            <TextBox Width="100" Text="{Binding L, Source={x:Static viewModel:MeshManager.Instance}}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="V: "/>
-                            <TextBox Width="100" Text="{Binding V}"/>
+                            <TextBox Width="100" Text="{Binding V, Source={x:Static viewModel:MeshManager.Instance}}"/>
                         </StackPanel>
                         <CheckBox Content="Stereoscopic view" Margin="20, 2" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
                     </StackPanel>

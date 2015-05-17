@@ -16,8 +16,8 @@ namespace RayTracer.Model.Shapes
         public override string Type { get { return "BezierSurfaceC0"; } }
         #endregion Public Properties
         #region Constructors
-        public BezierPatchC0(double x, double y, double z, string name)
-            : base(x, y, z, name)
+        public BezierPatchC0(double x, double y, double z, string name, bool isCylinder)
+            : base(x, y, z, name, isCylinder)
         {
             SetVertices();
         }

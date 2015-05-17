@@ -17,8 +17,6 @@ namespace RayTracer.ViewModel
         #region Private Members
         private double _viewportWidth;
         private double _viewportHeight;
-        private int _l;
-        private int _v;
         private double _a;
         private double _b;
         private double _c;
@@ -27,32 +25,6 @@ namespace RayTracer.ViewModel
         private int _zSlider;
         #endregion Private Members
         #region Public Properties
-        /// <summary>
-        /// Gets or sets the number of torus donut divisions.
-        /// </summary>
-        public int L
-        {
-            get { return _l; }
-            set
-            {
-                if (_l == value) return;
-                _l = value;
-                OnPropertyChanged("L");
-            }
-        }
-        /// <summary>
-        /// Gets or sets the torus circle divisions.
-        /// </summary>
-        public int V
-        {
-            get { return _v; }
-            set
-            {
-                if (_v == value) return;
-                _v = value;
-                OnPropertyChanged("V");
-            }
-        }
         /// <summary>
         /// Gets or sets the first radius of Ellipsoide.
         /// </summary>
@@ -231,8 +203,10 @@ namespace RayTracer.ViewModel
             PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
             PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions") Render(); };
             MeshManager.Meshes.CollectionChanged += (sender, args) => { Render(); };
-            L = 20;
-            V = 20;
+            MeshManager.SmallR = 0.1;
+            MeshManager.BigR = 0.2;
+            MeshManager.L = 20;
+            MeshManager.V = 20;
             A = 5;
             B = 6;
             C = 8;
@@ -376,8 +350,8 @@ namespace RayTracer.ViewModel
             {
                 Filter = @"Model files (*.mg1)|*.mg1"
             };
-            dialog.ShowDialog();
-            if (dialog.CheckPathExists)
+
+            if (dialog.ShowDialog() == true && dialog.CheckPathExists)
                 SceneManager.SaveScene(dialog.FileName);
         }
 
@@ -389,9 +363,11 @@ namespace RayTracer.ViewModel
         private void LoadSceneExecuted()
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.ShowDialog();
-            if (dialog.CheckPathExists)
+            if (dialog.ShowDialog() == true && dialog.CheckFileExists)
+            {
+                ClearSceneExecuted();
                 SceneManager.LoadScene(dialog.FileName);
+            }
         }
 
         private ICommand _clearSceneCommand;
@@ -414,7 +390,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddTorusExecuted()
         {
-            var torus = new Torus(0, 0, 0, "Torus(L:" + L + ", V:" + V + ")", L, V);
+            var torus = new Torus(0, 0, 0, "Torus(L:" + MeshManager.L + ", V:" + MeshManager.V + ")", MeshManager.SmallR, MeshManager.BigR, MeshManager.L, MeshManager.V);
             MeshManager.Meshes.Add(torus);
         }
 
@@ -438,7 +414,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddBezierPatchC0Executed()
         {
-            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")");
+            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder);
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.Patches.Add(patch);
         }

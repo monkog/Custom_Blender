@@ -9,7 +9,7 @@ namespace RayTracer.ViewModel
     {
         #region Private Members
         private static PatchManager _instance;
-        private ObservableCollection<BezierPatchC0> _patches;
+        private ObservableCollection<BezierPatch> _patches;
         private bool _isCylinder;
         private int _horizontalPatches;
         private int _verticalPatches;
@@ -110,7 +110,7 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("PatchHeight");
             }
         }
-        public ObservableCollection<BezierPatchC0> Patches
+        public ObservableCollection<BezierPatch> Patches
         {
             get { return _patches; }
             set
@@ -131,7 +131,7 @@ namespace RayTracer.ViewModel
          ///<summary>
          ///Gets or sets the selected Patches.
          ///</summary>
-        public IEnumerable<BezierPatchC0> SelectedItems
+        public IEnumerable<BezierPatch> SelectedItems
         {
             get { return Patches.Where(p => p.IsSelected); }
         }
@@ -139,7 +139,7 @@ namespace RayTracer.ViewModel
         #region Constructor
         public PatchManager()
         {
-            Patches = new ObservableCollection<BezierPatchC0>();
+            Patches = new ObservableCollection<BezierPatch>();
         }
         #endregion Constructor
     }

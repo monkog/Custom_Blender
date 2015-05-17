@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Markup.Localizer;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.Model.Shapes;
@@ -187,10 +188,10 @@ namespace RayTracer.ViewModel
         {
             var stringBuilder = new StringBuilder();
 
-            foreach (var model in Models)
-                model.Save(stringBuilder);
             foreach (var point in PointManager.Instance.Points)
                 point.Save(stringBuilder);
+            foreach (var model in Models)
+                model.Save(stringBuilder);
 
             stringBuilder.AppendLine("Selected");
             foreach (var model in Models)
@@ -208,8 +209,240 @@ namespace RayTracer.ViewModel
         /// Loads the scene from file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        public static void LoadScene(string fileName)
-        { }
+        public void LoadScene(string fileName)
+        {
+            using (var streamReader = new StreamReader(fileName))
+            {
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    switch (line)
+                    {
+                        case "Torus":
+                            LoadTorus(streamReader);
+                            break;
+                        case "Point":
+                            LoadPoint(streamReader);
+                            break;
+                        case "Ellipsoid":
+                            LoadElipsoide(streamReader);
+                            break;
+                        case "BezierCurveC0":
+                            LoadCurve(streamReader, Continuity.C0);
+                            break;
+                        case "BezierCurveC2":
+                            LoadCurve(streamReader, Continuity.C2);
+                            break;
+                        case "InterpolationCurve":
+                            LoadCurve(streamReader, Continuity.C2, isInterpolation: true);
+                            break;
+                        case "BezierSurfaceC0":
+                            LoadSurface(streamReader, Continuity.C0);
+                            break;
+                        case "BezierSurfaceC2":
+                            LoadSurface(streamReader, Continuity.C2);
+                            break;
+                        case "Selected":
+                            SelectObjects(streamReader);
+                            break;
+
+                    }
+                }
+            }
+        }
         #endregion Public Methods
+        #region Private Methods
+        private void LoadTorus(StreamReader streamReader)
+        {
+            var id = ReadInt(streamReader.ReadLine());
+            var name = ReadString(streamReader.ReadLine());
+            var smallR = ReadDouble(streamReader.ReadLine());
+            var bigR = ReadDouble(streamReader.ReadLine());
+            var x = ReadDouble(streamReader.ReadLine());
+            var y = ReadDouble(streamReader.ReadLine());
+            var z = ReadDouble(streamReader.ReadLine());
+            var matrix = ReadMatrix(streamReader);
+            var colorName = ReadString(streamReader.ReadLine());
+            var color = Color.FromName(colorName);
+            var torus = new Torus(x, y, z, name, smallR, bigR, MeshManager.Instance.L, MeshManager.Instance.V)
+            {
+                Id = id,
+                Color = color,
+                ModelTransform = matrix
+            };
+            MeshManager.Instance.Meshes.Add(torus);
+            streamReader.ReadLine();
+        }
+        private void LoadPoint(StreamReader streamReader)
+        {
+            var id = ReadInt(streamReader.ReadLine());
+            var name = ReadString(streamReader.ReadLine());
+            var x = ReadDouble(streamReader.ReadLine());
+            var y = ReadDouble(streamReader.ReadLine());
+            var z = ReadDouble(streamReader.ReadLine());
+            var matrix = ReadMatrix(streamReader);
+            var colorName = ReadString(streamReader.ReadLine());
+            var color = Color.FromName(colorName);
+            var point = new PointEx(x, y, z)
+            {
+                Id = id,
+                Name = name,
+                Color = color,
+                ModelTransform = matrix
+            };
+            PointManager.Instance.Points.Add(point);
+            streamReader.ReadLine();
+        }
+        private void LoadElipsoide(StreamReader streamReader)
+        {
+            var id = ReadInt(streamReader.ReadLine());
+            var name = ReadString(streamReader.ReadLine());
+            var x = ReadDouble(streamReader.ReadLine());
+            var y = ReadDouble(streamReader.ReadLine());
+            var z = ReadDouble(streamReader.ReadLine());
+            var tMatrix = ReadMatrix(streamReader);
+            var mMatrix = ReadMatrix(streamReader);
+            var colorName = ReadString(streamReader.ReadLine());
+            var color = Color.FromName(colorName);
+            var ellipsoid = new Ellipsoide(x, y, z, name, 1, 1, 1)
+            {
+                Id = id,
+                Color = color,
+                Transform = tMatrix,
+                ModelTransform = mMatrix
+            };
+            streamReader.ReadLine();
+        }
+        private void LoadCurve(StreamReader streamReader, Continuity continuity, bool isInterpolation = false)
+        {
+            var id = ReadInt(streamReader.ReadLine());
+            var name = ReadString(streamReader.ReadLine());
+            var x = ReadDouble(streamReader.ReadLine());
+            var y = ReadDouble(streamReader.ReadLine());
+            var z = ReadDouble(streamReader.ReadLine());
+            var matrix = ReadMatrix(streamReader);
+            var colorName = ReadString(streamReader.ReadLine());
+            var color = Color.FromName(colorName);
+            var points = ReadPoints(streamReader);
+            BezierCurve curve = null;
+            switch (continuity)
+            {
+                case Continuity.C0:
+                    curve = new BezierCurveC0(x, y, z, name, points)
+                    {
+                        Id = id,
+                        Color = color,
+                        ModelTransform = matrix
+                    };
+                    break;
+                case Continuity.C2:
+                    curve = new BezierCurveC2(x, y, z, name, points, isInterpolation)
+                    {
+                        Id = id,
+                        Color = color,
+                        ModelTransform = matrix
+                    };
+                    break;
+            }
+            CurveManager.Instance.Curves.Add(curve);
+        }
+        private void LoadSurface(StreamReader streamReader, Continuity continuity)
+        {
+            var id = ReadInt(streamReader.ReadLine());
+            var name = ReadString(streamReader.ReadLine());
+            var width = ReadDouble(streamReader.ReadLine());
+            var height = ReadDouble(streamReader.ReadLine());
+            var patchesLengthCount = ReadInt(streamReader.ReadLine());
+            var patchesBreadthCount = ReadInt(streamReader.ReadLine());
+            var isCylindrical = ReadBool(streamReader.ReadLine());
+            var x = ReadDouble(streamReader.ReadLine());
+            var y = ReadDouble(streamReader.ReadLine());
+            var z = ReadDouble(streamReader.ReadLine());
+            var matrix = ReadMatrix(streamReader);
+            var colorName = ReadString(streamReader.ReadLine());
+            var color = Color.FromName(colorName);
+            var points = ReadPoints(streamReader);
+            BezierPatch patch = null;
+            switch (continuity)
+            {
+                case Continuity.C0:
+                    patch = new BezierPatchC0(x, y, z, name, isCylindrical)
+                    {
+                        Id = id,
+                        Color = color,
+                        ModelTransform = matrix
+                    };
+                    break;
+                //case Continuity.C2:
+                //    patch = new BezierPatchC2(x, y, z, name,isCylindrical);
+                //    {
+                //        Id = id,
+                //        Color = color,
+                //        ModelTransform = matrix
+                //    };
+                //    break;
+            }
+            PatchManager.Instance.Patches.Add(patch);
+        }
+        private IEnumerable<PointEx> ReadPoints(StreamReader streamReader)
+        {
+            var currentPoints = PointManager.Instance.Points;
+            var points = new List<PointEx>();
+            while (true)
+            {
+                var line = streamReader.ReadLine();
+                if (string.IsNullOrEmpty(line)) break;
+                var id = ReadInt(line);
+                points.Add(currentPoints.First(p => p.Id == id));
+            }
+            return points;
+        }
+        private void SelectObjects(StreamReader streamReader)
+        {
+            while (true)
+            {
+                var line = streamReader.ReadLine();
+                if (string.IsNullOrEmpty(line)) break;
+
+                var id = ReadInt(line);
+
+                foreach (var point in PointManager.Instance.Points.Where(p => p.Id == id)) point.IsSelected = true;
+                foreach (var mesh in MeshManager.Instance.Meshes)
+                {
+                    if (mesh.Id == id)
+                    {
+                        mesh.IsSelected = true;
+                        break;
+                    }
+                    foreach (var point in mesh.Vertices.Where(p => p.Id == id)) point.IsSelected = true;
+                }
+            }
+        }
+        private Matrix3D ReadMatrix(StreamReader streamReader)
+        {
+            streamReader.ReadLine();
+            var data = streamReader.ReadLine() + "\r\n";
+            data = data + streamReader.ReadLine() + "\r\n";
+            data = data + streamReader.ReadLine() + "\r\n";
+            data = data + streamReader.ReadLine() + "\r\n";
+            return Matrix3D.Parse(data);
+        }
+        private double ReadDouble(string line)
+        {
+            return double.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+        }
+        private string ReadString(string line)
+        {
+            return line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1);
+        }
+        private int ReadInt(string line)
+        {
+            return int.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+        }
+        private bool ReadBool(string line)
+        {
+            return bool.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+        }
+        #endregion Private Methods
     }
 }

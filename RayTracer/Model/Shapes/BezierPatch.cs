@@ -10,22 +10,25 @@ namespace RayTracer.Model.Shapes
         #region Protected Properties
         protected double Width { get; private set; }
         protected double Height { get; private set; }
-        protected bool IsCylinder { get; private set; }
         protected const int BezierSegmentPoints = 3;
         protected int HorizontalPatches { get; private set; }
         protected int VerticalPatches { get; private set; }
         #endregion Protected Properties
         #region Public Properties
+        /// <summary>
+        /// Gets a value indicating whether this patch is cylinder.
+        /// </summary>
+        public bool IsCylinder { get; private set; }
         public override IEnumerable<ShapeBase> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
         #endregion Public Properties
         #region Constructors
-        protected BezierPatch(double x, double y, double z, string name)
+        protected BezierPatch(double x, double y, double z, string name, bool isCylinder)
             : base(x, y, z, name)
         {
             var patchManager = PatchManager.Instance;
             VerticalPatches = patchManager.VerticalPatches;
             HorizontalPatches = patchManager.HorizontalPatches;
-            IsCylinder = patchManager.IsCylinder;
+            IsCylinder = isCylinder;
             Width = patchManager.PatchWidth;
             Height = patchManager.PatchHeight;
         }

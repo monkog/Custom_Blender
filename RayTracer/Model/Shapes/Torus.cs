@@ -28,13 +28,13 @@ namespace RayTracer.Model.Shapes
         public override string Type { get { return "Torus"; } }
         #endregion Public Properties
         #region .ctor
-        public Torus(double x, double y, double z, string name, int l, int v)
+        public Torus(double x, double y, double z, string name, double smallR, double bigR, int l, int v)
             : base(x, y, z, name)
         {
             _donutDivision = l;
             _circle_division = v;
-            _r = 0.1;
-            _R = 0.2;
+            _r = smallR;
+            _R = bigR;
             SetVertices();
             SetEdges();
             TransformVertices(Matrix3D.Identity);
@@ -82,8 +82,8 @@ namespace RayTracer.Model.Shapes
         #region Public Methods
         public override void SaveParameters(StringBuilder stringBuilder)
         {
-            stringBuilder.AppendLine("R=" + _R);
             stringBuilder.AppendLine("r=" + _r);
+            stringBuilder.AppendLine("R=" + _R);
         }
         #endregion Public Methods
     }
