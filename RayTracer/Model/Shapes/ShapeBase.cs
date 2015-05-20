@@ -152,6 +152,7 @@ namespace RayTracer.Model.Shapes
         /// <param name="stringBuilder">The string builder.</param>
         public void Save(StringBuilder stringBuilder)
         {
+            SaveControlPoints(stringBuilder);
             stringBuilder.AppendLine(Type);
             stringBuilder.AppendLine("Id=" + Id);
             stringBuilder.AppendLine("Name=" + Name);
@@ -164,7 +165,7 @@ namespace RayTracer.Model.Shapes
                                         + "\n" + ModelTransform.M31 + " " + ModelTransform.M32 + " " + ModelTransform.M33 + " " + ModelTransform.M34
                                         + "\n" + ModelTransform.OffsetX + " " + ModelTransform.OffsetY + " " + ModelTransform.OffsetZ + " " + ModelTransform.M44);
             stringBuilder.AppendLine("Color=" + Color.Name);
-            SaveControlPoints(stringBuilder);
+            SaveControlPointsReference(stringBuilder);
             stringBuilder.AppendLine();
         }
         /// <summary>
@@ -177,6 +178,11 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         /// <param name="stringBuilder">The string builder.</param>
         public virtual void SaveControlPoints(StringBuilder stringBuilder) { }
+        /// <summary>
+        /// Saves the reference to control points.
+        /// </summary>
+        /// <param name="stringBuilder">The string builder.</param>
+        public virtual void SaveControlPointsReference(StringBuilder stringBuilder) { }
         #endregion Public Methods
     }
 }

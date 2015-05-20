@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
@@ -380,7 +381,7 @@ namespace RayTracer.ViewModel
                 for (int j = 0; j < horizontalPatches * BezierSegmentPoints + 1; j++)
                 {
                     var point = points.ElementAt(index++);
-                    point.CanBeDeleted = false;
+                    pts.Remove(point);
                     p[j, i] = point;
                 }
 
@@ -405,7 +406,7 @@ namespace RayTracer.ViewModel
             }
             return patch;
         }
-        private IEnumerable<PointEx> ReadPoints(StreamReader streamReader, ObservableCollection<PointEx> pts)
+        private List<PointEx> ReadPoints(StreamReader streamReader, ObservableCollection<PointEx> pts)
         {
             var points = new List<PointEx>();
             while (true)
@@ -450,19 +451,19 @@ namespace RayTracer.ViewModel
         }
         private double ReadDouble(string line)
         {
-            return double.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+            return double.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1));
         }
         private string ReadString(string line)
         {
-            return line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1);
+            return line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1);
         }
         private int ReadInt(string line)
         {
-            return int.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+            return int.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1));
         }
         private bool ReadBool(string line)
         {
-            return bool.Parse(line.Substring(line.IndexOf("=", System.StringComparison.Ordinal) + 1));
+            return bool.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1));
         }
         #endregion Private Methods
     }

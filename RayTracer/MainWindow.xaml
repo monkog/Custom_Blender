@@ -207,6 +207,10 @@
                     <StackPanel>
                         <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchC0Command}" Margin="20"/>
                         <CheckBox Margin="20, 0" Content="Is Cylinder" IsChecked="{Binding IsCylinder, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                        <StackPanel Margin="20, 0" Orientation="Horizontal">
+                            <RadioButton Content="C0"/>
+                            <RadioButton Margin="20, 0" Content="C2"/>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="Horizontal Patches: "/>
                             <TextBox Width="50" Text="{Binding HorizontalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>

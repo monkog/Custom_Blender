@@ -10,9 +10,9 @@ namespace RayTracer.Model
     public sealed class Cursor3D : ModelBase
     {
         #region Private Members
-        public double _xPosition;
-        public double _yPosition;
-        public double _zPosition;
+        private double _xPosition;
+        private double _yPosition;
+        private double _zPosition;
         private double _xScreenPosition;
         private double _yScreenPosition;
         private static Cursor3D _instance;

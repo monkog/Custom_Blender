@@ -136,5 +136,52 @@ namespace RayTracer.Helpers
                     if (minY > point.Y) minY = point.Y;
                 }
         }
+        /// <summary>
+        /// Gets the value of the N function.<para/>
+        /// |\  | n<para/>
+        /// | \ |   (ti)<para/>
+        /// |  \| i
+        /// </summary>
+        /// <param name="knots">The knots array for evaluating N.</param>
+        /// <param name="i">The i.</param>
+        /// <param name="n">The n.</param>
+        /// <param name="ti">The ti.</param>
+        /// <returns></returns>
+        public static double GetNFunctionValue(this double[] knots, int i, int n, double ti)
+        {
+            if (n < 0)
+                return 0;
+            if (n == 0)
+            {
+                if (ti >= knots[i] && ti < knots[i + 1])
+                    return 1;
+                return 0;
+            }
+
+            double a = knots[i + n] - knots[i] != 0 ? (ti - knots[i]) / (knots[i + n] - knots[i]) : 0;
+            double b = knots[i + n + 1] - knots[i + 1] != 0 ? (knots[i + n + 1] - ti) / (knots[i + n + 1] - knots[i + 1]) : 0;
+            return a * knots.GetNFunctionValue(i, n - 1, ti) + b * knots.GetNFunctionValue(i + 1, n - 1, ti);
+        }
+        /// <summary>
+        /// Calculates the N matrix for n degree polynomials.
+        /// </summary>
+        /// <param name="knots">The knots.</param>
+        /// <param name="n">The degree of the polynomials.</param>
+        /// <param name="knotsCount">The knots count.</param>
+        /// <returns>N matrix</returns>
+        public static double[,] CalculateNMatrix(this double[] knots, int n, int knotsCount)
+        {
+
+            double[,] nMatrix = new double[knotsCount + 2, knotsCount + 2];
+
+            for (int i = 1; i <= knotsCount + 2; i++)
+                for (int j = 1; j <= knotsCount + 2; j++)
+                {
+                    double t = knots[i + n - 1];
+                    nMatrix[j - 1, i - 1] = knots.GetNFunctionValue(j, n, t);
+                }
+
+            return nMatrix;
+        }
     }
 }

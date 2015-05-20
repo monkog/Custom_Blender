@@ -27,7 +27,6 @@ namespace RayTracer.Model.Shapes
         private bool _isMiddlePointSelected;
         #endregion Private Members
         #region Public Properties
-
         public override string Type
         {
             get
@@ -38,7 +37,6 @@ namespace RayTracer.Model.Shapes
                 return "BezierCurveC2";
             }
         }
-
         /// <summary>
         /// Vertices for the B-Spline basis.
         /// </summary>
@@ -98,15 +96,13 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name, points, Continuity.C2)
         {
             if ((IsInterpolation = isInterpolation))
-            {
                 InterpolationPoints = new ObservableCollection<PointEx>(points);
-                EquidistantPoints = true;
-            }
             else
             {
                 DeBooreVertices = new ObservableCollection<PointEx>(points);
                 InterpolationPoints = new ObservableCollection<PointEx>();
             }
+            EquidistantPoints = true;
             IsBernsteinBasis = true;
             UpdateVertices();
         }
@@ -216,24 +212,9 @@ namespace RayTracer.Model.Shapes
             Vector4 sum = new Vector4(0, 0, 0, 1);
 
             for (int i = 0; i < curve.Count; i++)
-                sum += curve[i] * GetNFunctionValue(i, N, t);
+                sum += curve[i] * _knots.GetNFunctionValue(i, N, t);
 
             return new Vector4(sum.X, sum.Y, sum.Z, 1);
-        }
-        public double GetNFunctionValue(int i, int n, double ti)
-        {
-            if (n < 0)
-                return 0;
-            if (n == 0)
-            {
-                if (ti >= _knots[i] && ti < _knots[i + 1])
-                    return 1;
-                return 0;
-            }
-
-            double a = _knots[i + n] - _knots[i] != 0 ? (ti - _knots[i]) / (_knots[i + n] - _knots[i]) : 0;
-            double b = _knots[i + n + 1] - _knots[i + 1] != 0 ? (_knots[i + n + 1] - ti) / (_knots[i + n + 1] - _knots[i + 1]) : 0;
-            return a * GetNFunctionValue(i, n - 1, ti) + b * GetNFunctionValue(i + 1, n - 1, ti);
         }
         private void GetBezierCurveInBernsteinBasis(List<Tuple<List<Vector4>, double>> curves, ref List<Vector4> curve, ref double divisions)
         {
@@ -282,7 +263,7 @@ namespace RayTracer.Model.Shapes
         }
         private ObservableCollection<PointEx> CalculateInterpolationDeBoore()
         {
-            var mtx = CalculateSegments(InterpolationPoints);
+            var mtx = CalculateSegments(InterpolationPoints.Count);
             double[][] s = new double[3][];
             for (int i = 0; i < 3; i++)
                 s[i] = new double[InterpolationPoints.Count() + 2];
@@ -298,21 +279,10 @@ namespace RayTracer.Model.Shapes
                 vertices.Add(new PointEx(result[0][i], result[1][i], result[2][i]));
             return vertices;
         }
-        private double[,] CalculateSegments(IEnumerable<PointEx> points)
+        private double[,] CalculateSegments(int knotsCount)
         {
-            int m = points.Count();
-            SetSplineKnots(m);
-            double[,] nMatrix = new double[m + 2, m + 2];
-
-            for (int i = 1; i <= m + 2; i++)
-            {
-                for (int j = 1; j <= m + 2; j++)
-                {
-                    double t = _knots[i + N - 1];
-                    nMatrix[j - 1, i - 1] = GetNFunctionValue(j, N, t);
-                }
-            }
-            return nMatrix;
+            SetSplineKnots(knotsCount);
+            return _knots.CalculateNMatrix(N, knotsCount);
         }
         #endregion Private Methods
         #region Protected Methods
@@ -392,7 +362,7 @@ namespace RayTracer.Model.Shapes
             }
             base.Draw();
         }
-        public override void SaveControlPoints(StringBuilder stringBuilder)
+        public override void SaveControlPointsReference(StringBuilder stringBuilder)
         {
             if (IsInterpolation)
                 foreach (var point in InterpolationPoints)

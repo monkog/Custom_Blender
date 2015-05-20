@@ -23,7 +23,6 @@ namespace RayTracer.Model.Shapes
                 OnPropertyChanged("IsCurvePointSelected");
             }
         }
-        public bool CanBeDeleted { get; set; }
         public Vector4 Vector4 { get { return new Vector4(X, Y, Z, 1); } }
         /// <summary>
         /// Gets or sets the vertices representing the mesh.
@@ -53,7 +52,6 @@ namespace RayTracer.Model.Shapes
             Thickness = 3;
             PropertyChanged += PointEx_PropertyChanged;
             IsCurvePointSelected = false;
-            CanBeDeleted = true;
             PropertyChanged += (sender, e) =>
             {
                 if (e.PropertyName == "ModelTransform" || e.PropertyName == "MeshTransform")

@@ -55,7 +55,7 @@ namespace RayTracer.Model.Shapes
         }
         #endregion Protected Methods
         #region Public Methods
-        public override void SaveControlPoints(StringBuilder stringBuilder)
+        public override void SaveControlPointsReference(StringBuilder stringBuilder)
         {
             foreach (var point in Vertices)
                 stringBuilder.AppendLine("CP=" + point.Id);

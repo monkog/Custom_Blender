@@ -480,7 +480,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void AddPointToBezierCurveExecuted()
         {
-            foreach (var point in PointManager.SelectedItems.Where(p => p.CanBeDeleted))
+            foreach (var point in PointManager.SelectedItems)
                 foreach (var curve in CurveManager.SelectedItems)
                     if (curve.Continuity == Continuity.C0)
                     {
