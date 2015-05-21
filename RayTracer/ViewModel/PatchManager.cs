@@ -17,6 +17,7 @@ namespace RayTracer.ViewModel
         private int _verticalPatchDivisions;
         private double _patchWidth;
         private double _patchHeight;
+        private Continuity _patchContinuity;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -110,6 +111,19 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("PatchHeight");
             }
         }
+        /// <summary>
+        /// Gets or sets the continuity of the patch that will be created.
+        /// </summary>
+        public Continuity PatchContinuity
+        {
+            get { return _patchContinuity; }
+            set
+            {
+                if (_patchContinuity == value) return;
+                _patchContinuity = value;
+                OnPropertyChanged("PatchContinuity");
+            }
+        }
         public ObservableCollection<BezierPatch> Patches
         {
             get { return _patches; }
@@ -128,9 +142,9 @@ namespace RayTracer.ViewModel
         {
             get { return _instance ?? (_instance = new PatchManager()); }
         }
-         ///<summary>
-         ///Gets or sets the selected Patches.
-         ///</summary>
+        ///<summary>
+        ///Gets or sets the selected Patches.
+        ///</summary>
         public IEnumerable<BezierPatch> SelectedItems
         {
             get { return Patches.Where(p => p.IsSelected); }

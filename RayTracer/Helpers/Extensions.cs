@@ -21,6 +21,19 @@ namespace RayTracer.Helpers
                               , matrix.M14, matrix.M24, matrix.M34, matrix.M44);
         }
         /// <summary>
+        /// Multiplies the specified matrix by the specified value.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="value">Value to multiply by</param>
+        /// <returns>Multiplied matrix</returns>
+        public static Matrix3D Multiply(this Matrix3D matrix, double value)
+        {
+            return new Matrix3D(matrix.M11 * value, matrix.M21 * value, matrix.M31 * value, matrix.OffsetX * value
+                              , matrix.M12 * value, matrix.M22 * value, matrix.M32 * value, matrix.OffsetY * value
+                              , matrix.M13 * value, matrix.M23 * value, matrix.M33 * value, matrix.OffsetZ * value
+                              , matrix.M14 * value, matrix.M24 * value, matrix.M34 * value, matrix.M44 * value);
+        }
+        /// <summary>
         /// Combines the colors.
         /// </summary>
         /// <param name="color">The color.</param>

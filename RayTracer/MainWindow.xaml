@@ -15,6 +15,7 @@
         <viewModel:RayViewModel />
     </d:Window.DataContext>
     <Window.Resources>
+        <converters:RadioButtonConverter x:Key="RadioButtonConverter"/>
         <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
         <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
         <converters:DebugConverter x:Key="DebugConverter"/>
@@ -57,7 +58,7 @@
                 </TreeView>
             </StackPanel>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type shapes:BezierPatchC0}">
+        <DataTemplate DataType="{x:Type shapes:BezierPatch}">
             <StackPanel>
                 <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
@@ -205,11 +206,13 @@
                 </GroupBox>
                 <GroupBox Margin="20" Header="Bezier Patch">
                     <StackPanel>
-                        <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchC0Command}" Margin="20"/>
+                        <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchCommand}" Margin="20"/>
                         <CheckBox Margin="20, 0" Content="Is Cylinder" IsChecked="{Binding IsCylinder, Source={x:Static viewModel:PatchManager.Instance}}"/>
                         <StackPanel Margin="20, 0" Orientation="Horizontal">
-                            <RadioButton Content="C0"/>
-                            <RadioButton Margin="20, 0" Content="C2"/>
+                            <RadioButton Content="C0" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
+                                , Converter={StaticResource RadioButtonConverter}, ConverterParameter={x:Static shapes:Continuity.C0}}"/>
+                            <RadioButton Margin="20, 0" Content="C2" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
+                                , Converter={StaticResource RadioButtonConverter}, ConverterParameter={x:Static shapes:Continuity.C2}}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="20, 2">
                             <TextBlock Text="Horizontal Patches: "/>

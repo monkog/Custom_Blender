@@ -109,6 +109,7 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Helpers\Converters\BitmapToBitmapImageConverter.cs" />
     <Compile Include="Helpers\Converters\DebugConverter.cs" />
+    <Compile Include="Helpers\Converters\RadioButtonConverter.cs" />
     <Compile Include="Helpers\Converters\ReducedValueConverter.cs" />
     <Compile Include="Helpers\CustomLine.cs" />
     <Compile Include="Helpers\EventCommand\ActionCommand.cs" />

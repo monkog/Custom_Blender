@@ -17,13 +17,14 @@ namespace RayTracer.Model.Shapes
         public BezierPatchC0(double x, double y, double z, string name, bool isCylinder, double width, double height
             , int verticalPatches, int horizontalPatches, PointEx[,] points = null, IEnumerable<PointEx> vertices = null)
             : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
-        {        }
+        { }
         #endregion Constructors
         #region Protected Methods
-        protected override void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Matrix3D matX, Matrix3D matY, Matrix3D matZ
-            , double divisions, bool isHorizontal)
+        protected void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Matrix3D matX, Matrix3D matY, Matrix3D matZ
+            , int divisions, bool isHorizontal)
         {
             double step = 1.0f / (patchDivisions - 1);
+            double drawingStep = 1.0f / (divisions - 1);
             double currentStep = patchIndex == 0 ? 0 : step;
             Vector4 pointX = null, pointY = null;
 
@@ -34,12 +35,13 @@ namespace RayTracer.Model.Shapes
                 else
                     pointX = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
 
-                for (double n = 0; n <= 1; n += divisions)
+                for (double n = 0; n < divisions; n++)
                 {
+                    var point = n * drawingStep;
                     if (isHorizontal)
-                        pointX = new Vector4(Math.Pow((1.0 - n), 3), 3 * n * Math.Pow((1.0 - n), 2), 3 * n * n * (1.0 - n), Math.Pow(n, 3));
+                        pointX = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
                     else
-                        pointY = new Vector4(Math.Pow((1.0 - n), 3), 3 * n * Math.Pow((1.0 - n), 2), 3 * n * n * (1.0 - n), Math.Pow(n, 3));
+                        pointY = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
 
                     var x = pointX * matX * pointY;
                     var y = pointX * matY * pointY;
@@ -58,8 +60,8 @@ namespace RayTracer.Model.Shapes
             double maxX, maxY, minX, minY;
             Points.FindMaxMinCoords(out minX, out minY, out maxX, out maxY);
 
-            var xDiv = 1.0 / ((maxX - minX) * 4);
-            var yDiv = 1.0 / ((maxY - minY) * 4);
+            var xDiv = (maxX - minX) * 4;
+            var yDiv = (maxY - minY) * 4;
 
             Bitmap bmp = SceneManager.Instance.SceneImage;
             using (Graphics g = Graphics.FromImage(bmp))
@@ -81,8 +83,8 @@ namespace RayTracer.Model.Shapes
                                                    , Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition.Z, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition.Z, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition.Z, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition.Z
                                                    , Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition.Z, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition.Z, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition.Z, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition.Z);
 
-                        DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: false);
-                        DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, matX, matY, matZ, Math.Max(xDiv, yDiv), isHorizontal: true);
+                        DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, matX, matY, matZ, (int)Math.Max(xDiv, yDiv), isHorizontal: false);
+                        DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, matX, matY, matZ, (int)Math.Max(xDiv, yDiv), isHorizontal: true);
                     }
                 }
             }

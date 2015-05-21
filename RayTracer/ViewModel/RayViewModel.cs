@@ -416,15 +416,21 @@ namespace RayTracer.ViewModel
             Render();
         }
 
-        private ICommand _addBezierPatchC0Command;
-        public ICommand AddBezierPatchC0Command { get { return _addBezierPatchC0Command ?? (_addBezierPatchC0Command = new DelegateCommand(AddBezierPatchC0Executed)); } }
+        private ICommand _addBezierPatchCommand;
+        public ICommand AddBezierPatchCommand { get { return _addBezierPatchCommand ?? (_addBezierPatchCommand = new DelegateCommand(AddBezierPatchExecuted)); } }
         /// <summary>
-        /// Adds the Bezier Patch with C0 continuity.
+        /// Adds the Bezier Patch with the Chosen continuity.
         /// </summary>
-        private void AddBezierPatchC0Executed()
+        private void AddBezierPatchExecuted()
         {
-            var patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder
-                , PatchManager.PatchWidth, PatchManager.PatchHeight, PatchManager.VerticalPatches, PatchManager.HorizontalPatches);
+            BezierPatch patch;
+
+            if (PatchManager.PatchContinuity == Continuity.C0)
+                patch = new BezierPatchC0(0, 0, 0, "Bezier Patch C0(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder
+                    , PatchManager.PatchWidth, PatchManager.PatchHeight, PatchManager.VerticalPatches, PatchManager.HorizontalPatches);
+            else
+                patch = new BezierPatchC2(0, 0, 0, "Bezier Patch C2(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.IsCylinder
+                    , PatchManager.PatchWidth, PatchManager.PatchHeight, PatchManager.VerticalPatches, PatchManager.HorizontalPatches);
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.Patches.Add(patch);
         }

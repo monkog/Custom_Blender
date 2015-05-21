@@ -10,8 +10,8 @@ namespace RayTracer.Model.Shapes
     public class BezierPatchC2 : BezierPatch
     {
         #region Private Members
-        private double[] _knots;
-        private double[,] _nMatrix;
+        private double[] _knotsVertical;
+        private double[] _knotsHorizontal;
         #endregion Private Members
         #region Public Properties
         public override string Type { get { return "BezierSurfaceC2"; } }
@@ -22,56 +22,97 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
         {
             const int n = SceneManager.BezierSegmentPoints;
-            _knots = new double[Vertices.Count + n + 4];
-            double interval = 1 / (double)(Vertices.Count + n + 3);
-
-            for (int i = 0; i < Vertices.Count + n + 4; i++)
-                _knots[i] = i * interval;
-
-            _nMatrix = _knots.CalculateNMatrix(n, Vertices.Count);
+            SetSplineKnots(n);
         }
         #endregion Constructors
         #region Private Methods
         private void SetSplineKnots(int n)
         {
-            _knots = new double[n + SceneManager.BezierSegmentPoints + 4];
+            _knotsVertical = new double[(VerticalPatches * n + 1) + n + 4];
+            _knotsHorizontal = new double[(HorizontalPatches * n + 1) + n + 4];
 
-            double interval = 1 / (double)(n + SceneManager.BezierSegmentPoints + 3);
+            double interval = 1 / (double)(_knotsVertical.Length - 1);
+            for (int i = 0; i < _knotsVertical.Length; i++)
+                _knotsVertical[i] = i * interval;
 
-            for (int i = 0; i < n + SceneManager.BezierSegmentPoints + 4; i++)
-                _knots[i] = i * interval;
+            interval = 1 / (double)(_knotsHorizontal.Length - 1);
+            for (int i = 0; i < _knotsHorizontal.Length; i++)
+                _knotsHorizontal[i] = i * interval;
         }
-        #endregion Private Methods
-        #region Protected Methods
-        protected override void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Matrix3D matX, Matrix3D matY, Matrix3D matZ
-           , double divisions, bool isHorizontal)
+        private void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Vector4[,] points, int divisions, bool isHorizontal)
         {
             double step = 1.0f / (patchDivisions - 1);
-            double currentStep = patchIndex == 0 ? 0 : step;
-            Vector4 pointX = null, pointY = null;
+            double drawingStep = 1.0f / (divisions - 1);
+            double u = 0;
+            double v = 0;
+            var uArray = isHorizontal ? _knotsHorizontal : _knotsVertical;
+            var vArray = isHorizontal ? _knotsVertical : _knotsHorizontal;
 
-            for (double m = (patchIndex == 0 ? 0 : 1); m < patchDivisions; m++, currentStep += step)
+            for (int m = 0; m < patchDivisions; m++, u += step)
             {
-                if (isHorizontal)
-                    pointY = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
-                else
-                    pointX = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
+                if (u < uArray[3] || u > uArray[uArray.Length - SceneManager.BezierSegmentPoints - 4]) continue;
+                double[] nu = InitializeNArray(u, uArray);
 
-                for (double n = 0; n <= 1; n += divisions)
+                for (double n = 0; n < divisions; n++, v += drawingStep)
                 {
-                    if (isHorizontal)
-                        pointX = new Vector4(Math.Pow((1.0 - n), 3), 3 * n * Math.Pow((1.0 - n), 2), 3 * n * n * (1.0 - n), Math.Pow(n, 3));
-                    else
-                        pointY = new Vector4(Math.Pow((1.0 - n), 3), 3 * n * Math.Pow((1.0 - n), 2), 3 * n * n * (1.0 - n), Math.Pow(n, 3));
+                    if (v < vArray[3] || v > vArray[uArray.Length - SceneManager.BezierSegmentPoints - 4]) continue;
+                    double[] nv = InitializeNArray(v, vArray);
 
-                    var x = pointX * matX * pointY;
-                    var y = pointX * matY * pointY;
-                    var z = pointX * matZ * pointY;
-                    SceneManager.DrawCurvePoint(bmp, g, new Vector4(x, y, z, 1), Thickness);
+                    var value = CalculatePatchValue(points, nu, nv);
+                    SceneManager.DrawCurvePoint(bmp, g, value, Thickness);
                 }
             }
         }
-        #endregion Protected Methods
+        private Vector4 CalculatePatchValue(Vector4[,] points, double[] nu, double[] nv)
+        {
+            var point = new Vector4(0, 0, 0, 1);
+
+            for (int i = 0; i < SceneManager.BezierSegmentPoints + 1; i++)
+                for (int j = 0; j < SceneManager.BezierSegmentPoints + 1; j++)
+                    point += points[j, i] * nu[i] * nv[j];
+
+            return new Vector4(point.X, point.Y, point.Z, 1);
+        }
+        private double[] InitializeNArray(double u, double[] knots)
+        {
+            var n = new double[4];
+            for (int i = 0; i < SceneManager.BezierSegmentPoints + 1; i++)
+                n[i] = knots.GetNFunctionValue(i, SceneManager.BezierSegmentPoints, u);
+            return n;
+        }
+        #endregion Private Methods
+        #region Public Methods
+        public override void Draw()
+        {
+            base.Draw();
+            var manager = PatchManager.Instance;
+            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
+            double maxX, maxY, minX, minY;
+            Points.FindMaxMinCoords(out minX, out minY, out maxX, out maxY);
+
+            var xDiv = (maxX - minX) * 4;
+            var yDiv = (maxY - minY) * 4;
+
+            Bitmap bmp = SceneManager.Instance.SceneImage;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                for (int i = 0; i < VerticalPatches; i++)
+                {
+                    for (int j = 0; j < HorizontalPatches; j++)
+                    {
+                        var points = new Vector4[,]{{Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints].TransformedPosition,  Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 3].TransformedPosition}
+                                                   ,{ Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 3].TransformedPosition}
+                                                   ,{ Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition}
+                                                   , {Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition}};
+
+                        DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: false);
+                        DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: true);
+                    }
+                }
+            }
+            SceneManager.Instance.SceneImage = bmp;
+        }
+        #endregion Public Methods
     }
 }
 
