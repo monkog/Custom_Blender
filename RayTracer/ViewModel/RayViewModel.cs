@@ -212,7 +212,7 @@ namespace RayTracer.ViewModel
             C = 8;
             SceneManager.M = 4;
             PatchManager.HorizontalPatches = 2;
-            PatchManager.VerticalPatches = 1;
+            PatchManager.VerticalPatches = 2;
             PatchManager.PatchHeight = 3;
             PatchManager.PatchWidth = 3;
             PatchManager.HorizontalPatchDivisions = 15;

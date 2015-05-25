@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
@@ -17,7 +18,10 @@ namespace RayTracer.Model.Shapes
         public BezierPatchC0(double x, double y, double z, string name, bool isCylinder, double width, double height
             , int verticalPatches, int horizontalPatches, PointEx[,] points = null, IEnumerable<PointEx> vertices = null)
             : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
-        { }
+        {
+            var manager = PatchManager.Instance;
+            SetVertices(points, vertices, manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1);
+        }
         #endregion Constructors
         #region Protected Methods
         protected void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Matrix3D matX, Matrix3D matY, Matrix3D matZ

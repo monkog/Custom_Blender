@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
@@ -22,6 +23,8 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
         {
             const int n = SceneManager.BezierSegmentPoints;
+            var manager = PatchManager.Instance;
+            SetVertices(points, vertices, SceneManager.BezierSegmentPoints + manager.VerticalPatches, SceneManager.BezierSegmentPoints + manager.HorizontalPatches);
             SetSplineKnots(n);
         }
         #endregion Constructors
@@ -39,7 +42,7 @@ namespace RayTracer.Model.Shapes
             for (int i = 0; i < _knotsHorizontal.Length; i++)
                 _knotsHorizontal[i] = i * interval;
         }
-        private void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Vector4[,] points, int divisions, bool isHorizontal)
+        private void DrawSinglePatch(Bitmap bmp, Graphics g, int patchDivisions, Vector4[,] points, int divisions, bool isHorizontal)
         {
             double step = 1.0f / (patchDivisions - 1);
             double drawingStep = 1.0f / (divisions - 1);
@@ -48,17 +51,19 @@ namespace RayTracer.Model.Shapes
             var uArray = isHorizontal ? _knotsHorizontal : _knotsVertical;
             var vArray = isHorizontal ? _knotsVertical : _knotsHorizontal;
 
-            for (int m = 0; m < patchDivisions; m++, u += step)
+            for (int m = 0; m <= patchDivisions + SceneManager.BezierSegmentPoints + 4; m++, u += step)
             {
                 if (u < uArray[3] || u > uArray[uArray.Length - SceneManager.BezierSegmentPoints - 4]) continue;
                 double[] nu = InitializeNArray(u, uArray);
 
-                for (double n = 0; n < divisions; n++, v += drawingStep)
+                for (double n = 0; n <= divisions + SceneManager.BezierSegmentPoints + 4; n++, v += drawingStep)
                 {
-                    if (v < vArray[3] || v > vArray[uArray.Length - SceneManager.BezierSegmentPoints - 4]) continue;
+                    if (v < vArray[3] || v > vArray[vArray.Length - SceneManager.BezierSegmentPoints - 4]) continue;
                     double[] nv = InitializeNArray(v, vArray);
 
-                    var value = CalculatePatchValue(points, nu, nv);
+                    Vector4 value;
+                    if (isHorizontal) value = CalculatePatchValue(points, nv, nu);
+                    else value = CalculatePatchValue(points, nu, nv);
                     SceneManager.DrawCurvePoint(bmp, g, value, Thickness);
                 }
             }
@@ -69,7 +74,7 @@ namespace RayTracer.Model.Shapes
 
             for (int i = 0; i < SceneManager.BezierSegmentPoints + 1; i++)
                 for (int j = 0; j < SceneManager.BezierSegmentPoints + 1; j++)
-                    point += points[j, i] * nu[i] * nv[j];
+                    point += points[j, i] * nu[j] * nv[i];
 
             return new Vector4(point.X, point.Y, point.Z, 1);
         }
@@ -97,18 +102,16 @@ namespace RayTracer.Model.Shapes
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 for (int i = 0; i < VerticalPatches; i++)
-                {
                     for (int j = 0; j < HorizontalPatches; j++)
                     {
-                        var points = new Vector4[,]{{Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints].TransformedPosition,  Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 0, j * bezierSegmentPoints + 3].TransformedPosition}
-                                                   ,{ Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 1, j * bezierSegmentPoints + 3].TransformedPosition}
-                                                   ,{ Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 2, j * bezierSegmentPoints + 3].TransformedPosition}
-                                                   , {Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 1].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 2].TransformedPosition, Points[i * bezierSegmentPoints + 3, j * bezierSegmentPoints + 3].TransformedPosition}};
+                        var points = new[,]{{Points[i + 0, j ].TransformedPosition, Points[i + 0, j + 1].TransformedPosition, Points[i + 0, j + 2].TransformedPosition, Points[i + 0, j + 3].TransformedPosition}
+                                            ,{ Points[i + 1, j ].TransformedPosition, Points[i + 1, j + 1].TransformedPosition, Points[i + 1, j + 2].TransformedPosition, Points[i + 1, j + 3].TransformedPosition}
+                                            ,{ Points[i + 2, j ].TransformedPosition, Points[i + 2, j + 1].TransformedPosition, Points[i + 2, j + 2].TransformedPosition, Points[i + 2, j + 3].TransformedPosition}
+                                            , {Points[i + 3, j ].TransformedPosition, Points[i + 3, j + 1].TransformedPosition, Points[i + 3, j + 2].TransformedPosition, Points[i + 3, j + 3].TransformedPosition}};
 
-                        DrawSinglePatch(bmp, g, i, manager.VerticalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: false);
-                        DrawSinglePatch(bmp, g, j, manager.HorizontalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: true);
+                        DrawSinglePatch(bmp, g, manager.VerticalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: false);
+                        DrawSinglePatch(bmp, g, manager.HorizontalPatchDivisions, points, (int)Math.Max(xDiv, yDiv), isHorizontal: true);
                     }
-                }
             }
             SceneManager.Instance.SceneImage = bmp;
         }
