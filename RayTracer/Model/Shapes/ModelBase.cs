@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Media.Media3D;
-using RayTracer.Helpers;
+using System.Windows.Shapes;
 using RayTracer.ViewModel;
 
 namespace RayTracer.Model.Shapes
@@ -29,7 +29,7 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name)
         {
             Vertices = new ObservableCollection<PointEx>();
-            Edges = new ObservableCollection<CustomLine>();
+            Edges = new ObservableCollection<Line>();
             EdgesIndices = new ObservableCollection<Tuple<int, int>>();
             DisplayEdges = true;
             DisplayVertices = true;
@@ -56,7 +56,7 @@ namespace RayTracer.Model.Shapes
         /// <summary>
         /// Gets or sets the edges representing the mesh.
         /// </summary>
-        public ObservableCollection<CustomLine> Edges { get; protected set; }
+        public ObservableCollection<Line> Edges { get; protected set; }
         #endregion Public Properties
         #region Protected Properties
         /// <summary>
@@ -112,26 +112,25 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         protected void TransformEdges()
         {
-            Edges = new ObservableCollection<CustomLine>();
+            Edges = new ObservableCollection<Line>();
             foreach (var edge in EdgesIndices)
             {
                 var begining = Vertices[edge.Item1].PointOnScreen;
                 var end = Vertices[edge.Item2].PointOnScreen;
-                Edges.Add(new CustomLine(new Point((int)begining.X, (int)begining.Y), new Point((int)end.X, (int)end.Y)));
+                Edges.Add(new Line { X1 = begining.X, X2 = end.X, Y1 = begining.Y, Y2 = end.Y });
             }
             OnPropertyChanged("Edges");
         }
         /// <summary>
         /// Draws the edges.
         /// </summary>
-        /// <param name="bmp">The bitmap to draw onto.</param>
         /// <param name="graphics">The graphics of the bitmap</param>
         /// <param name="color">The color of the shape</param>
         /// <param name="thickness">thickness of the line</param>
-        protected void DrawEdges(Bitmap bmp, Graphics graphics, Color color, int thickness)
+        protected void DrawEdges(Graphics graphics, Color color, int thickness)
         {
             foreach (var edge in Edges)
-                edge.Draw(bmp, graphics, color, thickness);
+                graphics.DrawLine(new Pen(color) { Width = thickness }, (int)edge.X1, (int)edge.Y1, (int)edge.X2, (int)edge.Y2);
         }
         /// <summary>
         /// Draws the vertices.
@@ -160,12 +159,12 @@ namespace RayTracer.Model.Shapes
                 {
                     Transform = Transformations.StereographicLeftViewMatrix(20, 400);
                     if (DisplayEdges)
-                        DrawEdges(bmp, g, Color.Red, Thickness);
+                        DrawEdges(g, Color.Red, Thickness);
                     if (DisplayVertices)
                         DrawVertices(bmp, g, Color.Red, Thickness);
                     Transform = Transformations.StereographicRightViewMatrix(20, 400);
                     if (DisplayEdges)
-                        DrawEdges(bmp, g, Color.Blue, Thickness);
+                        DrawEdges(g, Color.Blue, Thickness);
                     if (DisplayVertices)
                         DrawVertices(bmp, g, Color.Red, Thickness);
                 }
@@ -173,7 +172,7 @@ namespace RayTracer.Model.Shapes
                 {
                     Transform = Transformations.ViewMatrix(400);
                     if (DisplayEdges)
-                        DrawEdges(bmp, g, Color, Thickness);
+                        DrawEdges(g, Color, Thickness);
                     if (DisplayVertices)
                         DrawVertices(bmp, g, Color, Thickness);
                 }

@@ -361,8 +361,8 @@ namespace RayTracer.ViewModel
         {
             var id = ReadInt(streamReader.ReadLine());
             var name = ReadString(streamReader.ReadLine());
-            var width = ReadDouble(streamReader.ReadLine().Replace(',', '.'));
-            var height = ReadDouble(streamReader.ReadLine().Replace(',', '.'));
+            var width = ReadDouble(streamReader.ReadLine());
+            var height = ReadDouble(streamReader.ReadLine());
             var horizontalPatches = ReadInt(streamReader.ReadLine());
             var verticalPatches = ReadInt(streamReader.ReadLine());
             var isCylindrical = ReadBool(streamReader.ReadLine());
@@ -454,7 +454,7 @@ namespace RayTracer.ViewModel
         }
         private double ReadDouble(string line)
         {
-            return double.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1));
+            return double.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1).Replace(',', '.'));
         }
         private string ReadString(string line)
         {
