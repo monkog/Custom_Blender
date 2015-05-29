@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Win32;
+using RayTracer.Helpers.EventCommand;
 using RayTracer.Model;
 using RayTracer.Model.Shapes;
 using Point = System.Windows.Point;
@@ -195,14 +196,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         public RayViewModel()
         {
-            MouseManager.PropertyChanged += MouseManager_PropertyChanged;
-            SceneManager.PropertyChanged += SceneManager_PropertyChanged;
-            Cursor.PropertyChanged += Cursor_PropertyChanged;
-            PointManager.Points.CollectionChanged += (sender, args) => { Render(); };
-            CurveManager.Curves.CollectionChanged += (sender, args) => { Render(); };
-            PatchManager.Patches.CollectionChanged += (sender, args) => { Render(); };
-            PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions" || args.PropertyName == "Patches") Render(); };
-            MeshManager.Meshes.CollectionChanged += (sender, args) => { Render(); };
             MeshManager.SmallR = 0.1;
             MeshManager.BigR = 0.2;
             MeshManager.L = 20;
@@ -218,6 +211,12 @@ namespace RayTracer.ViewModel
             PatchManager.HorizontalPatchDivisions = 15;
             PatchManager.VerticalPatchDivisions = 15;
             PatchManager.PatchContinuity = Continuity.C2;
+
+            MouseManager.PropertyChanged += MouseManager_PropertyChanged;
+            SceneManager.PropertyChanged += SceneManager_PropertyChanged;
+            Cursor.PropertyChanged += Cursor_PropertyChanged;
+            PatchManager.PropertyChanged += (sender, args) => { if (args.PropertyName == "HorizontalPatchDivisions" || args.PropertyName == "VerticalPatchDivisions") Render(); };
+
             Render();
         }
         #endregion Constructor
@@ -329,6 +328,13 @@ namespace RayTracer.ViewModel
             foreach (var patch in PatchManager.Patches)
                 patch.ModelTransform = matrix * patch.ModelTransform;
         }
+        private void RemoveAllObjects()
+        {
+            PointManager.Points.Clear();
+            MeshManager.Meshes.Clear();
+            PatchManager.Patches.Clear();
+            CurveManager.Curves.Clear();
+        }
         #endregion Private Methods
         #region Commands
         private ICommand _saveSceneCommand;
@@ -357,20 +363,15 @@ namespace RayTracer.ViewModel
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true && dialog.CheckFileExists)
             {
-                ClearSceneExecuted();
+                RemoveAllObjects();
                 SceneManager.LoadScene(dialog.FileName);
                 foreach (var curve in CurveManager.Curves)
                 {
                     if (curve.Continuity == Continuity.C0)
-                    {
-                        curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
                         curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render(); };
-                    }
                     else
                     {
                         curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" || e.PropertyName == "IsPolygonVisible") Render(); };
-                        curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
-                        ((BezierCurveC2)curve).DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
                         if (((BezierCurveC2)curve).IsInterpolation)
                             curve.PropertyChanged += curve_PropertyChanged;
                     }
@@ -378,6 +379,7 @@ namespace RayTracer.ViewModel
                 foreach (var patch in PatchManager.Patches)
                     patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             }
+            Render();
         }
 
         private ICommand _clearSceneCommand;
@@ -387,10 +389,8 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void ClearSceneExecuted()
         {
-            PointManager.Points.Clear();
-            MeshManager.Meshes.Clear();
-            PatchManager.Patches.Clear();
-            CurveManager.Curves.Clear();
+            RemoveAllObjects();
+            Render();
         }
 
         private ICommand _addTorusCommand;
@@ -402,6 +402,7 @@ namespace RayTracer.ViewModel
         {
             var torus = new Torus(0, 0, 0, "Torus(L:" + MeshManager.L + ", V:" + MeshManager.V + ")", MeshManager.SmallR, MeshManager.BigR, MeshManager.L, MeshManager.V);
             MeshManager.Meshes.Add(torus);
+            Render();
         }
 
         private ICommand _addEllipsoideCommand;
@@ -434,6 +435,7 @@ namespace RayTracer.ViewModel
                     , PatchManager.PatchWidth, PatchManager.PatchHeight, PatchManager.VerticalPatches, PatchManager.HorizontalPatches);
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.Patches.Add(patch);
+            Render();
         }
 
         private ICommand _createBezierCurveC0;
@@ -448,6 +450,7 @@ namespace RayTracer.ViewModel
             curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
             curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render(); };
             CurveManager.Curves.Add(curve);
+            Render();
         }
 
         private ICommand _createBezierCurveC2;
@@ -460,9 +463,8 @@ namespace RayTracer.ViewModel
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: false);
             curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" || e.PropertyName == "IsPolygonVisible") Render(); };
-            curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
-            curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
+            Render();
         }
 
         private ICommand _createBezierCurveC2WithPoints;
@@ -475,9 +477,8 @@ namespace RayTracer.ViewModel
             if (!PointManager.SelectedItems.Any()) return;
             var curve = new BezierCurveC2(0, 0, 0, "Bezier curve C2(" + 0 + ", " + 0 + ", " + 0 + ")", PointManager.SelectedItems, isInterpolation: true);
             curve.PropertyChanged += curve_PropertyChanged;
-            curve.Vertices.CollectionChanged += (sender, e) => { Render(); };
-            curve.DeBooreVertices.CollectionChanged += (sender, e) => { Render(); };
             CurveManager.Curves.Add(curve);
+            Render();
         }
 
         private ICommand _addPointToBezierCurve;
@@ -496,6 +497,7 @@ namespace RayTracer.ViewModel
                     }
                     else if (!((BezierCurveC2)curve).DeBooreVertices.Contains(point))
                         ((BezierCurveC2)curve).DeBooreVertices.Add(point);
+            Render();
         }
 
         private ICommand _deselectAllCommand;
@@ -510,6 +512,7 @@ namespace RayTracer.ViewModel
 
             foreach (var point in PointManager.Points)
                 point.IsSelected = false;
+            Render();
         }
 
         private ICommand _selectAllCommand;
@@ -524,6 +527,61 @@ namespace RayTracer.ViewModel
 
             foreach (var model in SceneManager.Models)
                 model.IsSelected = false;
+            Render();
+        }
+
+        private ActionCommand<KeyEventArgs> _keyDeleteCommand;
+        public ActionCommand<KeyEventArgs> KeyDeleteCommand
+        {
+            get
+            {
+                return _keyDeleteCommand ??
+                       (_keyDeleteCommand = new ActionCommand<KeyEventArgs>(KeyDeleteExecuted));
+            }
+        }
+        /// <summary>
+        /// Removes the selected point
+        /// </summary>
+        private void KeyDeleteExecuted(KeyEventArgs args)
+        {
+            KeyboardManager.KeyDeleteExecuted();
+            Render();
+        }
+
+        private ActionCommand<KeyEventArgs> _keySelectCommand;
+        public ActionCommand<KeyEventArgs> KeySelectCommand
+        {
+            get
+            {
+                return _keySelectCommand ??
+                       (_keySelectCommand = new ActionCommand<KeyEventArgs>(KeySelectExecuted));
+            }
+        }
+        /// <summary>
+        /// Selects / deselects the point
+        /// </summary>
+        private void KeySelectExecuted(KeyEventArgs args)
+        {
+            KeyboardManager.KeySelectExecuted();
+            Render();
+        }
+
+        private ActionCommand<KeyEventArgs> _keyInsertCommand;
+        public ActionCommand<KeyEventArgs> KeyInsertCommand
+        {
+            get
+            {
+                return _keyInsertCommand ??
+                       (_keyInsertCommand = new ActionCommand<KeyEventArgs>(KeyInsertExecuted));
+            }
+        }
+        /// <summary>
+        /// Adds a new point in the position of the 3D cursor
+        /// </summary>
+        private void KeyInsertExecuted(KeyEventArgs args)
+        {
+            KeyboardManager.KeyInsertExecuted();
+            Render();
         }
         #endregion Commands
     }

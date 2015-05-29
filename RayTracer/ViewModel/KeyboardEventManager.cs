@@ -29,6 +29,130 @@ namespace RayTracer.ViewModel
         #region Constructors
         #endregion Constructors
         #region Public Methods
+        /// <summary>
+        /// Removes the selected point
+        /// </summary>
+        public void KeyDeleteExecuted()
+        {
+            for (int i = CurveManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+                CurveManager.Instance.Curves.Remove(CurveManager.Instance.SelectedItems.ElementAt(i));
+            for (int i = PointManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+            {
+                var point = PointManager.Instance.SelectedItems.ElementAt(i);
+                foreach (var curve in CurveManager.Instance.Curves)
+                {
+                    if (curve.Continuity == Continuity.C0)
+                        curve.Vertices.Remove(point);
+                    else
+                    {
+                        if (((BezierCurveC2)curve).IsInterpolation)
+                            ((BezierCurveC2)curve).InterpolationPoints.Remove(point);
+                        else
+                            ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
+                        ((BezierCurveC2)curve).UpdateVertices();
+                    }
+                }
+                PointManager.Instance.Points.Remove(point);
+            }
+            for (int index = CurveManager.Instance.Curves.Count - 1; index >= 0; index--)
+            {
+                var curve = CurveManager.Instance.Curves[index];
+                for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
+                    if (curve.Continuity == Continuity.C0)
+                        curve.Vertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
+                    else
+                    {
+                        if (((BezierCurveC2)curve).IsInterpolation)
+                            ((BezierCurveC2)curve).InterpolationPoints.Remove((PointEx)curve.SelectedItems.ElementAt(i));
+                        else
+                            ((BezierCurveC2)curve).DeBooreVertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
+                        ((BezierCurveC2)curve).UpdateVertices();
+                    }
+                if (curve.Vertices.Count == 0)
+                    CurveManager.Instance.Curves.Remove(curve);
+            }
+            for (int i = PatchManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
+                PatchManager.Instance.Patches.Remove(PatchManager.Instance.SelectedItems.ElementAt(i));
+        }
+        /// <summary>
+        /// Selects / deselects the point
+        /// </summary>
+        public void KeySelectExecuted()
+        {
+            var x = Cursor3D.Instance.XPosition;
+            var y = Cursor3D.Instance.YPosition;
+            var z = Cursor3D.Instance.ZPosition;
+            var cursorTransform = Cursor3D.Instance.ModelTransform;
+
+            var items = PointManager.Instance.SelectedItems;
+            PointEx point = null;
+
+            foreach (var p in PointManager.Instance.Points)
+            {
+                var transformedPoint = p.ModelTransform * p.Vector4;
+                if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                    && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
+                    && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
+                    point = p;
+            }
+            if (point == null)
+            {
+                foreach (var curve in CurveManager.Instance.Curves)
+                    foreach (var p in curve.Vertices)
+                    {
+                        var transformedPoint = p.ModelTransform * p.Vector4;
+                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
+                            && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
+                            point = p;
+                        else
+                            p.IsSelected = false;
+                    }
+
+                foreach (var patch in PatchManager.Instance.Patches)
+                    foreach (var p in patch.Vertices)
+                    {
+                        var transformedPoint = patch.ModelTransform * p.ModelTransform * p.Vector4;
+                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
+                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce)
+                            p.IsSelected = !p.IsSelected;
+                        else
+                            p.IsSelected = false;
+                    }
+            }
+
+            bool shouldSelect = point != null && !point.IsSelected;
+
+            foreach (var p in items)
+                p.IsSelected = false;
+
+            if (shouldSelect)
+                point.IsSelected = true;
+            Cursor3D.Instance.ModelTransform = cursorTransform;
+        }
+        /// <summary>
+        /// Adds a new point in the position of the 3D cursor
+        /// </summary>
+        public void KeyInsertExecuted()
+        {
+            var x = Cursor3D.Instance.XPosition;
+            var y = Cursor3D.Instance.YPosition;
+            var z = Cursor3D.Instance.ZPosition;
+
+            var newPoint = new PointEx(x, y, z);
+            foreach (var curve in CurveManager.Instance.SelectedItems)
+                if (curve.Continuity == Continuity.C0)
+                    curve.Vertices.Add(newPoint);
+                else
+                {
+                    if (((BezierCurveC2)curve).IsInterpolation)
+                        ((BezierCurveC2)curve).InterpolationPoints.Add(newPoint);
+                    else
+                        ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
+                    ((BezierCurveC2)curve).UpdateVertices();
+                }
+            PointManager.Instance.Points.Add(newPoint);
+        }
         #endregion Public Methods
         #region Commands
         private ActionCommand<KeyEventArgs> _keyUpCommand;
@@ -141,160 +265,6 @@ namespace RayTracer.ViewModel
                 foreach (var point in model.SelectedItems)
                     point.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * point.ModelTransform;
             Cursor3D.Instance.ModelTransform = Transformations.TranslationMatrix(new Vector3D(MoveStep, 0, 0)) * Cursor3D.Instance.ModelTransform;
-        }
-
-        private ActionCommand<KeyEventArgs> _keyDeleteCommand;
-        public ActionCommand<KeyEventArgs> KeyDeleteCommand
-        {
-            get
-            {
-                return _keyDeleteCommand ??
-                       (_keyDeleteCommand = new ActionCommand<KeyEventArgs>(KeyDeleteExecuted));
-            }
-        }
-        /// <summary>
-        /// Removes the selected point
-        /// </summary>
-        private void KeyDeleteExecuted(KeyEventArgs args)
-        {
-            for (int i = CurveManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
-                CurveManager.Instance.Curves.Remove(CurveManager.Instance.SelectedItems.ElementAt(i));
-            for (int i = PointManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
-            {
-                var point = PointManager.Instance.SelectedItems.ElementAt(i);
-                foreach (var curve in CurveManager.Instance.Curves)
-                {
-                    if (curve.Continuity == Continuity.C0)
-                        curve.Vertices.Remove(point);
-                    else
-                    {
-                        if (((BezierCurveC2)curve).IsInterpolation)
-                            ((BezierCurveC2)curve).InterpolationPoints.Remove(point);
-                        else
-                            ((BezierCurveC2)curve).DeBooreVertices.Remove(point);
-                        ((BezierCurveC2)curve).UpdateVertices();
-                    }
-                }
-                PointManager.Instance.Points.Remove(point);
-            }
-            for (int index = CurveManager.Instance.Curves.Count - 1; index >= 0; index--)
-            {
-                var curve = CurveManager.Instance.Curves[index];
-                for (int i = curve.SelectedItems.Count() - 1; i >= 0; i--)
-                    if (curve.Continuity == Continuity.C0)
-                        curve.Vertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
-                    else
-                    {
-                        if (((BezierCurveC2)curve).IsInterpolation)
-                            ((BezierCurveC2)curve).InterpolationPoints.Remove((PointEx)curve.SelectedItems.ElementAt(i));
-                        else
-                            ((BezierCurveC2)curve).DeBooreVertices.Remove((PointEx)curve.SelectedItems.ElementAt(i));
-                        ((BezierCurveC2)curve).UpdateVertices();
-                    }
-                if (curve.Vertices.Count == 0)
-                    CurveManager.Instance.Curves.Remove(curve);
-            }
-            for (int i = PatchManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
-                PatchManager.Instance.Patches.Remove(PatchManager.Instance.SelectedItems.ElementAt(i));
-        }
-
-        private ActionCommand<KeyEventArgs> _keySelectCommand;
-        public ActionCommand<KeyEventArgs> KeySelectCommand
-        {
-            get
-            {
-                return _keySelectCommand ??
-                       (_keySelectCommand = new ActionCommand<KeyEventArgs>(KeySelectExecuted));
-            }
-        }
-        /// <summary>
-        /// Selects / deselects the point
-        /// </summary>
-        private void KeySelectExecuted(KeyEventArgs args)
-        {
-            var x = Cursor3D.Instance.XPosition;
-            var y = Cursor3D.Instance.YPosition;
-            var z = Cursor3D.Instance.ZPosition;
-            var cursorTransform = Cursor3D.Instance.ModelTransform;
-
-            var items = PointManager.Instance.SelectedItems;
-            PointEx point = null;
-
-            foreach (var p in PointManager.Instance.Points)
-            {
-                var transformedPoint = p.ModelTransform * p.Vector4;
-                if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
-                    && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
-                    && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
-                    point = p;
-            }
-            if (point == null)
-            {
-                foreach (var curve in CurveManager.Instance.Curves)
-                    foreach (var p in curve.Vertices)
-                    {
-                        var transformedPoint = p.ModelTransform * p.Vector4;
-                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
-                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce
-                            && transformedPoint.Z < z + Tolernce && transformedPoint.Z > z - Tolernce)
-                            point = p;
-                        else
-                            p.IsSelected = false;
-                    }
-
-                foreach (var patch in PatchManager.Instance.Patches)
-                    foreach (var p in patch.Vertices)
-                    {
-                        var transformedPoint = patch.ModelTransform * p.ModelTransform * p.Vector4;
-                        if (transformedPoint.X < x + Tolernce && transformedPoint.X > x - Tolernce
-                            && transformedPoint.Y < y + Tolernce && transformedPoint.Y > y - Tolernce)
-                            p.IsSelected = !p.IsSelected;
-                        else
-                            p.IsSelected = false;
-                    }
-            }
-
-            bool shouldSelect = point != null && !point.IsSelected;
-
-            foreach (var p in items)
-                p.IsSelected = false;
-
-            if (shouldSelect)
-                point.IsSelected = true;
-            Cursor3D.Instance.ModelTransform = cursorTransform;
-        }
-
-        private ActionCommand<KeyEventArgs> _keyInsertCommand;
-        public ActionCommand<KeyEventArgs> KeyInsertCommand
-        {
-            get
-            {
-                return _keyInsertCommand ??
-                       (_keyInsertCommand = new ActionCommand<KeyEventArgs>(KeyInsertExecuted));
-            }
-        }
-        /// <summary>
-        /// Adds a new point in the position of the 3D cursor
-        /// </summary>
-        private void KeyInsertExecuted(KeyEventArgs args)
-        {
-            var x = Cursor3D.Instance.XPosition;
-            var y = Cursor3D.Instance.YPosition;
-            var z = Cursor3D.Instance.ZPosition;
-
-            var newPoint = new PointEx(x, y, z);
-            foreach (var curve in CurveManager.Instance.SelectedItems)
-                if (curve.Continuity == Continuity.C0)
-                    curve.Vertices.Add(newPoint);
-                else
-                {
-                    if (((BezierCurveC2)curve).IsInterpolation)
-                        ((BezierCurveC2)curve).InterpolationPoints.Add(newPoint);
-                    else
-                        ((BezierCurveC2)curve).DeBooreVertices.Add(newPoint);
-                    ((BezierCurveC2)curve).UpdateVertices();
-                }
-            PointManager.Instance.Points.Add(newPoint);
         }
         #endregion Commands
     }

@@ -83,9 +83,9 @@
         <KeyBinding Command="{Binding Path=KeyDownCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad2"/>
         <KeyBinding Command="{Binding Path=KeyLeftCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad4"/>
         <KeyBinding Command="{Binding Path=KeyRightCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad6"/>
-        <KeyBinding Command="{Binding Path=KeyDeleteCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="Delete"/>
-        <KeyBinding Command="{Binding Path=KeySelectCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad5"/>
-        <KeyBinding Command="{Binding Path=KeyInsertCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="I"/>
+        <KeyBinding Command="{Binding Path=KeyDeleteCommand}" Key="Delete"/>
+        <KeyBinding Command="{Binding Path=KeySelectCommand}" Key="NumPad5"/>
+        <KeyBinding Command="{Binding Path=KeyInsertCommand}" Key="I"/>
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>

@@ -361,8 +361,8 @@ namespace RayTracer.ViewModel
         {
             var id = ReadInt(streamReader.ReadLine());
             var name = ReadString(streamReader.ReadLine());
-            var width = ReadDouble(streamReader.ReadLine());
-            var height = ReadDouble(streamReader.ReadLine());
+            var width = ReadDouble(streamReader.ReadLine().Replace(',', '.'));
+            var height = ReadDouble(streamReader.ReadLine().Replace(',', '.'));
             var horizontalPatches = ReadInt(streamReader.ReadLine());
             var verticalPatches = ReadInt(streamReader.ReadLine());
             var isCylindrical = ReadBool(streamReader.ReadLine());
@@ -375,7 +375,7 @@ namespace RayTracer.ViewModel
             var points = ReadPoints(streamReader, pts);
             BezierPatch patch = null;
 
-            int verticalPoints = verticalPatches * BezierSegmentPoints + 1;
+            int verticalPoints = continuity == Continuity.C0 ? verticalPatches * BezierSegmentPoints + 1 : verticalPatches + BezierSegmentPoints;
             int horizontalPoints = isCylindrical ? (continuity == Continuity.C0 ? horizontalPatches * BezierSegmentPoints : horizontalPatches)
                 : (continuity == Continuity.C0 ? horizontalPatches * BezierSegmentPoints + 1 : BezierSegmentPoints + horizontalPatches);
             var p = new PointEx[verticalPoints, horizontalPoints];

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -51,7 +49,7 @@ namespace RayTracer.Model.Shapes
                 else vArray = InitializeNArray(2 + u, _knots);
                 double v = 0;
 
-                for (double n = 0; n <= divisions + SceneManager.BezierSegmentPoints + 4; n++, v += drawingStep)
+                for (double n = 0; n < divisions; n++, v += drawingStep)
                 {
                     if (isHorizontal) vArray = InitializeNArray(2 + v, _knots);
                     else uArray = InitializeNArray(2 + v, _knots);
@@ -87,8 +85,8 @@ namespace RayTracer.Model.Shapes
             double maxX, maxY, minX, minY;
             Points.FindMaxMinCoords(out minX, out minY, out maxX, out maxY);
 
-            var xDiv = (maxX - minX) * 4;
-            var yDiv = (maxY - minY) * 4;
+            var xDiv = Math.Min(100, (maxX - minX) * 4);
+            var yDiv = Math.Min(100, (maxY - minY) * 4);
 
             Bitmap bmp = SceneManager.Instance.SceneImage;
             using (Graphics g = Graphics.FromImage(bmp))
