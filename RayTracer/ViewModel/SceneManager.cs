@@ -247,9 +247,9 @@ namespace RayTracer.ViewModel
                         case "BezierSurfaceC0":
                             patches.Add(LoadSurface(streamReader, points, Continuity.C0));
                             break;
-                        //case "BezierSurfaceC2":
-                        //    patches.Add(LoadSurface(streamReader, points, Continuity.C2));
-                        //    break;
+                        case "BezierSurfaceC2":
+                            patches.Add(LoadSurface(streamReader, points, Continuity.C2));
+                            break;
                         case "Selected":
                             PointManager.Instance.Points = points;
                             CurveManager.Instance.Curves = curves;
@@ -375,14 +375,17 @@ namespace RayTracer.ViewModel
             var points = ReadPoints(streamReader, pts);
             BezierPatch patch = null;
 
-            var p = new PointEx[horizontalPatches * BezierSegmentPoints + 1, verticalPatches * BezierSegmentPoints + 1];
+            int verticalPoints = verticalPatches * BezierSegmentPoints + 1;
+            int horizontalPoints = isCylindrical ? (continuity == Continuity.C0 ? horizontalPatches * BezierSegmentPoints : horizontalPatches)
+                : (continuity == Continuity.C0 ? horizontalPatches * BezierSegmentPoints + 1 : BezierSegmentPoints + horizontalPatches);
+            var p = new PointEx[verticalPoints, horizontalPoints];
             int index = 0;
-            for (int i = 0; i < verticalPatches * BezierSegmentPoints + 1; i++)
-                for (int j = 0; j < horizontalPatches * BezierSegmentPoints + 1; j++)
+            for (int i = 0; i < p.GetLength(0); i++)
+                for (int j = 0; j < p.GetLength(1); j++)
                 {
                     var point = points.ElementAt(index++);
                     pts.Remove(point);
-                    p[j, i] = point;
+                    p[i, j] = point;
                 }
 
             switch (continuity)
@@ -395,14 +398,14 @@ namespace RayTracer.ViewModel
                         ModelTransform = matrix
                     };
                     break;
-                //case Continuity.C2:
-                //    patch = new BezierPatchC2(x, y, z, name,isCylindrical, width, height, verticalPatches, horizontalPatches)
-                //    {
-                //        Id = id,
-                //        Color = color,
-                //        ModelTransform = matrix
-                //    };
-                //    break;
+                case Continuity.C2:
+                    patch = new BezierPatchC2(x, y, z, name, isCylindrical, width, height, verticalPatches, horizontalPatches, p, points)
+                    {
+                        Id = id,
+                        Color = color,
+                        ModelTransform = matrix
+                    };
+                    break;
             }
             return patch;
         }

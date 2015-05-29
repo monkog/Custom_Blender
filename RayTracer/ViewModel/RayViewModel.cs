@@ -211,12 +211,13 @@ namespace RayTracer.ViewModel
             B = 6;
             C = 8;
             SceneManager.M = 4;
-            PatchManager.HorizontalPatches = 2;
+            PatchManager.HorizontalPatches = 1;
             PatchManager.VerticalPatches = 1;
             PatchManager.PatchHeight = 3;
             PatchManager.PatchWidth = 3;
             PatchManager.HorizontalPatchDivisions = 15;
             PatchManager.VerticalPatchDivisions = 15;
+            PatchManager.PatchContinuity = Continuity.C2;
             Render();
         }
         #endregion Constructor

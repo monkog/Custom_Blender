@@ -18,6 +18,7 @@ namespace RayTracer.Model.Shapes
         protected double Height { get; private set; }
         protected int HorizontalPatches { get; private set; }
         protected int VerticalPatches { get; private set; }
+        protected Continuity Continuity { get; set; }
         #endregion Protected Properties
         #region Public Properties
         /// <summary>
@@ -36,42 +37,25 @@ namespace RayTracer.Model.Shapes
             IsCylinder = isCylinder;
             Width = width;
             Height = height;
-            SetVertices(points, vertices);
         }
         #endregion Constructors
         #region Private Methods
-        private void SetVertices(PointEx[,] points, IEnumerable<PointEx> vertices)
+        private void SetCylinderVertices()
         {
             var manager = PatchManager.Instance;
 
-            if (IsCylinder)
-            {
-                if (points == null)
+            double topLeftY = Y - (manager.PatchHeight / 2);
+            double radius = manager.PatchWidth;
+            double alpha = (Math.PI * 2.0f) / Points.GetLength(1);
+            double dy = manager.PatchHeight / Points.GetLength(0);
+
+            for (int i = 0; i < Points.GetLength(0); i++)
+                for (int j = 0; j < Points.GetLength(1); j++)
                 {
-                    Points = new PointEx[manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1];
-                    SetCylinderVertices();
+                    var point = new PointEx(radius * Math.Cos(alpha * j), topLeftY + (i * dy), radius * Math.Sin(alpha * j));
+                    Points[i, j] = point;
+                    Vertices.Add(point);
                 }
-                else
-                {
-                    Points = points;
-                    Vertices = new ObservableCollection<PointEx>(vertices);
-                }
-                SetCylinderEdges();
-            }
-            else
-            {
-                if (points == null)
-                {
-                    Points = new PointEx[manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1];
-                    SetPlaneVertices();
-                }
-                else
-                {
-                    Points = points;
-                    Vertices = new ObservableCollection<PointEx>(vertices);
-                }
-                SetPlaneEdges();
-            }
         }
         private void SetPlaneVertices()
         {
@@ -91,55 +75,74 @@ namespace RayTracer.Model.Shapes
         }
         private void SetPlaneEdges()
         {
-            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
+            int verticalPoints = Points.GetLength(0);
+            int horizontalPoints = Points.GetLength(1);
 
-            for (int i = 0; i < VerticalPatches * bezierSegmentPoints + 1; i++)
-                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
-                        , i * (HorizontalPatches * bezierSegmentPoints + 1) + j + 1));
+            for (int i = 0; i < verticalPoints; i++)
+                for (int j = 0; j < horizontalPoints - 1; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * horizontalPoints + j
+                        , i * horizontalPoints + j + 1));
 
-            for (int i = 0; i < VerticalPatches * bezierSegmentPoints; i++)
-                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints + 1; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
-                        , (i + 1) * (HorizontalPatches * bezierSegmentPoints + 1) + j));
+            for (int i = 0; i < verticalPoints - 1; i++)
+                for (int j = 0; j < horizontalPoints; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * horizontalPoints + j
+                        , (i + 1) * horizontalPoints + j));
 
             CalculateShape();
         }
-        private void SetCylinderVertices()
-        {
-            var manager = PatchManager.Instance;
-
-            double topLeftY = Y - (manager.PatchHeight / 2);
-            double radius = manager.PatchWidth;
-            double alpha = (Math.PI * 2.0f) / (SceneManager.BezierSegmentPoints * manager.HorizontalPatches);
-            double dy = manager.PatchHeight / (manager.VerticalPatches * SceneManager.BezierSegmentPoints);
-
-            for (int i = 0; i < Points.GetLength(0); i++)
-                for (int j = 0; j < Points.GetLength(1); j++)
-                {
-                    var point = new PointEx(radius * Math.Cos(alpha * j), topLeftY + (i * dy), radius * Math.Sin(alpha * j));
-                    Points[i, j] = point;
-                    Vertices.Add(point);
-                }
-        }
         private void SetCylinderEdges()
         {
-            const int bezierSegmentPoints = SceneManager.BezierSegmentPoints;
+            int verticalPoints = Points.GetLength(0);
+            int horizontalPoints = Points.GetLength(1);
 
-            for (int i = 0; i < VerticalPatches * bezierSegmentPoints + 1; i++)
-                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
-                        , i * (HorizontalPatches * bezierSegmentPoints + 1) + j + 1));
+            for (int i = 0; i < verticalPoints; i++)
+                for (int j = 0; j < horizontalPoints - 1; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * horizontalPoints + j, i * horizontalPoints + j + 1));
 
-            for (int i = 0; i < VerticalPatches * bezierSegmentPoints; i++)
-                for (int j = 0; j < HorizontalPatches * bezierSegmentPoints; j++)
-                    EdgesIndices.Add(new Tuple<int, int>(i * (HorizontalPatches * bezierSegmentPoints + 1) + j
-                        , (i + 1) * (HorizontalPatches * bezierSegmentPoints + 1) + j));
+            for (int i = 0; i < verticalPoints; i++)
+                EdgesIndices.Add(new Tuple<int, int>((i + 1) * horizontalPoints - 1, i * horizontalPoints));
+
+
+            for (int i = 0; i < verticalPoints - 1; i++)
+                for (int j = 0; j < horizontalPoints - 1; j++)
+                    EdgesIndices.Add(new Tuple<int, int>(i * horizontalPoints + j, (i + 1) * horizontalPoints + j));
 
             CalculateShape();
         }
         #endregion Private Methods
         #region Protected Methods
+        protected void SetVertices(PointEx[,] points, IEnumerable<PointEx> vertices, int verticalPoints, int horizontalPoints)
+        {
+            if (IsCylinder)
+            {
+                if (points == null)
+                {
+                    if (Continuity == Continuity.C2) Points = new PointEx[verticalPoints, horizontalPoints - 3];
+                    else Points = new PointEx[verticalPoints, horizontalPoints - 1];
+                    SetCylinderVertices();
+                }
+                else
+                {
+                    Points = points;
+                    Vertices = new ObservableCollection<PointEx>(vertices);
+                }
+                SetCylinderEdges();
+            }
+            else
+            {
+                if (points == null)
+                {
+                    Points = new PointEx[verticalPoints, horizontalPoints];
+                    SetPlaneVertices();
+                }
+                else
+                {
+                    Points = points;
+                    Vertices = new ObservableCollection<PointEx>(vertices);
+                }
+                SetPlaneEdges();
+            }
+        }
         #endregion Protected Methods
         #region Public Methods
         public override void SaveControlPoints(StringBuilder stringBuilder)
