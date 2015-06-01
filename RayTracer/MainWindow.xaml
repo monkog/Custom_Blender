@@ -24,7 +24,7 @@
                 <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                 <TextBox Text="{Binding Name}"/>
-                <TreeView ItemsSource="{Binding Vertices}">
+                <TreeView ItemsSource="{Binding Vertices}" MaxHeight="200">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -43,7 +43,7 @@
                 <CheckBox IsChecked="{Binding IsBernsteinBasis}" Content="Bernstein Basis"/>
                 <CheckBox IsChecked="{Binding EquidistantPoints}" Content="Equidistant" IsEnabled="{Binding IsInterpolation}"/>
                 <TextBox Text="{Binding Name}"/>
-                <TreeView ItemsSource="{Binding Vertices}">
+                <TreeView ItemsSource="{Binding Vertices}" MaxHeight="200">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -63,7 +63,7 @@
                 <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
                 <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
                 <TextBox Text="{Binding Name}"/>
-                <TreeView ItemsSource="{Binding Vertices}">
+                <TreeView ItemsSource="{Binding Vertices}" MaxHeight="200">
                     <TreeView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -95,6 +95,7 @@
         <Menu>
             <MenuItem Header="Save Scene" Command="{Binding SaveSceneCommand}"/>
             <MenuItem Header="Load Scene" Command="{Binding LoadSceneCommand}"/>
+            <MenuItem Header="Add Mesh From File" Command="{Binding AddMeshFromFileCommand}"/>
             <MenuItem Header="Clear Scene" Command="{Binding ClearSceneCommand}"/>
             <MenuItem Header="Deselect All" Command="{Binding DeselectAllCommand}"/>
             <MenuItem Header="Select All Points" Command="{Binding SelectAllCommand}"/>
@@ -146,14 +147,17 @@
                         <StackPanel Orientation="Horizontal">
                             <Label Content="X rotation:" Margin="5"/>
                             <Slider Minimum="0" Maximum="360" Value="{Binding XSlider}" Width="300"/>
+                            <TextBox Text="{Binding XSlider}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Y rotation:" Margin="5"/>
                             <Slider Minimum="0" Maximum="360" Value="{Binding YSlider}" Width="300"/>
+                            <TextBox Text="{Binding YSlider}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Z rotation:" Margin="5"/>
                             <Slider Minimum="0" Maximum="360" Value="{Binding ZSlider}" Width="300"/>
+                            <TextBox Text="{Binding ZSlider}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

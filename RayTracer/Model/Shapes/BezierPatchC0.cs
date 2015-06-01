@@ -16,7 +16,7 @@ namespace RayTracer.Model.Shapes
         #region Constructors
         public BezierPatchC0(double x, double y, double z, string name, bool isCylinder, double width, double height
             , int verticalPatches, int horizontalPatches, PointEx[,] points = null, IEnumerable<PointEx> vertices = null)
-            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
+            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches)
         {
             var manager = PatchManager.Instance;
             SetVertices(points, vertices, manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1);

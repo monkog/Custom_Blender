@@ -146,7 +146,6 @@ namespace RayTracer.ViewModel
             else if (args.OriginalSource.GetType() == typeof(Image))
                 _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
 
-#warning move constants
             MouseDelta = new Point((_mouseCurrentPosition.X - _mousePreviousPosition.X) / 50, (_mouseCurrentPosition.Y - _mousePreviousPosition.Y) / 50);
         }
 

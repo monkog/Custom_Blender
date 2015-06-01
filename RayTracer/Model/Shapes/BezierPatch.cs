@@ -27,7 +27,7 @@ namespace RayTracer.Model.Shapes
         #endregion Public Properties
         #region Constructors
         protected BezierPatch(double x, double y, double z, string name, bool isCylinder, double width, double height
-            , int verticalPatches, int horizontalPatches, PointEx[,] points, IEnumerable<PointEx> vertices)
+            , int verticalPatches, int horizontalPatches)
             : base(x, y, z, name)
         {
             VerticalPatches = verticalPatches;

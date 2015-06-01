@@ -169,6 +169,19 @@ namespace RayTracer.ViewModel
                               , 0, 0, scale, 0
                               , 0, 0, 0, 1);
         }
+        /// <summary>
+        /// Returns the scale matrix.
+        /// </summary>
+        /// <param name="scale">The scale.</param>
+        /// <param name="dimension">The dimension to scale</param>
+        /// <returns>The scale matrix</returns>
+        public static Matrix3D ScaleMatrix(double scale, Vector3D dimension)
+        {
+            return new Matrix3D((int)dimension.X == 1 ? scale : 1, 0, 0, 0
+                              , 0, (int)dimension.Y == 1 ? scale : 1, 0, 0
+                              , 0, 0, (int)dimension.Z == 1 ? scale : 1, 0
+                              , 0, 0, 0, 1);
+        }
         #endregion Public Methods
     }
 }

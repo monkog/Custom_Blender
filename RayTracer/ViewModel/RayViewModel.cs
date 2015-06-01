@@ -268,7 +268,15 @@ namespace RayTracer.ViewModel
                 case "MouseScale":
                     {
                         double delta = MouseManager.MouseScale;
-                        Matrix3D matrix = Transformations.ScaleMatrix(delta);
+                        Matrix3D matrix;
+                        if (Keyboard.IsKeyDown(Key.X) || Keyboard.IsKeyDown(Key.Y) || Keyboard.IsKeyDown(Key.Z))
+                        {
+                            Vector3D dimensions = new Vector3D(Keyboard.IsKeyDown(Key.X) ? 1 : 0,
+                                Keyboard.IsKeyDown(Key.Y) ? 1 : 0, Keyboard.IsKeyDown(Key.Z) ? 1 : 0);
+                            matrix = Transformations.ScaleMatrix(delta, dimensions);
+                        }
+                        else
+                            matrix = Transformations.ScaleMatrix(delta);
                         TransformScene(matrix);
                     }
                     break;
@@ -276,6 +284,32 @@ namespace RayTracer.ViewModel
                     return;
             }
             Render();
+        }
+        private void LoadFile(string fileName)
+        {
+            SceneManager.LoadScene(fileName);
+            foreach (var curve in CurveManager.Curves)
+            {
+                if (curve.Continuity == Continuity.C0)
+                    curve.PropertyChanged +=
+                        (sender, args) =>
+                        {
+                            if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render();
+                        };
+                else
+                {
+                    curve.PropertyChanged +=
+                        (sender, e) =>
+                        {
+                            if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" ||
+                                e.PropertyName == "IsPolygonVisible") Render();
+                        };
+                    if (((BezierCurveC2)curve).IsInterpolation)
+                        curve.PropertyChanged += curve_PropertyChanged;
+                }
+            }
+            foreach (var patch in PatchManager.Patches)
+                patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges") Render(); };
         }
         /// <summary>
         /// Handles the PropertyChanged event of the SceneManager control.
@@ -321,12 +355,18 @@ namespace RayTracer.ViewModel
         }
         private void TransformScene(Matrix3D matrix)
         {
-            foreach (var mesh in MeshManager.Meshes)
+            bool onlySelected = Keyboard.IsKeyDown(Key.S);
+            foreach (var mesh in onlySelected ? MeshManager.Meshes.Where(m => m.IsSelected) : MeshManager.Meshes)
                 mesh.ModelTransform = matrix * mesh.ModelTransform;
-            foreach (var point in PointManager.Points)
+            foreach (var point in onlySelected ? PointManager.Points.Where(p => p.IsSelected) : PointManager.Points)
                 point.ModelTransform = matrix * point.ModelTransform;
-            foreach (var patch in PatchManager.Patches)
+            foreach (var patch in onlySelected ? PatchManager.Patches.Where(p => p.IsSelected) : PatchManager.Patches)
                 patch.ModelTransform = matrix * patch.ModelTransform;
+
+            if (onlySelected)
+                foreach (var patch in PatchManager.Patches)
+                    foreach (var vertex in patch.Vertices.Where(v => v.IsSelected))
+                        vertex.ModelTransform = matrix * vertex.ModelTransform;
         }
         private void RemoveAllObjects()
         {
@@ -364,21 +404,21 @@ namespace RayTracer.ViewModel
             if (dialog.ShowDialog() == true && dialog.CheckFileExists)
             {
                 RemoveAllObjects();
-                SceneManager.LoadScene(dialog.FileName);
-                foreach (var curve in CurveManager.Curves)
-                {
-                    if (curve.Continuity == Continuity.C0)
-                        curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "DisplayEdges" || args.PropertyName == "IsPolygonVisible") Render(); };
-                    else
-                    {
-                        curve.PropertyChanged += (sender, e) => { if (e.PropertyName == "IsBernsteinBasis" || e.PropertyName == "DisplayEdges" || e.PropertyName == "IsPolygonVisible") Render(); };
-                        if (((BezierCurveC2)curve).IsInterpolation)
-                            curve.PropertyChanged += curve_PropertyChanged;
-                    }
-                }
-                foreach (var patch in PatchManager.Patches)
-                    patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
+                LoadFile(dialog.FileName);
             }
+            Render();
+        }
+
+        private ICommand _addMeshFromFileCommand;
+        public ICommand AddMeshFromFileCommand { get { return _addMeshFromFileCommand ?? (_addMeshFromFileCommand = new DelegateCommand(AddMeshFromFileExecuted)); } }
+        /// <summary>
+        /// Loads the specified mesh from file.
+        /// </summary>
+        private void AddMeshFromFileExecuted()
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == true && dialog.CheckFileExists)
+                LoadFile(dialog.FileName);
             Render();
         }
 

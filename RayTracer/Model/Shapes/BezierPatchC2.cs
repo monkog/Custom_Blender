@@ -17,17 +17,16 @@ namespace RayTracer.Model.Shapes
         #region Constructors
         public BezierPatchC2(double x, double y, double z, string name, bool isCylinder, double width, double height
             , int verticalPatches, int horizontalPatches, PointEx[,] points = null, IEnumerable<PointEx> vertices = null)
-            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches, points, vertices)
+            : base(x, y, z, name, isCylinder, width, height, verticalPatches, horizontalPatches)
         {
             Continuity = Continuity.C2;
-            const int n = SceneManager.BezierSegmentPoints;
             var manager = PatchManager.Instance;
             SetVertices(points, vertices, SceneManager.BezierSegmentPoints + manager.VerticalPatches, SceneManager.BezierSegmentPoints + manager.HorizontalPatches);
-            SetSplineKnots(n);
+            SetSplineKnots();
         }
         #endregion Constructors
         #region Private Methods
-        private void SetSplineKnots(int n)
+        private void SetSplineKnots()
         {
             _knots = new double[2 * SceneManager.BezierSegmentPoints + 2];
             _knots[0] = 0;
