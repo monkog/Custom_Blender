@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Win32;
+using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
 using RayTracer.Model;
 using RayTracer.Model.Shapes;
@@ -368,12 +370,17 @@ namespace RayTracer.ViewModel
                     foreach (var vertex in patch.Vertices.Where(v => v.IsSelected))
                         vertex.ModelTransform = matrix * vertex.ModelTransform;
         }
-        private void RemoveAllObjects()
+        private PointEx FindInterpolationPoint(List<PointEx> points)
         {
-            PointManager.Points.Clear();
-            MeshManager.Meshes.Clear();
-            PatchManager.Patches.Clear();
-            CurveManager.Curves.Clear();
+            double x = 0, y = 0, z = 0;
+            foreach (var point in points)
+            {
+                x += point.TransformedPosition.X;
+                y += point.TransformedPosition.Y;
+                z += point.TransformedPosition.Z;
+            }
+
+            return new PointEx(x / points.Count, y / points.Count, z / points.Count);
         }
         #endregion Private Methods
         #region Commands
@@ -403,7 +410,7 @@ namespace RayTracer.ViewModel
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true && dialog.CheckFileExists)
             {
-                RemoveAllObjects();
+                SceneManager.RemoveAllObjects();
                 LoadFile(dialog.FileName);
             }
             Render();
@@ -429,7 +436,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         private void ClearSceneExecuted()
         {
-            RemoveAllObjects();
+            SceneManager.RemoveAllObjects();
             Render();
         }
 
@@ -567,6 +574,25 @@ namespace RayTracer.ViewModel
 
             foreach (var model in SceneManager.Models)
                 model.IsSelected = false;
+            Render();
+        }
+
+        private ICommand _mergePointsCommand;
+        public ICommand MergePointsCommand { get { return _mergePointsCommand ?? (_mergePointsCommand = new DelegateCommand(MergePointsExecuted)); } }
+        /// <summary>
+        /// Merges selected points.
+        /// </summary>
+        private void MergePointsExecuted()
+        {
+            var points = new List<PointEx>();
+            foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
+                foreach (var vertex in patch.Vertices.Where(p => p.IsSelected))
+                    points.Add(vertex);
+
+            var interpolationPoint = FindInterpolationPoint(points);
+            foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
+                patch.ReplaceVertex(patch.Vertices.First(p => p.IsSelected), interpolationPoint);
+
             Render();
         }
 

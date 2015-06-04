@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -160,6 +161,22 @@ namespace RayTracer.Model.Shapes
         {
             foreach (var point in Vertices)
                 stringBuilder.AppendLine("CP=" + point.Id);
+        }
+        /// <summary>
+        /// Replaces the vertex.
+        /// </summary>
+        /// <param name="vertex">The vertex to replace.</param>
+        /// <param name="interpolationPoint">The replacing vertex.</param>
+        public void ReplaceVertex(PointEx vertex, PointEx interpolationPoint)
+        {
+            var index = Vertices.IndexOf(vertex);
+            for (int i = 0; i < Points.GetLength(0); i++)
+                for (int j = 0; j < Points.GetLength(1); j++)
+                    if (Points[i, j] == vertex) Points[i, j] = interpolationPoint;
+                    else Points[i, j].ModelTransform = ModelTransform * Points[i, j].ModelTransform;
+            Vertices.RemoveAt(index);
+            Vertices.Insert(index, interpolationPoint);
+            ModelTransform = Matrix3D.Identity;
         }
         #endregion Public Methods
     }

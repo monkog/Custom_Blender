@@ -99,6 +99,7 @@
             <MenuItem Header="Clear Scene" Command="{Binding ClearSceneCommand}"/>
             <MenuItem Header="Deselect All" Command="{Binding DeselectAllCommand}"/>
             <MenuItem Header="Select All Points" Command="{Binding SelectAllCommand}"/>
+            <MenuItem Header="Merge Points" Command="{Binding MergePointsCommand}"/>
         </Menu>
         <Canvas Grid.Column="0" ClipToBounds="True">
             <i:Interaction.Behaviors>

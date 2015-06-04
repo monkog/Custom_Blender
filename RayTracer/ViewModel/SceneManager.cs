@@ -255,6 +255,16 @@ namespace RayTracer.ViewModel
                 }
             }
         }
+        /// <summary>
+        /// Removes all objects from the scene.
+        /// </summary>
+        public void RemoveAllObjects()
+        {
+            PointManager.Instance.Points.Clear();
+            MeshManager.Instance.Meshes.Clear();
+            PatchManager.Instance.Patches.Clear();
+            CurveManager.Instance.Curves.Clear();
+        }
         #endregion Public Methods
         #region Private Methods
         private void LoadTorus(StreamReader streamReader)

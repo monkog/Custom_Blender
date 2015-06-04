@@ -218,14 +218,24 @@ namespace RayTracer.ViewModel
 
             foreach (var patch in PatchManager.Instance.Patches)
                 foreach (var point in patch.Vertices)
+                {
+                    var transformedPoint = patch.ModelTransform * point.ModelTransform * point.Vector4;
+                    if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
+                        && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
                     {
-                        var transformedPoint = patch.ModelTransform * point.ModelTransform * point.Vector4;
-                        if (transformedPoint.X < pos.X + Tolernce && transformedPoint.X > pos.X - Tolernce
-                            && transformedPoint.Y < pos.Y + Tolernce && transformedPoint.Y > pos.Y - Tolernce)
+                        if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                             point.IsSelected = !point.IsSelected;
                         else
-                            point.IsSelected = false;
+                        {
+                            foreach (var p in PointManager.Instance.SelectedItems)
+                                p.IsSelected = false;
+
+                            point.IsSelected = true;
+                        }
                     }
+                    else if (!(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
+                        point.IsSelected = false;
+                }
         }
         #endregion Commands
     }
