@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Media.Media3D;
@@ -12,13 +11,13 @@ namespace RayTracer.Model.Shapes
     public class GregoryPatch : ModelBase
     {
         #region Private Members
-        private readonly Matrix3D BezierPolygonMatrix = new Matrix3D(1, -5 / 6.0, 2 / 6.0, 0
+        private readonly Matrix3D _bezierPolygonMatrix = new Matrix3D(1, -5 / 6.0, 2 / 6.0, 0
                                                                    , 0, 3, -9 / 6.0, 0
                                                                    , 0, -9 / 6.0, 3, 0
                                                                    , 0, 2 / 6.0, -5 / 6.0, 1);
 
         private IEnumerable<Vector4> _bezierPatchInnerPolygon = new List<Vector4>();
-        private List<BezierPatch> _patches;
+        private readonly List<BezierPatch> _patches;
         /// <summary>
         /// p0          p1          p2        p3
         /// p4        p5 p6       p7 p8       p9
@@ -123,57 +122,41 @@ namespace RayTracer.Model.Shapes
 
             // If the edge is horizontal
             if (start.Item1 == end.Item1)
-                CalculatePointsForHorizontalEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item1 == 0);
+                CalculatePointsForEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item1 == 0, isHorizontal: true);
             else // if the edge is vertical
-                CalculatePointsForVerticalEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item2 == 0);
+                CalculatePointsForEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item2 == 0, isHorizontal: false);
         }
-        private void CalculatePointsForVerticalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool shouldBeReversed, bool isStartPoint)
+        private void CalculatePointsForEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool shouldBeReversed, bool isStartPoint, bool isHorizontal)
         {
             var edge = new Vector4[7];
             var innerEdge = new Vector4[7];
-            Vector4 v = isStartPoint ? new Vector4(1, 0, 0, 0) : new Vector4(0, 0, 0, 1);
             double innerDivision = isStartPoint ? 1 / 6.0 : 5 / 6.0;
-            Vector4 vInner = new Vector4(Math.Pow((1.0 - innerDivision), 3), 3 * innerDivision * Math.Pow((1.0 - innerDivision), 2), 3 * innerDivision * innerDivision * (1.0 - innerDivision), Math.Pow(innerDivision, 3));
+            Vector4 v = null, u = null, vInner = null, uInner = null;
 
-            for (int i = 0; i < 7; i++)
+            if (isHorizontal)
             {
-                var p = i / 6.0;
-                Vector4 u = new Vector4(Math.Pow((1.0 - p), 3), 3 * p * Math.Pow((1.0 - p), 2), 3 * p * p * (1.0 - p), Math.Pow(p, 3));
-
-                var x = u * matX * v;
-                var y = u * matY * v;
-                var z = u * matZ * v;
-
-                var xi = u * matX * vInner;
-                var yi = u * matY * vInner;
-                var zi = u * matZ * vInner;
-
-                edge[i] = new Vector4(x, y, z, 1);
-                innerEdge[i] = new Vector4(xi, yi, zi, 1);
+                u = isStartPoint ? new Vector4(1, 0, 0, 0) : new Vector4(0, 0, 0, 1);
+                uInner = new Vector4(Math.Pow((1.0 - innerDivision), 3), 3 * innerDivision * Math.Pow((1.0 - innerDivision), 2), 3 * innerDivision * innerDivision * (1.0 - innerDivision), Math.Pow(innerDivision, 3));
+            }
+            else
+            {
+                v = isStartPoint ? new Vector4(1, 0, 0, 0) : new Vector4(0, 0, 0, 1);
+                vInner = new Vector4(Math.Pow((1.0 - innerDivision), 3), 3 * innerDivision * Math.Pow((1.0 - innerDivision), 2), 3 * innerDivision * innerDivision * (1.0 - innerDivision), Math.Pow(innerDivision, 3));
             }
 
-            InterpolateBezierPolygon(edge, innerEdge, patchIndex, shouldBeReversed);
-        }
-        private void CalculatePointsForHorizontalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool shouldBeReversed, bool isStartPoint)
-        {
-            var edge = new Vector4[7];
-            var innerEdge = new Vector4[7];
-            Vector4 u = isStartPoint ? new Vector4(1, 0, 0, 0) : new Vector4(0, 0, 0, 1);
-            double innerDivision = isStartPoint ? 1 / 6.0 : 5 / 6.0;
-            Vector4 uInner = new Vector4(Math.Pow((1.0 - innerDivision), 3), 3 * innerDivision * Math.Pow((1.0 - innerDivision), 2), 3 * innerDivision * innerDivision * (1.0 - innerDivision), Math.Pow(innerDivision, 3));
-
             for (int i = 0; i < 7; i++)
             {
                 var p = i / 6.0;
-                Vector4 v = new Vector4(Math.Pow((1.0 - p), 3), 3 * p * Math.Pow((1.0 - p), 2), 3 * p * p * (1.0 - p), Math.Pow(p, 3));
+                if (isHorizontal) vInner = v = new Vector4(Math.Pow((1.0 - p), 3), 3 * p * Math.Pow((1.0 - p), 2), 3 * p * p * (1.0 - p), Math.Pow(p, 3));
+                else uInner = u = new Vector4(Math.Pow((1.0 - p), 3), 3 * p * Math.Pow((1.0 - p), 2), 3 * p * p * (1.0 - p), Math.Pow(p, 3));
 
                 var x = u * matX * v;
                 var y = u * matY * v;
                 var z = u * matZ * v;
 
-                var xi = uInner * matX * v;
-                var yi = uInner * matY * v;
-                var zi = uInner * matZ * v;
+                var xi = uInner * matX * vInner;
+                var yi = uInner * matY * vInner;
+                var zi = uInner * matZ * vInner;
 
                 edge[i] = new Vector4(x, y, z, 1);
                 innerEdge[i] = new Vector4(xi, yi, zi, 1);
@@ -211,7 +194,7 @@ namespace RayTracer.Model.Shapes
             var p = new Matrix3D(edge[0].X, edge[1].X, edge[2].X, edge[3].X
                 , edge[0].Y, edge[1].Y, edge[2].Y, edge[3].Y
                 , edge[0].Z, edge[1].Z, edge[2].Z, edge[3].Z
-                , 1, 1, 1, 1) * BezierPolygonMatrix;
+                , 1, 1, 1, 1) * _bezierPolygonMatrix;
 
             points.Add(p1 = new Vector4(p.M11, p.M21, p.M31, p.OffsetX).Normalized);
             points.Add(p2 = new Vector4(p.M12, p.M22, p.M32, p.OffsetY).Normalized);
@@ -236,7 +219,7 @@ namespace RayTracer.Model.Shapes
             p = new Matrix3D(edge[3].X, edge[4].X, edge[5].X, edge[6].X
                 , edge[3].Y, edge[4].Y, edge[5].Y, edge[6].Y
                 , edge[3].Z, edge[4].Z, edge[5].Z, edge[6].Z
-                , 1, 1, 1, 1) * BezierPolygonMatrix;
+                , 1, 1, 1, 1) * _bezierPolygonMatrix;
 
             points.Add(p1 = new Vector4(p.M11, p.M21, p.M31, p.OffsetX).Normalized);
             points.Add(p2 = new Vector4(p.M12, p.M22, p.M32, p.OffsetY).Normalized);
@@ -267,7 +250,7 @@ namespace RayTracer.Model.Shapes
             var p = new Matrix3D(innerEdge[0].X, innerEdge[1].X, innerEdge[2].X, innerEdge[3].X
                 , innerEdge[0].Y, innerEdge[1].Y, innerEdge[2].Y, innerEdge[3].Y
                 , innerEdge[0].Z, innerEdge[1].Z, innerEdge[2].Z, innerEdge[3].Z
-                , 1, 1, 1, 1) * BezierPolygonMatrix;
+                , 1, 1, 1, 1) * _bezierPolygonMatrix;
 
             points.Add(new Vector4(p.M11, p.M21, p.M31, p.OffsetX).Normalized);
             points.Add(new Vector4(p.M12, p.M22, p.M32, p.OffsetY).Normalized);
@@ -277,7 +260,7 @@ namespace RayTracer.Model.Shapes
             p = new Matrix3D(innerEdge[3].X, innerEdge[4].X, innerEdge[5].X, innerEdge[6].X
                 , innerEdge[3].Y, innerEdge[4].Y, innerEdge[5].Y, innerEdge[6].Y
                 , innerEdge[3].Z, innerEdge[4].Z, innerEdge[5].Z, innerEdge[6].Z
-                , 1, 1, 1, 1) * BezierPolygonMatrix;
+                , 1, 1, 1, 1) * _bezierPolygonMatrix;
 
             points.Add(new Vector4(p.M11, p.M21, p.M31, p.OffsetX).Normalized);
             points.Add(new Vector4(p.M12, p.M22, p.M32, p.OffsetY).Normalized);
@@ -291,62 +274,64 @@ namespace RayTracer.Model.Shapes
 
             return points;
         }
-        #endregion Private Methods
-        #region Public Methods
-        public override void Draw()
-        {
-            FindGregoryPatches();
-            Bitmap bmp = SceneManager.Instance.SceneImage;
-
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                if (DisplayEdges)
-                    DrawHelperLines(bmp, g);
-                for (int i = 0; i < _points.GetLength(0); i++)
-                    DrawGregoryPatch(bmp, g, i);
-            }
-            SceneManager.Instance.SceneImage = bmp;
-        }
         private void DrawGregoryPatch(Bitmap bmp, Graphics g, int patchIndex)
         {
             Vector4[,] points, innerPoints;
             CalculateControlPoints(patchIndex, out points, out innerPoints);
-            DrawSingleGregoryPatch(bmp, g, patchIndex, PatchManager.Instance.HorizontalPatchDivisions, 100, points, innerPoints, isHorizontal: true);
-            DrawSingleGregoryPatch(bmp, g, patchIndex, PatchManager.Instance.HorizontalPatchDivisions, 100, points, innerPoints, isHorizontal: false);
+            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.HorizontalPatchDivisions, 100, points, innerPoints, isHorizontal: true);
+            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.VerticalPatchDivisions, 100, points, innerPoints, isHorizontal: false);
         }
-        private void DrawSingleGregoryPatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, int divisions, Vector4[,] points, Vector4[,] innerPoints, bool isHorizontal)
+        private void DrawSingleGregoryPatch(Bitmap bmp, Graphics g, int patchDivisions, int divisions, Vector4[,] points, Vector4[,] innerPoints, bool isHorizontal)
         {
-            Matrix3D matX, matY, matZ;
             double step = 1.0f / (patchDivisions - 1);
             double drawingStep = 1.0f / (divisions - 1);
             double currentStep = 0;
-            Vector4 pointX = null, pointY = null;
+            Vector4 u = null, v = null;
 
             for (double m = 0; m < patchDivisions; m++, currentStep += step)
             {
                 if (isHorizontal)
-                    pointY = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
+                    v = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
                 else
-                    pointX = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
+                    u = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
 
                 for (double n = 0; n < divisions; n++)
                 {
-                    var point = n * drawingStep;
-                    if (isHorizontal)
-                        pointX = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
-                    else
-                        pointY = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
+                    var currentPoint = n * drawingStep;
+                    if (isHorizontal) u = new Vector4(Math.Pow((1.0 - currentPoint), 3), 3 * currentPoint * Math.Pow((1.0 - currentPoint), 2), 3 * currentPoint * currentPoint * (1.0 - currentPoint), Math.Pow(currentPoint, 3));
+                    else v = new Vector4(Math.Pow((1.0 - currentPoint), 3), 3 * currentPoint * Math.Pow((1.0 - currentPoint), 2), 3 * currentPoint * currentPoint * (1.0 - currentPoint), Math.Pow(currentPoint, 3));
 
-                    SetMatrix(currentStep, point, out matX, out matY, out matZ, points, innerPoints);
-
-                    var x = pointX * matX * pointY;
-                    var y = pointX * matY * pointY;
-                    var z = pointX * matZ * pointY;
-
-                    var p = new Vector4(x, y, z, 1);
-                    SceneManager.DrawCurvePoint(bmp, g, p, Thickness);
+                    var point = CalculatePointInGregoryPatch(u, v, currentStep, currentPoint, points, innerPoints);
+                    SceneManager.DrawCurvePoint(bmp, g, point, Thickness);
                 }
             }
+        }
+        private Vector4 CalculatePointInGregoryPatch(Vector4 pointX, Vector4 pointY, double u, double v, Vector4[,] points, Vector4[,] innerPoints)
+        {
+            var bernsteinPoints = new Vector4[4, 4];
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
+                    bernsteinPoints[i, j] = CalculateGregoryPointsToDraw(i, j, u, v, points, innerPoints);
+
+            var matX = new Matrix3D(bernsteinPoints[0, 0].X, bernsteinPoints[0, 1].X, bernsteinPoints[0, 2].X, bernsteinPoints[0, 3].X
+                                  , bernsteinPoints[1, 0].X, bernsteinPoints[1, 1].X, bernsteinPoints[1, 2].X, bernsteinPoints[1, 3].X
+                                  , bernsteinPoints[2, 0].X, bernsteinPoints[2, 1].X, bernsteinPoints[2, 2].X, bernsteinPoints[2, 3].X
+                                  , bernsteinPoints[3, 0].X, bernsteinPoints[3, 1].X, bernsteinPoints[3, 2].X, bernsteinPoints[3, 3].X);
+
+            var matY = new Matrix3D(bernsteinPoints[0, 0].Y, bernsteinPoints[0, 1].Y, bernsteinPoints[0, 2].Y, bernsteinPoints[0, 3].Y
+                                  , bernsteinPoints[1, 0].Y, bernsteinPoints[1, 1].Y, bernsteinPoints[1, 2].Y, bernsteinPoints[1, 3].Y
+                                  , bernsteinPoints[2, 0].Y, bernsteinPoints[2, 1].Y, bernsteinPoints[2, 2].Y, bernsteinPoints[2, 3].Y
+                                  , bernsteinPoints[3, 0].Y, bernsteinPoints[3, 1].Y, bernsteinPoints[3, 2].Y, bernsteinPoints[3, 3].Y);
+
+            var matZ = new Matrix3D(bernsteinPoints[0, 0].Z, bernsteinPoints[0, 1].Z, bernsteinPoints[0, 2].Z, bernsteinPoints[0, 3].Z
+                                  , bernsteinPoints[1, 0].Z, bernsteinPoints[1, 1].Z, bernsteinPoints[1, 2].Z, bernsteinPoints[1, 3].Z
+                                  , bernsteinPoints[2, 0].Z, bernsteinPoints[2, 1].Z, bernsteinPoints[2, 2].Z, bernsteinPoints[2, 3].Z
+                                  , bernsteinPoints[3, 0].Z, bernsteinPoints[3, 1].Z, bernsteinPoints[3, 2].Z, bernsteinPoints[3, 3].Z);
+
+            var x = pointX * matX * pointY;
+            var y = pointX * matY * pointY;
+            var z = pointX * matZ * pointY;
+            return new Vector4(x, y, z, 1);
         }
         private void CalculateControlPoints(int patchIndex, out Vector4[,] points, out Vector4[,] innerPoints)
         {
@@ -383,28 +368,28 @@ namespace RayTracer.Model.Shapes
                 for (int i = 0; i < 20; i++)
                 {
                     if (_points[j][i] == null) continue;
-                    var PointOnScreen = Transform * _points[j][i].PointOnScreen;
-                    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 ||
-                        PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) continue;
-                    Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
+                    var pointOnScreen = Transform * _points[j][i].PointOnScreen;
+                    if (double.IsNaN(pointOnScreen.X) || double.IsNaN(pointOnScreen.Y) || pointOnScreen.X < 0 ||
+                        pointOnScreen.X >= bmp.Width || pointOnScreen.Y < 0 || pointOnScreen.Y >= bmp.Height) continue;
+                    Color color = bmp.GetPixel((int)pointOnScreen.X, (int)pointOnScreen.Y);
                     if (i == 6 || i == 14)
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 5, 5);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 5, 5);
                     else if (i == 13 || i == 14)
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 6, 6);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 6, 6);
                     else if (i == 7)
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 5, 5);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 5, 5);
                     else if (i == 6 || i == 7 || i == 8)
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 3, 3);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 3, 3);
                     else if (i == 19)
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.White)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 5, 5);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.White)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 5, 5);
                     else
-                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)PointOnScreen.X,
-                            (int)PointOnScreen.Y, 3, 3);
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)pointOnScreen.X,
+                            (int)pointOnScreen.Y, 3, 3);
                 }
                 DrawGregoryPatchBorders(g, j);
                 DrawGregoryPatchHelperEdges(g, j);
@@ -416,13 +401,43 @@ namespace RayTracer.Model.Shapes
             for (int i = 0; i < _bezierPatchInnerPolygon.Count(); i++)
             {
                 var point = _bezierPatchInnerPolygon.ElementAt(i);
-                var PointOnScreen = Transform * point;
-                if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 ||
-                    PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) continue;
-                Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
-                g.FillRectangle(new SolidBrush(color.CombinedColor(Color.OrangeRed)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                //g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                var pointOnScreen = Transform * point;
+                if (double.IsNaN(pointOnScreen.X) || double.IsNaN(pointOnScreen.Y) || pointOnScreen.X < 0 ||
+                    pointOnScreen.X >= bmp.Width || pointOnScreen.Y < 0 || pointOnScreen.Y >= bmp.Height) continue;
+                Color color = bmp.GetPixel((int)pointOnScreen.X, (int)pointOnScreen.Y);
+                g.FillRectangle(new SolidBrush(color.CombinedColor(Color.OrangeRed)), (int)pointOnScreen.X, (int)pointOnScreen.Y, 3, 3);
             }
+            int index = 0;
+            DrawBezierInterpolationLines(g, ref index, patchIndex: 0);
+            DrawBezierInterpolationLines(g, ref index, patchIndex: 1);
+            DrawBezierInterpolationLines(g, ref index, patchIndex: 2);
+        }
+        private void DrawBezierInterpolationLines(Graphics g, ref int i, int patchIndex)
+        {
+            var pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            var pt1 = Transform * _points[patchIndex][0].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[patchIndex][4].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[patchIndex][10].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[patchIndex][16].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[(patchIndex + 1) % 3][3].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[(patchIndex + 1) % 3][2].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[(patchIndex + 1) % 3][1].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _bezierPatchInnerPolygon.ElementAt(i++);
+            pt1 = Transform * _points[(patchIndex + 1) % 3][0].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
         }
         private void DrawGregoryPatchHelperEdges(Graphics g, int j)
         {
@@ -472,29 +487,7 @@ namespace RayTracer.Model.Shapes
             pt1 = Transform * _points[j][19].PointOnScreen;
             g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
         }
-        public void SetMatrix(double u, double v, out Matrix3D matX, out Matrix3D matY, out Matrix3D matZ, Vector4[,] points, Vector4[,] innerPoints)
-        {
-            Vector4[,] BasePoints = new Vector4[4, 4];
-            for (int i = 0; i < 4; i++)
-                for (int j = 0; j < 4; j++)
-                    BasePoints[i, j] = CalculatePFromQ(i, j, u, v, points, innerPoints);
-
-            matX = new Matrix3D(BasePoints[0, 0].X, BasePoints[0, 1].X, BasePoints[0, 2].X, BasePoints[0, 3].X,
-                                BasePoints[1, 0].X, BasePoints[1, 1].X, BasePoints[1, 2].X, BasePoints[1, 3].X,
-                                BasePoints[2, 0].X, BasePoints[2, 1].X, BasePoints[2, 2].X, BasePoints[2, 3].X,
-                                BasePoints[3, 0].X, BasePoints[3, 1].X, BasePoints[3, 2].X, BasePoints[3, 3].X);
-
-            matY = new Matrix3D(BasePoints[0, 0].Y, BasePoints[0, 1].Y, BasePoints[0, 2].Y, BasePoints[0, 3].Y,
-                                BasePoints[1, 0].Y, BasePoints[1, 1].Y, BasePoints[1, 2].Y, BasePoints[1, 3].Y,
-                                BasePoints[2, 0].Y, BasePoints[2, 1].Y, BasePoints[2, 2].Y, BasePoints[2, 3].Y,
-                                BasePoints[3, 0].Y, BasePoints[3, 1].Y, BasePoints[3, 2].Y, BasePoints[3, 3].Y);
-
-            matZ = new Matrix3D(BasePoints[0, 0].Z, BasePoints[0, 1].Z, BasePoints[0, 2].Z, BasePoints[0, 3].Z,
-                                BasePoints[1, 0].Z, BasePoints[1, 1].Z, BasePoints[1, 2].Z, BasePoints[1, 3].Z,
-                                BasePoints[2, 0].Z, BasePoints[2, 1].Z, BasePoints[2, 2].Z, BasePoints[2, 3].Z,
-                                BasePoints[3, 0].Z, BasePoints[3, 1].Z, BasePoints[3, 2].Z, BasePoints[3, 3].Z);
-        }
-        private Vector4 CalculatePFromQ(int i, int j, double u, double v, Vector4[,] points, Vector4[,] innerPoints)
+        private Vector4 CalculateGregoryPointsToDraw(int i, int j, double u, double v, Vector4[,] points, Vector4[,] innerPoints)
         {
             Vector4 p;
             if (i == 1 && j == 1)
@@ -507,8 +500,24 @@ namespace RayTracer.Model.Shapes
                 p = (u == 1 && v == 1) ? points[i, j] : (points[i, j] * (1 - u) + innerPoints[i - 1, j - 1] * (1 - v)) / (1 - u + 1 - v);
             else
                 p = points[i, j];
-            //  p.Normalize();
-            return new Vector4(p.X, p.Y, p.Z, 1);   //tutaj moze znormalizowac
+
+            return new Vector4(p.X, p.Y, p.Z, 1);
+        }
+        #endregion Private Methods
+        #region Public Methods
+        public override void Draw()
+        {
+            FindGregoryPatches();
+            Bitmap bmp = SceneManager.Instance.SceneImage;
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                if (DisplayEdges)
+                    DrawHelperLines(bmp, g);
+                for (int i = 0; i < _points.GetLength(0); i++)
+                    DrawGregoryPatch(bmp, g, i);
+            }
+            SceneManager.Instance.SceneImage = bmp;
         }
         #endregion Public Methods
     }

@@ -79,7 +79,7 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type shapes:GregoryPatch}">
             <StackPanel>
-                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
+                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon and Control Points"/>
                 <TextBox Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>

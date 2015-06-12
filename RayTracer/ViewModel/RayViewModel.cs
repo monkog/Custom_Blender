@@ -607,7 +607,10 @@ namespace RayTracer.ViewModel
         {
             var patches = new List<BezierPatch>();
             foreach (var p in PatchManager.Patches.Where(x => x.IsSelected))
+            {
+                if(p.CommonPoints.Count != 2) return;
                 patches.Add(p);
+            }
 
             if (patches.Count != 3) return;
             var patch = new GregoryPatch(0, 0, 0, "Gregory Patch(" + 0 + ", " + 0 + ", " + 0 + ")", patches);
