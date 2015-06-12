@@ -123,6 +123,8 @@ namespace RayTracer.Model.Shapes
             var xCoords = Points.CoordinatesOf(x);
             var yCoords = Points.CoordinatesOf(y);
 
+            if ((xCoords.Item1 == 3 && yCoords.Item1 == 3) || (xCoords.Item2 == 0 && yCoords.Item2 == 0))
+                return (xCoords.Item1 > yCoords.Item1 || xCoords.Item2 > yCoords.Item2) ? -1 : 1;
             return (xCoords.Item1 > yCoords.Item1 || xCoords.Item2 > yCoords.Item2) ? 1 : -1;
         }
         #endregion Private Methods

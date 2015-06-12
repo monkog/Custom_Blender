@@ -16,7 +16,8 @@ namespace RayTracer.Model.Shapes
                                                                    , 0, -9 / 6.0, 3, 0
                                                                    , 0, 2 / 6.0, -5 / 6.0, 1);
 
-        private IEnumerable<Vector4> aaaa = new List<Vector4>();
+        private IEnumerable<Vector4> _bezierPatchInnerPolygon = new List<Vector4>();
+        private List<BezierPatch> _patches;
         /// <summary>
         /// p0          p1          p2        p3
         /// p4        p5 p6       p7 p8       p9
@@ -33,20 +34,20 @@ namespace RayTracer.Model.Shapes
         public GregoryPatch(double x, double y, double z, string name, List<BezierPatch> patches)
             : base(x, y, z, name)
         {
-            FindGregoryPatches(patches);
+            _patches = SortInputPatches(patches);
         }
         #endregion Constructors
         #region Private Methods
-        private void FindGregoryPatches(List<BezierPatch> inputPatches)
+        private void FindGregoryPatches()
         {
+            _bezierPatchInnerPolygon = new List<Vector4>();
             _points = new PointEx[3][];
             for (int i = 0; i < _points.Length; i++)
                 _points[i] = new PointEx[20];
 
-            var patches = SortInputPatches(inputPatches);
-            for (int i = 0; i < patches.Count; i++)
+            for (int i = 0; i < _patches.Count; i++)
             {
-                var patch = patches[i];
+                var patch = _patches[i];
                 var points = patch.Points;
                 Matrix3D matX = new Matrix3D(points[0, 0].TransformedPosition.X, points[0, 1].TransformedPosition.X, points[0, 2].TransformedPosition.X, points[0, 3].TransformedPosition.X
                                            , points[1, 0].TransformedPosition.X, points[1, 1].TransformedPosition.X, points[1, 2].TransformedPosition.X, points[1, 3].TransformedPosition.X
@@ -70,29 +71,32 @@ namespace RayTracer.Model.Shapes
         {
             for (int i = 0; i < _points.GetLength(0); i++)
             {
-                var p2 = (_points[i][1].Vector4 + ((_points[i][3].Vector4 - _points[i][1].Vector4) / 2)).Normalized;
-                _points[i][2] = new PointEx(p2.X, p2.Y, p2.Z);
+                var p18 = _points[i][17].Vector4 + ((_points[i][19].Vector4 - _points[i][17].Vector4) * 0.5);
+                var p18Ex = new PointEx(p18.X, p18.Y, p18.Z);
+                _points[i][18] = p18Ex;
+                _points[(i + 1) % 3][15] = p18Ex;
 
-                var p7 = (_points[i][2].Vector4 + ((_points[i][13].Vector4 - _points[i][2].Vector4) / 2)).Normalized;
-                _points[i][7] = new PointEx(p7.X, p7.Y, p7.Z);
-                p7 = (_points[i][2].Vector4 - ((_points[i][13].Vector4 - _points[i][2].Vector4) / 2)).Normalized;
-                _points[(i + 1) % 3][8] = new PointEx(p7.X, p7.Y, p7.Z);
+                var p13 = _points[i][18].Vector4 + ((_points[i][7].Vector4 - _points[i][18].Vector4) / 3);
+                _points[i][13] = new PointEx(p13.X, p13.Y, p13.Z);
 
-                var p6 = (_points[i][1].Vector4 + ((_points[i][12].Vector4 - _points[i][1].Vector4) / 2)).Normalized;
-                _points[i][6] = new PointEx(p6.X, p6.Y, p6.Z);
-                p6 = (_points[i][1].Vector4 - ((_points[i][12].Vector4 - _points[i][1].Vector4) / 2)).Normalized;
-                _points[(i + 1) % 3][14] = new PointEx(p6.X, p6.Y, p6.Z);
+                p13 = _points[i][18].Vector4 - ((_points[i][7].Vector4 - _points[i][18].Vector4) / 2);
+                _points[(i + 1) % 3][14] = new PointEx(p13.X, p13.Y, p13.Z);
+
+                var p12 = _points[i][17].Vector4 + ((_points[i][5].Vector4 - _points[i][17].Vector4) / 2);
+                _points[i][12] = new PointEx(p12.X, p12.Y, p12.Z);
+                p12 = _points[i][17].Vector4 + ((_points[i][17].Vector4 - _points[i][5].Vector4) / 2);
+                _points[(i + 1) % 3][8] = new PointEx(p12.X, p12.Y, p12.Z);
             }
         }
         private void CalculateMiddlePoint()
         {
-            var x1 = _points[0][0].Vector4 + (_points[0][1].Vector4 - _points[0][0].Vector4) * (3 / 2.0);
-            var x2 = _points[1][0].Vector4 + (_points[1][1].Vector4 - _points[1][0].Vector4) * (3 / 2.0);
-            var x3 = _points[2][0].Vector4 + (_points[2][1].Vector4 - _points[2][0].Vector4) * (3 / 2.0);
+            var x1 = _points[0][16].Vector4 + (_points[0][17].Vector4 - _points[0][16].Vector4) * (3 / 2.0);
+            var x2 = _points[1][16].Vector4 + (_points[1][17].Vector4 - _points[1][16].Vector4) * (3 / 2.0);
+            var x3 = _points[2][16].Vector4 + (_points[2][17].Vector4 - _points[2][16].Vector4) * (3 / 2.0);
 
             var midPoint = (x1 + x2 + x3) / 3;
             var mid = new PointEx(midPoint.X, midPoint.Y, midPoint.Z);
-            _points[0][3] = _points[1][3] = _points[2][3] = mid;
+            _points[0][19] = _points[1][19] = _points[2][19] = mid;
         }
         private List<BezierPatch> SortInputPatches(List<BezierPatch> inputPatches)
         {
@@ -101,7 +105,7 @@ namespace RayTracer.Model.Shapes
             patches.Add(firstPatch);
             inputPatches.Remove(firstPatch);
 
-            var nextPatch = inputPatches.First(p => p.Vertices.Contains(firstPatch.CommonPoints[0]));
+            var nextPatch = inputPatches.First(p => p.Vertices.Contains(firstPatch.CommonPoints[1]));
             patches.Add(nextPatch);
             inputPatches.Remove(nextPatch);
             patches.Add(inputPatches.First());
@@ -113,14 +117,15 @@ namespace RayTracer.Model.Shapes
             // start <x, y>
             var start = patch.Points.CoordinatesOf(patch.CommonPoints[0]);
             var end = patch.Points.CoordinatesOf(patch.CommonPoints[1]);
+            bool shouldBeReversed = (start.Item1 == 3 && end.Item1 == 3) || (start.Item2 == 0 && end.Item2 == 0) || (start.Item1 == 0 && start.Item1 == end.Item1);
 
             // If the edge is horizontal
             if (start.Item1 == end.Item1)
-                CalculatePointsForHorizontalEdge(matX, matY, matZ, patchIndex, isStartPoint: start.Item1 == 0);
+                CalculatePointsForHorizontalEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item1 == 0);
             else // if the edge is vertical
-                CalculatePointsForVerticalEdge(matX, matY, matZ, patchIndex, isStartPoint: start.Item2 == 0);
+                CalculatePointsForVerticalEdge(matX, matY, matZ, patchIndex, shouldBeReversed, isStartPoint: start.Item2 == 0);
         }
-        private void CalculatePointsForVerticalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool isStartPoint)
+        private void CalculatePointsForVerticalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool shouldBeReversed, bool isStartPoint)
         {
             var edge = new Vector4[7];
             var innerEdge = new Vector4[7];
@@ -145,9 +150,9 @@ namespace RayTracer.Model.Shapes
                 innerEdge[i] = new Vector4(xi, yi, zi, 1);
             }
 
-            InterpolateBezierPolygon(edge, innerEdge, patchIndex);
+            InterpolateBezierPolygon(edge, innerEdge, patchIndex, shouldBeReversed);
         }
-        private void CalculatePointsForHorizontalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool isStartPoint)
+        private void CalculatePointsForHorizontalEdge(Matrix3D matX, Matrix3D matY, Matrix3D matZ, int patchIndex, bool shouldBeReversed, bool isStartPoint)
         {
             var edge = new Vector4[7];
             var innerEdge = new Vector4[7];
@@ -172,31 +177,31 @@ namespace RayTracer.Model.Shapes
                 innerEdge[i] = new Vector4(xi, yi, zi, 1);
             }
 
-            InterpolateBezierPolygon(edge, innerEdge, patchIndex);
+            InterpolateBezierPolygon(edge, innerEdge, patchIndex, isStartPoint);
         }
-        private void InterpolateBezierPolygon(Vector4[] edge, Vector4[] innerEdge, int patchIndex)
+        private void InterpolateBezierPolygon(Vector4[] edge, Vector4[] innerEdge, int patchIndex, bool shouldBeReversed)
         {
-            var polygon = FindEdgePolygon(edge, patchIndex);
-            var innerPolygon = FindInnerPolygon(innerEdge);
+            var polygon = FindEdgePolygon(edge, patchIndex, shouldBeReversed);
+            var innerPolygon = FindInnerPolygon(innerEdge, shouldBeReversed);
 
             var point = polygon[1] + polygon[1] - innerPolygon[1];
-            _points[patchIndex][11] = new PointEx(point.X, point.Y, point.Z);
+            _points[patchIndex][5] = new PointEx(point.X, point.Y, point.Z);
 
             point = polygon[2] + polygon[2] - innerPolygon[2];
-            _points[patchIndex][5] = new PointEx(point.X, point.Y, point.Z);
+            _points[patchIndex][11] = new PointEx(point.X, point.Y, point.Z);
 
             point = polygon[3] + polygon[3] - innerPolygon[3];
             var p = new PointEx(point.X, point.Y, point.Z);
-            _points[patchIndex][1] = p;
-            _points[(patchIndex + 1) % 3][15] = p;
+            _points[patchIndex][17] = p;
+            _points[(patchIndex + 1) % 3][9] = p;
 
             point = polygon[5] + polygon[5] - innerPolygon[5];
-            _points[(patchIndex + 1) % 3][13] = new PointEx(point.X, point.Y, point.Z);
+            _points[(patchIndex + 1) % 3][7] = new PointEx(point.X, point.Y, point.Z);
 
             point = polygon[6] + polygon[6] - innerPolygon[6];
-            _points[(patchIndex + 1) % 3][12] = new PointEx(point.X, point.Y, point.Z);
+            _points[(patchIndex + 1) % 3][6] = new PointEx(point.X, point.Y, point.Z);
         }
-        private List<Vector4> FindEdgePolygon(Vector4[] edge, int patchIndex)
+        private List<Vector4> FindEdgePolygon(Vector4[] edge, int patchIndex, bool shouldBeReversed)
         {
             var points = new List<Vector4>();
             Vector4 p1, p2, p3, p4;
@@ -211,10 +216,20 @@ namespace RayTracer.Model.Shapes
             points.Add(p3 = new Vector4(p.M13, p.M23, p.M33, p.OffsetZ).Normalized);
             points.Add(p4 = new Vector4(p.M14, p.M24, p.M34, p.M44).Normalized);
 
-            _points[patchIndex][16] = new PointEx(p1.X, p1.Y, p1.Z);
-            _points[patchIndex][10] = new PointEx(p2.X, p2.Y, p2.Z);
-            _points[patchIndex][4] = new PointEx(p3.X, p3.Y, p3.Z);
-            _points[patchIndex][0] = new PointEx(p4.X, p4.Y, p4.Z);
+            if (!shouldBeReversed)
+            {
+                _points[patchIndex][0] = new PointEx(p1.X, p1.Y, p1.Z);
+                _points[patchIndex][4] = new PointEx(p2.X, p2.Y, p2.Z);
+                _points[patchIndex][10] = new PointEx(p3.X, p3.Y, p3.Z);
+                _points[patchIndex][16] = new PointEx(p4.X, p4.Y, p4.Z);
+            }
+            else
+            {
+                _points[(patchIndex + 1) % 3][0] = new PointEx(p1.X, p1.Y, p1.Z);
+                _points[(patchIndex + 1) % 3][1] = new PointEx(p2.X, p2.Y, p2.Z);
+                _points[(patchIndex + 1) % 3][2] = new PointEx(p3.X, p3.Y, p3.Z);
+                _points[(patchIndex + 1) % 3][3] = new PointEx(p4.X, p4.Y, p4.Z);
+            }
 
             p = new Matrix3D(edge[3].X, edge[4].X, edge[5].X, edge[6].X
                 , edge[3].Y, edge[4].Y, edge[5].Y, edge[6].Y
@@ -226,13 +241,24 @@ namespace RayTracer.Model.Shapes
             points.Add(p3 = new Vector4(p.M13, p.M23, p.M33, p.OffsetZ).Normalized);
             points.Add(p4 = new Vector4(p.M14, p.M24, p.M34, p.M44).Normalized);
 
-            _points[(patchIndex + 1) % 3][19] = new PointEx(p1.X, p1.Y, p1.Z);
-            _points[(patchIndex + 1) % 3][18] = new PointEx(p2.X, p2.Y, p2.Z);
-            _points[(patchIndex + 1) % 3][17] = new PointEx(p3.X, p3.Y, p3.Z);
-            _points[(patchIndex + 1) % 3][16] = new PointEx(p4.X, p4.Y, p4.Z);
+            if (!shouldBeReversed)
+            {
+                _points[(patchIndex + 1) % 3][3] = new PointEx(p1.X, p1.Y, p1.Z);
+                _points[(patchIndex + 1) % 3][2] = new PointEx(p2.X, p2.Y, p2.Z);
+                _points[(patchIndex + 1) % 3][1] = new PointEx(p3.X, p3.Y, p3.Z);
+                _points[(patchIndex + 1) % 3][0] = new PointEx(p4.X, p4.Y, p4.Z);
+            }
+            else
+            {
+                _points[patchIndex][16] = new PointEx(p1.X, p1.Y, p1.Z);
+                _points[patchIndex][10] = new PointEx(p2.X, p2.Y, p2.Z);
+                _points[patchIndex][4] = new PointEx(p3.X, p3.Y, p3.Z);
+                _points[patchIndex][0] = new PointEx(p4.X, p4.Y, p4.Z);
+                points.Reverse();
+            }
             return points;
         }
-        private List<Vector4> FindInnerPolygon(Vector4[] innerEdge)
+        private List<Vector4> FindInnerPolygon(Vector4[] innerEdge, bool shouldBeReversed)
         {
             var points = new List<Vector4>();
 
@@ -255,7 +281,11 @@ namespace RayTracer.Model.Shapes
             points.Add(new Vector4(p.M12, p.M22, p.M32, p.OffsetY).Normalized);
             points.Add(new Vector4(p.M13, p.M23, p.M33, p.OffsetZ).Normalized);
             points.Add(new Vector4(p.M14, p.M24, p.M34, p.M44).Normalized);
-            aaaa = aaaa.Union(points);
+
+            if (shouldBeReversed)
+                points.Reverse();
+
+            _bezierPatchInnerPolygon = _bezierPatchInnerPolygon.Union(points);
 
             return points;
         }
@@ -263,6 +293,7 @@ namespace RayTracer.Model.Shapes
         #region Public Methods
         public override void Draw()
         {
+            FindGregoryPatches();
             Bitmap bmp = SceneManager.Instance.SceneImage;
 
             using (Graphics g = Graphics.FromImage(bmp))
@@ -270,30 +301,76 @@ namespace RayTracer.Model.Shapes
                 Transform = Transformations.ViewMatrix(400);
                 for (int j = 0; j < 3; j++)
                 {
-
                     for (int i = 0; i < 20; i++)
                     {
                         if (_points[j][i] == null) continue;
                         var PointOnScreen = Transform * _points[j][i].PointOnScreen;
                         if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) return;
                         Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
-                        if (i == 7 || i == 8 || i == 6 || i == 14)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                        else if (i == 1 || i == 2 || i == 12 || i == 13)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                        else if (i == 3)
+                        if (i == 6 || i == 14)
+                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
+                        else if (i == 13 || i == 14)
+                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 6, 6);
+                        else if (i == 7)
+                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
+                        else if (i == 6 || i == 7 || i == 8)
+                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
+                        else if (i == 19)
                             g.FillRectangle(new SolidBrush(color.CombinedColor(Color.White)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
-                        //else
-                        //    g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
+                        else
+                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
                     }
+                    var pt = Transform * _points[j][16].PointOnScreen;
+                    var pt1 = Transform * _points[j][17].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][17].PointOnScreen;
+                    pt1 = Transform * _points[j][18].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][18].PointOnScreen;
+                    pt1 = Transform * _points[j][19].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][3].PointOnScreen;
+                    pt1 = Transform * _points[j][9].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][9].PointOnScreen;
+                    pt1 = Transform * _points[j][15].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][15].PointOnScreen;
+                    pt1 = Transform * _points[j][19].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+
+                    pt = Transform * _points[j][4].PointOnScreen;
+                    pt1 = Transform * _points[j][5].PointOnScreen;
+                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][10].PointOnScreen;
+                    pt1 = Transform * _points[j][11].PointOnScreen;
+                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][1].PointOnScreen;
+                    pt1 = Transform * _points[j][6].PointOnScreen;
+                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][2].PointOnScreen;
+                    pt1 = Transform * _points[j][7].PointOnScreen;
+                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][17].PointOnScreen;
+                    pt1 = Transform * _points[j][12].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][18].PointOnScreen;
+                    pt1 = Transform * _points[j][13].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][8].PointOnScreen;
+                    pt1 = Transform * _points[j][9].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+                    pt = Transform * _points[j][14].PointOnScreen;
+                    pt1 = Transform * _points[j][15].PointOnScreen;
+                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
                 }
-                //foreach (var point in aaaa)
-                //{
-                //    var PointOnScreen = Transform * point;
-                //    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) continue;
-                //    Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
-                //    g.FillRectangle(new SolidBrush(color.CombinedColor(Color.OrangeRed)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                //}
+                foreach (var point in _bezierPatchInnerPolygon)
+                {
+                    var PointOnScreen = Transform * point;
+                    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) continue;
+                    Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
+                    g.FillRectangle(new SolidBrush(color.CombinedColor(Color.OrangeRed)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
+                }
             }
             SceneManager.Instance.SceneImage = bmp;
         }
