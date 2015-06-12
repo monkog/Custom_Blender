@@ -77,6 +77,12 @@
                 </TreeView>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type shapes:GregoryPatch}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding DisplayEdges}" Content="View Polygon"/>
+                <TextBox Text="{Binding Name}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad8"/>
@@ -290,6 +296,9 @@
                     </TabItem>
                     <TabItem Header="Patches">
                         <ListView ItemsSource="{Binding Patches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
+                    </TabItem>
+                    <TabItem Header="Gregory Patches">
+                        <ListView ItemsSource="{Binding GregoryPatches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
                     </TabItem>
                 </TabControl>
             </StackPanel>

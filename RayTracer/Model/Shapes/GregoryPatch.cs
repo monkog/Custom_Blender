@@ -35,6 +35,7 @@ namespace RayTracer.Model.Shapes
             : base(x, y, z, name)
         {
             _patches = SortInputPatches(patches);
+            DisplayEdges = true;
         }
         #endregion Constructors
         #region Private Methods
@@ -298,72 +299,8 @@ namespace RayTracer.Model.Shapes
 
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                Transform = Transformations.ViewMatrix(400);
-                for (int j = 0; j < 3; j++)
-                {
-                    for (int i = 0; i < 20; i++)
-                    {
-                        if (_points[j][i] == null) continue;
-                        var PointOnScreen = Transform * _points[j][i].PointOnScreen;
-                        if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 || PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) return;
-                        Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
-                        if (i == 6 || i == 14)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
-                        else if (i == 13 || i == 14)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 6, 6);
-                        else if (i == 7)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
-                        else if (i == 6 || i == 7 || i == 8)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                        else if (i == 19)
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.White)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 5, 5);
-                        else
-                            g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)PointOnScreen.X, (int)PointOnScreen.Y, 3, 3);
-                    }
-                    var pt = Transform * _points[j][16].PointOnScreen;
-                    var pt1 = Transform * _points[j][17].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][17].PointOnScreen;
-                    pt1 = Transform * _points[j][18].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][18].PointOnScreen;
-                    pt1 = Transform * _points[j][19].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][3].PointOnScreen;
-                    pt1 = Transform * _points[j][9].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][9].PointOnScreen;
-                    pt1 = Transform * _points[j][15].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][15].PointOnScreen;
-                    pt1 = Transform * _points[j][19].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-
-                    pt = Transform * _points[j][4].PointOnScreen;
-                    pt1 = Transform * _points[j][5].PointOnScreen;
-                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][10].PointOnScreen;
-                    pt1 = Transform * _points[j][11].PointOnScreen;
-                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][1].PointOnScreen;
-                    pt1 = Transform * _points[j][6].PointOnScreen;
-                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][2].PointOnScreen;
-                    pt1 = Transform * _points[j][7].PointOnScreen;
-                    g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][17].PointOnScreen;
-                    pt1 = Transform * _points[j][12].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][18].PointOnScreen;
-                    pt1 = Transform * _points[j][13].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][8].PointOnScreen;
-                    pt1 = Transform * _points[j][9].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                    pt = Transform * _points[j][14].PointOnScreen;
-                    pt1 = Transform * _points[j][15].PointOnScreen;
-                    g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
-                }
+                if (DisplayEdges)
+                    if (DrawHelperLines(bmp, g)) return;
                 foreach (var point in _bezierPatchInnerPolygon)
                 {
                     var PointOnScreen = Transform * point;
@@ -374,6 +311,92 @@ namespace RayTracer.Model.Shapes
             }
             SceneManager.Instance.SceneImage = bmp;
         }
+
+        private bool DrawHelperLines(Bitmap bmp, Graphics g)
+        {
+            Transform = Transformations.ViewMatrix(400);
+            for (int j = 0; j < 3; j++)
+            {
+                for (int i = 0; i < 20; i++)
+                {
+                    if (_points[j][i] == null) continue;
+                    var PointOnScreen = Transform * _points[j][i].PointOnScreen;
+                    if (double.IsNaN(PointOnScreen.X) || double.IsNaN(PointOnScreen.Y) || PointOnScreen.X < 0 ||
+                        PointOnScreen.X >= bmp.Width || PointOnScreen.Y < 0 || PointOnScreen.Y >= bmp.Height) return true;
+                    Color color = bmp.GetPixel((int)PointOnScreen.X, (int)PointOnScreen.Y);
+                    if (i == 6 || i == 14)
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DeepPink)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 5, 5);
+                    else if (i == 13 || i == 14)
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Yellow)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 6, 6);
+                    else if (i == 7)
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 5, 5);
+                    else if (i == 6 || i == 7 || i == 8)
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Blue)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 3, 3);
+                    else if (i == 19)
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.White)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 5, 5);
+                    else
+                        g.FillRectangle(new SolidBrush(color.CombinedColor(Color.Lime)), (int)PointOnScreen.X,
+                            (int)PointOnScreen.Y, 3, 3);
+                }
+                DrawGregoryPatchBorders(g, j);
+                DrawGregoryPatchHelperEdges(g, j);
+            }
+            return false;
+        }
+        private void DrawGregoryPatchHelperEdges(Graphics g, int j)
+        {
+            var pt = Transform * _points[j][4].PointOnScreen;
+            var pt1 = Transform * _points[j][5].PointOnScreen;
+            g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][10].PointOnScreen;
+            pt1 = Transform * _points[j][11].PointOnScreen;
+            g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][1].PointOnScreen;
+            pt1 = Transform * _points[j][6].PointOnScreen;
+            g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][2].PointOnScreen;
+            pt1 = Transform * _points[j][7].PointOnScreen;
+            g.DrawLine(new Pen(Color.MediumSeaGreen), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][17].PointOnScreen;
+            pt1 = Transform * _points[j][12].PointOnScreen;
+            g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][18].PointOnScreen;
+            pt1 = Transform * _points[j][13].PointOnScreen;
+            g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][8].PointOnScreen;
+            pt1 = Transform * _points[j][9].PointOnScreen;
+            g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][14].PointOnScreen;
+            pt1 = Transform * _points[j][15].PointOnScreen;
+            g.DrawLine(new Pen(Color.Blue), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+        }
+        private void DrawGregoryPatchBorders(Graphics g, int j)
+        {
+            var pt = Transform * _points[j][16].PointOnScreen;
+            var pt1 = Transform * _points[j][17].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][17].PointOnScreen;
+            pt1 = Transform * _points[j][18].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][18].PointOnScreen;
+            pt1 = Transform * _points[j][19].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][3].PointOnScreen;
+            pt1 = Transform * _points[j][9].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][9].PointOnScreen;
+            pt1 = Transform * _points[j][15].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+            pt = Transform * _points[j][15].PointOnScreen;
+            pt1 = Transform * _points[j][19].PointOnScreen;
+            g.DrawLine(new Pen(Color.Crimson), (float)pt.X, (float)pt.Y, (float)pt1.X, (float)pt1.Y);
+        }
+
         #endregion Public Methods
     }
 }
