@@ -39,6 +39,19 @@ namespace RayTracer.ViewModel
                                   , -1, 3, -3, 1);
             }
         }
+        /// <summary>
+        /// Gets the transposed Bernstein basis matrix.
+        /// </summary>
+        public static Matrix3D BernsteinTransposedBasisMatrix
+        {
+            get
+            {
+                return new Matrix3D(-1, 3, -3, 1
+                                  , 3, -6, 3, 0
+                                  , -3, 3, 0, 0
+                                  , 1, 0, 0, 0);
+            }
+        }
         #endregion Public Properties
         #region Public Methods
         /// <summary>

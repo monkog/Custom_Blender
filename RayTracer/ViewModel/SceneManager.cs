@@ -265,6 +265,29 @@ namespace RayTracer.ViewModel
             PatchManager.Instance.Patches.Clear();
             CurveManager.Instance.Curves.Clear();
         }
+        /// <summary>
+        /// Draws the normal vector of the surface in the given point.
+        /// </summary>
+        /// <param name="graphics">The graphics.</param>
+        /// <param name="points">The points.</param>
+        public static void DrawNormalVectors(Graphics graphics, Vector4[,] points)
+        {
+            // Point [1, 1]
+            var du = (((points[1, 0] - points[0, 0]) * 3).Cross((points[0, 1] - points[0, 0]) * 3)).Normalized;
+            DrawNormal(graphics, du, points[1, 1]);
+
+            // Point [1, 2]
+            du = (((points[0, 2] - points[0, 3]) * 3).Cross((points[1, 3] - points[0, 3]) * 3)).Normalized;
+            DrawNormal(graphics, du, points[1, 2]);
+
+            // Point [3, 3]
+            du = (((points[2, 3] - points[3, 3]) * 3).Cross((points[3, 2] - points[3, 3]) * 3)).Normalized;
+            DrawNormal(graphics, du, points[2, 2]);
+
+            // Point [2, 1]
+            du = (((points[3, 1] - points[3, 0]) * 3).Cross((points[2, 0] - points[3, 0]) * 3)).Normalized;
+            DrawNormal(graphics, du, points[2, 1]);
+        }
         #endregion Public Methods
         #region Private Methods
         private void LoadTorus(StreamReader streamReader)
@@ -471,6 +494,13 @@ namespace RayTracer.ViewModel
         private bool ReadBool(string line)
         {
             return bool.Parse(line.Substring(line.IndexOf("=", StringComparison.Ordinal) + 1));
+        }
+        private static void DrawNormal(Graphics graphics, Vector4 du, Vector4 point)
+        {
+            Vector4 endPoint = Instance.TransformMatrix * Instance.ScaleMatrix * Transformations.ViewMatrix(400) * new Vector4(du.X + point.X, du.Y + point.Y, du.Z + point.Z, 1);
+            Vector4 startPoint = Instance.TransformMatrix * Instance.ScaleMatrix * Transformations.ViewMatrix(400) * point;
+
+            graphics.DrawLine(new Pen(Color.White) { Width = 1 }, (int)startPoint.X, (int)startPoint.Y, (int)endPoint.X, (int)endPoint.Y);
         }
         #endregion Private Methods
     }

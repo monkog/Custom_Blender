@@ -90,7 +90,6 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         protected override void CalculateShape()
         {
-            //TransformedPosition = Transformations.TransformPoint(Vector4, ModelTransform).Normalized;
             TransformedPosition = MeshTransform * ModelTransform * Vector4;
             PointOnScreen = Transform * TransformedPosition;
         }

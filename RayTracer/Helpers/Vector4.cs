@@ -39,6 +39,11 @@ namespace RayTracer.Helpers
             return _x * vector.X + _y * vector.Y + _z * vector.Z + _a * vector.A;
         }
 
+        public Vector4 Cross(Vector4 v)
+        {
+            return new Vector4(Y * v.Z - (Z * v.Y), Z * v.X - (X * v.Z), X * v.Y - (Y * v.Z), 1);
+        }
+
         public static Vector4 operator *(Vector4 vector, double value)
         {
             return new Vector4(vector.X * value, vector.Y * value, vector.Z * value, vector.A * value);

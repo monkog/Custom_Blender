@@ -10,6 +10,7 @@ namespace RayTracer.ViewModel
         #region Private Members
         private static PatchManager _instance;
         private ObservableCollection<BezierPatch> _patches;
+        private ObservableCollection<GregoryPatch> _gregoryPatches;
         private bool _isCylinder;
         private int _horizontalPatches;
         private int _verticalPatches;
@@ -135,6 +136,17 @@ namespace RayTracer.ViewModel
                 OnPropertyChanged("Patches");
             }
         }
+        public ObservableCollection<GregoryPatch> GregoryPatches
+        {
+            get { return _gregoryPatches; }
+            set
+            {
+                if (_gregoryPatches == value)
+                    return;
+                _gregoryPatches = value;
+                OnPropertyChanged("GregoryPatches");
+            }
+        }
         /// <summary>
         /// Instance of the PatchManager
         /// </summary>
@@ -154,6 +166,7 @@ namespace RayTracer.ViewModel
         public PatchManager()
         {
             Patches = new ObservableCollection<BezierPatch>();
+            GregoryPatches = new ObservableCollection<GregoryPatch>();
         }
         #endregion Constructor
     }

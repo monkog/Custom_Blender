@@ -129,6 +129,7 @@
     <Compile Include="Model\Shapes\BezierPoint.cs" />
     <Compile Include="Model\Shapes\Cube.cs" />
     <Compile Include="Model\Shapes\Ellipsoide.cs" />
+    <Compile Include="Model\Shapes\GregoryPatch.cs" />
     <Compile Include="Model\Shapes\PointEx.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
     <Compile Include="ViewModel\CurveManager.cs" />

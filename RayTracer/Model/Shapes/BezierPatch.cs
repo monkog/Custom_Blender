@@ -12,7 +12,6 @@ namespace RayTracer.Model.Shapes
     public abstract class BezierPatch : ModelBase
     {
         #region Protected Properties
-        protected PointEx[,] Points;
         protected double Width { get; private set; }
         protected double Height { get; private set; }
         protected int HorizontalPatches { get; private set; }
@@ -21,10 +20,19 @@ namespace RayTracer.Model.Shapes
         #endregion Protected Properties
         #region Public Properties
         /// <summary>
+        /// The patch points in an array
+        /// </summary>
+        public PointEx[,] Points;
+        /// <summary>
         /// Gets a value indicating whether this patch is cylinder.
         /// </summary>
         public bool IsCylinder { get; private set; }
         public override IEnumerable<ShapeBase> SelectedItems { get { return Vertices.Where(p => p.IsSelected); } }
+        /// <summary>
+        /// The points common in patches.
+        /// The point with a lower coordinate is the first point in the array
+        /// </summary>
+        public List<PointEx> CommonPoints;
         #endregion Public Properties
         #region Constructors
         protected BezierPatch(double x, double y, double z, string name, bool isCylinder, double width, double height
@@ -36,6 +44,8 @@ namespace RayTracer.Model.Shapes
             IsCylinder = isCylinder;
             Width = width;
             Height = height;
+            CommonPoints = new List<PointEx>();
+            IsSelected = true;
         }
         #endregion Constructors
         #region Private Methods
@@ -108,6 +118,13 @@ namespace RayTracer.Model.Shapes
 
             CalculateShape();
         }
+        private int SortingFunction(PointEx x, PointEx y)
+        {
+            var xCoords = Points.CoordinatesOf(x);
+            var yCoords = Points.CoordinatesOf(y);
+
+            return (xCoords.Item1 > yCoords.Item1 || xCoords.Item2 > yCoords.Item2) ? 1 : -1;
+        }
         #endregion Private Methods
         #region Protected Methods
         protected void SetVertices(PointEx[,] points, IEnumerable<PointEx> vertices, int verticalPoints, int horizontalPoints)
@@ -176,7 +193,11 @@ namespace RayTracer.Model.Shapes
                     else Points[i, j].ModelTransform = ModelTransform * Points[i, j].ModelTransform;
             Vertices.RemoveAt(index);
             Vertices.Insert(index, interpolationPoint);
+            CommonPoints.Add(interpolationPoint);
             ModelTransform = Matrix3D.Identity;
+
+            if (CommonPoints.Count == 2)
+                CommonPoints.Sort(SortingFunction);
         }
         #endregion Public Methods
     }

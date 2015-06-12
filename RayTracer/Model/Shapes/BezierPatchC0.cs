@@ -21,36 +21,54 @@ namespace RayTracer.Model.Shapes
             var manager = PatchManager.Instance;
             SetVertices(points, vertices, manager.VerticalPatches * SceneManager.BezierSegmentPoints + 1, manager.HorizontalPatches * SceneManager.BezierSegmentPoints + 1);
             Continuity = Continuity.C0;
+            DisplayEdges = false;
         }
         #endregion Constructors
+        private void DrawNormalVector(Graphics graphics, double u, double v, Vector4 pointX, Vector4 pointY, Vector4 point, Matrix3D matX, Matrix3D matY, Matrix3D matZ)
+        {
+            var du = new Vector4(3 * u * u, 2 * u, 1, 0);
+            var dv = new Vector4(3 * v * v, 2 * v, 1, 0);
+
+            var nu = new Vector4(du * matX * pointY, du * matY * pointY, du * matZ * pointY, 1);
+            var nv = new Vector4(pointX * matX * dv, pointX * matY * dv, pointX * matZ * dv, 1);
+
+            var normal = nu.Cross(nv).Normalized;
+
+            Vector4 endPoint = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.ViewMatrix(400) * new Vector4(normal.X + point.X, normal.Y + point.Y, normal.Z + point.Z, 1);
+            Vector4 startPoint = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.ViewMatrix(400) * point;
+
+            graphics.DrawLine(new Pen(Color.White) { Width = 1 }, (int)startPoint.X, (int)startPoint.Y, (int)endPoint.X, (int)endPoint.Y);
+        }
         #region Protected Methods
         protected void DrawSinglePatch(Bitmap bmp, Graphics g, int patchIndex, int patchDivisions, Matrix3D matX, Matrix3D matY, Matrix3D matZ
             , int divisions, bool isHorizontal)
         {
             double step = 1.0f / (patchDivisions - 1);
             double drawingStep = 1.0f / (divisions - 1);
-            double currentStep = patchIndex == 0 ? 0 : step;
+            double u = patchIndex == 0 ? 0 : step;
             Vector4 pointX = null, pointY = null;
 
-            for (double m = (patchIndex == 0 ? 0 : 1); m < patchDivisions; m++, currentStep += step)
+            for (int m = (patchIndex == 0 ? 0 : 1); m < patchDivisions; m++, u += step)
             {
                 if (isHorizontal)
-                    pointY = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
+                    pointY = new Vector4(Math.Pow((1.0 - u), 3), 3 * u * Math.Pow((1.0 - u), 2), 3 * u * u * (1.0 - u), Math.Pow(u, 3));
                 else
-                    pointX = new Vector4(Math.Pow((1.0 - currentStep), 3), 3 * currentStep * Math.Pow((1.0 - currentStep), 2), 3 * currentStep * currentStep * (1.0 - currentStep), Math.Pow(currentStep, 3));
+                    pointX = new Vector4(Math.Pow((1.0 - u), 3), 3 * u * Math.Pow((1.0 - u), 2), 3 * u * u * (1.0 - u), Math.Pow(u, 3));
 
-                for (double n = 0; n < divisions; n++)
+                for (int n = 0; n < divisions; n++)
                 {
-                    var point = n * drawingStep;
+                    var v = n * drawingStep;
                     if (isHorizontal)
-                        pointX = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
+                        pointX = new Vector4(Math.Pow((1.0 - v), 3), 3 * v * Math.Pow((1.0 - v), 2), 3 * v * v * (1.0 - v), Math.Pow(v, 3));
                     else
-                        pointY = new Vector4(Math.Pow((1.0 - point), 3), 3 * point * Math.Pow((1.0 - point), 2), 3 * point * point * (1.0 - point), Math.Pow(point, 3));
+                        pointY = new Vector4(Math.Pow((1.0 - v), 3), 3 * v * Math.Pow((1.0 - v), 2), 3 * v * v * (1.0 - v), Math.Pow(v, 3));
 
                     var x = pointX * matX * pointY;
                     var y = pointX * matY * pointY;
                     var z = pointX * matZ * pointY;
-                    SceneManager.DrawCurvePoint(bmp, g, new Vector4(x, y, z, 1), Thickness);
+                    var point = new Vector4(x, y, z, 1);
+                    SceneManager.DrawCurvePoint(bmp, g, point, Thickness);
+                    // if (n == 0) DrawNormalVector(g, u, v, pointX, pointY, point, matX, matY, matZ);
                 }
             }
         }

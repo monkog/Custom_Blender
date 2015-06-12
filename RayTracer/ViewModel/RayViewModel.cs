@@ -210,9 +210,9 @@ namespace RayTracer.ViewModel
             PatchManager.VerticalPatches = 1;
             PatchManager.PatchHeight = 3;
             PatchManager.PatchWidth = 3;
-            PatchManager.HorizontalPatchDivisions = 15;
-            PatchManager.VerticalPatchDivisions = 15;
-            PatchManager.PatchContinuity = Continuity.C2;
+            PatchManager.HorizontalPatchDivisions = 4;
+            PatchManager.VerticalPatchDivisions = 4;
+            PatchManager.PatchContinuity = Continuity.C0;
 
             MouseManager.PropertyChanged += MouseManager_PropertyChanged;
             SceneManager.PropertyChanged += SceneManager_PropertyChanged;
@@ -237,6 +237,9 @@ namespace RayTracer.ViewModel
                 point.Draw();
 
             foreach (var patch in PatchManager.Patches)
+                patch.Draw();
+
+            foreach (var patch in PatchManager.GregoryPatches)
                 patch.Draw();
 
             foreach (var mesh in MeshManager.Meshes)
@@ -586,12 +589,30 @@ namespace RayTracer.ViewModel
         {
             var points = new List<PointEx>();
             foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
-                foreach (var vertex in patch.Vertices.Where(p => p.IsSelected))
-                    points.Add(vertex);
+                points.Add(patch.Vertices.First(p => p.IsSelected));
 
             var interpolationPoint = FindInterpolationPoint(points);
             foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
                 patch.ReplaceVertex(patch.Vertices.First(p => p.IsSelected), interpolationPoint);
+
+            Render();
+        }
+
+        private ICommand _fillInSurfaceCommand;
+        public ICommand FillInSurfaceCommand { get { return _fillInSurfaceCommand ?? (_fillInSurfaceCommand = new DelegateCommand(FillInSurfaceExecuted)); } }
+        /// <summary>
+        /// Merges selected points.
+        /// </summary>
+        private void FillInSurfaceExecuted()
+        {
+            var patches = new List<BezierPatch>();
+            foreach (var p in PatchManager.Patches.Where(x => x.IsSelected))
+                patches.Add(p);
+
+            if (patches.Count != 3) return;
+            var patch = new GregoryPatch(0, 0, 0, "Gregory Patch(" + 0 + ", " + 0 + ", " + 0 + ")", patches);
+            patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
+            PatchManager.GregoryPatches.Add(patch);
 
             Render();
         }

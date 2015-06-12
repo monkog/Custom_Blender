@@ -57,6 +57,7 @@ namespace RayTracer.Model.Shapes
                     SceneManager.DrawCurvePoint(bmp, g, value, Thickness);
                 }
             }
+            SceneManager.DrawNormalVectors(g, points);
         }
         private Vector4 CalculatePatchValue(Vector4[,] points, double[] nu, double[] nv)
         {

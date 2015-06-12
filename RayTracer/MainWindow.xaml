@@ -100,6 +100,7 @@
             <MenuItem Header="Deselect All" Command="{Binding DeselectAllCommand}"/>
             <MenuItem Header="Select All Points" Command="{Binding SelectAllCommand}"/>
             <MenuItem Header="Merge Points" Command="{Binding MergePointsCommand}"/>
+            <MenuItem Header="Fill in surface" Command="{Binding FillInSurfaceCommand}"/>
         </Menu>
         <Canvas Grid.Column="0" ClipToBounds="True">
             <i:Interaction.Behaviors>
