@@ -73,6 +73,9 @@ namespace RayTracer.ViewModel
             }
             for (int i = PatchManager.Instance.SelectedItems.Count() - 1; i >= 0; i--)
                 PatchManager.Instance.Patches.Remove(PatchManager.Instance.SelectedItems.ElementAt(i));
+            for (int i = PatchManager.Instance.GregoryPatches.Count() - 1; i >= 0; i--)
+                if (PatchManager.Instance.GregoryPatches.ElementAt(i).IsSelected)
+                    PatchManager.Instance.GregoryPatches.Remove(PatchManager.Instance.GregoryPatches.ElementAt(i));
         }
         /// <summary>
         /// Selects / deselects the point

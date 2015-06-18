@@ -278,8 +278,8 @@ namespace RayTracer.Model.Shapes
         {
             Vector4[,] points, innerPoints;
             CalculateControlPoints(patchIndex, out points, out innerPoints);
-            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.HorizontalPatchDivisions, 100, points, innerPoints, isHorizontal: true);
-            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.VerticalPatchDivisions, 100, points, innerPoints, isHorizontal: false);
+            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.HorizontalPatchDivisions, 200, points, innerPoints, isHorizontal: true);
+            DrawSingleGregoryPatch(bmp, g, PatchManager.Instance.VerticalPatchDivisions, 200, points, innerPoints, isHorizontal: false);
         }
         private void DrawSingleGregoryPatch(Bitmap bmp, Graphics g, int patchDivisions, int divisions, Vector4[,] points, Vector4[,] innerPoints, bool isHorizontal)
         {

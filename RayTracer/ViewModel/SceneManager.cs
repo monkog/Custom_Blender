@@ -263,6 +263,7 @@ namespace RayTracer.ViewModel
             PointManager.Instance.Points.Clear();
             MeshManager.Instance.Meshes.Clear();
             PatchManager.Instance.Patches.Clear();
+            PatchManager.Instance.GregoryPatches.Clear();
             CurveManager.Instance.Curves.Clear();
         }
         /// <summary>

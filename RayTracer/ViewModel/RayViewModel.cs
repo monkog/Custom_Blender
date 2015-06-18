@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using Microsoft.Practices.Prism.Commands;
@@ -589,7 +590,16 @@ namespace RayTracer.ViewModel
         {
             var points = new List<PointEx>();
             foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
-                points.Add(patch.Vertices.First(p => p.IsSelected));
+            {
+                var point = patch.Vertices.First(p => p.IsSelected);
+                var coordinates = patch.Points.CoordinatesOf(point);
+                if (!((coordinates.Item1 == 0 || coordinates.Item1 == 3) && (coordinates.Item2 == 0 || coordinates.Item2 == 3)))
+                {
+                    MessageBox.Show("Cannot collapse points");
+                    return;
+                }
+                points.Add(point);
+            }
 
             var interpolationPoint = FindInterpolationPoint(points);
             foreach (var patch in PatchManager.Patches.Where(p => p.Vertices.Any(v => v.IsSelected)))
@@ -608,11 +618,19 @@ namespace RayTracer.ViewModel
             var patches = new List<BezierPatch>();
             foreach (var p in PatchManager.Patches.Where(x => x.IsSelected))
             {
-                if(p.CommonPoints.Count != 2) return;
+                if (p.CommonPoints.Count != 2)
+                {
+                    MessageBox.Show("No surface to fill");
+                    return;
+                }
                 patches.Add(p);
             }
 
-            if (patches.Count != 3) return;
+            if (patches.Count != 3)
+            {
+                MessageBox.Show("No surface to fill");
+                return;
+            }
             var patch = new GregoryPatch(0, 0, 0, "Gregory Patch(" + 0 + ", " + 0 + ", " + 0 + ")", patches);
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.GregoryPatches.Add(patch);
