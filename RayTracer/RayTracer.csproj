@@ -38,6 +38,18 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Accord">
+      <HintPath>..\packages\Accord.2.15.0\lib\net45\Accord.dll</HintPath>
+    </Reference>
+    <Reference Include="Accord.Math">
+      <HintPath>..\packages\Accord.Math.2.15.0\lib\net45\Accord.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge">
+      <HintPath>..\packages\AForge.2.2.5\lib\AForge.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Math">
+      <HintPath>..\packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
+    </Reference>
     <Reference Include="FakeItEasy">
       <HintPath>..\packages\FakeItEasy.1.25.2\lib\net40\FakeItEasy.dll</HintPath>
     </Reference>
@@ -117,8 +129,6 @@
     <Compile Include="Helpers\SimpleLine.cs" />
     <Compile Include="Helpers\SizeObserver.cs" />
     <Compile Include="Helpers\Vector4.cs" />
-    <Compile Include="Model\Camera\OrthographicCamera.cs" />
-    <Compile Include="Model\Camera\PerspectiveCamera.cs" />
     <Compile Include="Model\Cursor3D.cs" />
     <Compile Include="Model\Shapes\BezierCurve.cs" />
     <Compile Include="Model\Shapes\BezierCurveC0.cs" />
@@ -132,6 +142,7 @@
     <Compile Include="Model\Shapes\GregoryPatch.cs" />
     <Compile Include="Model\Shapes\PointEx.cs" />
     <Compile Include="Model\Shapes\ShapeBase.cs" />
+    <Compile Include="Model\Shapes\TrimmingCurve.cs" />
     <Compile Include="ViewModel\CurveManager.cs" />
     <Compile Include="ViewModel\MeshManager.cs" />
     <Compile Include="ViewModel\PatchManager.cs" />
@@ -139,7 +150,6 @@
     <Compile Include="ViewModel\SceneManager.cs" />
     <Compile Include="Model\Shapes\ModelBase.cs" />
     <Compile Include="Model\Shapes\Torus.cs" />
-    <Compile Include="ViewModel\CameraManager.cs" />
     <Compile Include="ViewModel\KeyboardEventManager.cs" />
     <Compile Include="ViewModel\MouseEventManager.cs" />
     <Compile Include="ViewModel\RayViewModel.cs" />

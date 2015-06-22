@@ -207,12 +207,12 @@ namespace RayTracer.Model.Shapes
                 point.LeftParent.ModelTransform = transformMatrix * point.LeftParent.ModelTransform;
             }
         }
-        private Vector4 BSplinePoint(List<Vector4> curve, double t)
+        private Vector4 BSplinePoint(List<Vector4> curve, double t, bool isDerivative = false)
         {
             Vector4 sum = new Vector4(0, 0, 0, 1);
 
             for (int i = 0; i < curve.Count; i++)
-                sum += curve[i] * _knots.GetNFunctionValue(i, N, t);
+                sum += curve[i] * (isDerivative ? _knots.GetNFunctionDerivativeValue(i, N, t) : _knots.GetNFunctionValue(i, N, t));
 
             return new Vector4(sum.X, sum.Y, sum.Z, 1);
         }

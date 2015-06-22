@@ -110,7 +110,7 @@ namespace RayTracer.Model.Shapes
         /// <returns>The list of points creating curves</returns>
         protected abstract List<Tuple<List<Vector4>, double>> GetBezierCurves();
         /// <summary>
-        /// Gets the curve point to draw.
+        /// Gets the curve point to draw in Bernstein basis.
         /// </summary>
         /// <param name="curve">The curve.</param>
         /// <param name="t">The division point.</param>

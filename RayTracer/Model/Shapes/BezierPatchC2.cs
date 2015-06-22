@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -57,7 +58,6 @@ namespace RayTracer.Model.Shapes
                     SceneManager.DrawCurvePoint(bmp, g, value, Thickness);
                 }
             }
-            SceneManager.DrawNormalVectors(g, points);
         }
         private Vector4 CalculatePatchValue(Vector4[,] points, double[] nu, double[] nv)
         {
@@ -77,6 +77,15 @@ namespace RayTracer.Model.Shapes
             return n;
         }
         #endregion Private Methods
+        #region Protected Methods
+        protected override Vector4[,] GetPatchMatrix(int i, int j)
+        {
+            return new[,]{{Points[i + 0, j].TransformedPosition, Points[i + 0, (j + 1) % Points.GetLength(1)].TransformedPosition, Points[i + 0, (j + 2) % Points.GetLength(1)].TransformedPosition, Points[i + 0, (j + 3) % Points.GetLength(1)].TransformedPosition}
+                          , {Points[i + 1, j].TransformedPosition, Points[i + 1, (j + 1) % Points.GetLength(1)].TransformedPosition, Points[i + 1, (j + 2) % Points.GetLength(1)].TransformedPosition, Points[i + 1, (j + 3) % Points.GetLength(1)].TransformedPosition}
+                          , {Points[i + 2, j].TransformedPosition, Points[i + 2, (j + 1) % Points.GetLength(1)].TransformedPosition, Points[i + 2, (j + 2) % Points.GetLength(1)].TransformedPosition, Points[i + 2, (j + 3) % Points.GetLength(1)].TransformedPosition}
+                          , {Points[i + 3, j].TransformedPosition, Points[i + 3, (j + 1) % Points.GetLength(1)].TransformedPosition, Points[i + 3, (j + 2) % Points.GetLength(1)].TransformedPosition, Points[i + 3, (j + 3) % Points.GetLength(1)].TransformedPosition}};
+        }
+        #endregion Protected Methods
         #region Public Methods
         public override void Draw()
         {
@@ -104,6 +113,15 @@ namespace RayTracer.Model.Shapes
                     }
             }
             SceneManager.Instance.SceneImage = bmp;
+        }
+        public override Vector4 CalculatePatchPoint(int i, int j, double u, double v)
+        {
+            var uArray = InitializeNArray(2 + u, _knots);
+            var vArray = InitializeNArray(2 + v, _knots);
+
+            var points = GetPatchMatrix(i, j);
+
+            return CalculatePatchValue(points, uArray, vArray);
         }
         #endregion Public Methods
     }

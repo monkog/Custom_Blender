@@ -37,6 +37,10 @@ namespace RayTracer.ViewModel
         #endregion Private Members
         #region  Public Properties
         /// <summary>
+        /// Gets or sets a value indicating whether the start point for newton iteration algorythm will be captured.
+        /// </summary>
+        public bool CaptureNewtonStartPoint { get; set; }
+        /// <summary>
         /// Gets or sets the mouse delta.
         /// </summary>
         /// <value>
@@ -79,6 +83,7 @@ namespace RayTracer.ViewModel
         private MouseEventManager()
         {
             _isMouseDown = false;
+            CaptureNewtonStartPoint = false;
         }
         #endregion .ctor
         #region Commands
@@ -105,6 +110,12 @@ namespace RayTracer.ViewModel
             {
                 _mouseCurrentPosition = args.GetPosition((Image)args.OriginalSource);
                 _isMouseDown = true;
+            }
+
+            if (CaptureNewtonStartPoint)
+            {
+                CaptureNewtonStartPoint = false;
+                CurveManager.Instance.CalculateTrimmingCurve(_mouseCurrentPosition);
             }
         }
 
@@ -181,7 +192,7 @@ namespace RayTracer.ViewModel
         private void RightMouseButtonExecuted(MouseButtonEventArgs args)
         {
             var position = args.GetPosition((IInputElement)args.Source);
-            var reverseTransform = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix;
+            var reverseTransform = SceneManager.Instance.TotalMatrix;
             reverseTransform.Invert();
             Vector4 pos = new Vector4(position.X, position.Y, 0, 1);
             pos = reverseTransform * pos;

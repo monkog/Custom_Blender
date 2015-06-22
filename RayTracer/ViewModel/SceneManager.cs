@@ -16,32 +16,16 @@ namespace RayTracer.ViewModel
     {
         #region Private Members
         private int _currentModelId = 1;
-        /// <summary>
-        /// Is the view stereoscopic
-        /// </summary>
         private bool _isStereoscopic;
-        /// <summary>
-        /// The scene image
-        /// </summary>
         private Bitmap _sceneImage;
-        /// <summary>
-        /// The light intensity
-        /// </summary>
+        private Bitmap _firstSurfaceImage;
+        private Bitmap _secondSurfaceImage;
         private double _m;
-        /// <summary>
-        /// Instance of the SceneManager
-        /// </summary>
         private static SceneManager _instance;
-        /// <summary>
-        /// Scale matrix
-        /// </summary>
         private readonly Matrix3D _scaleMatrix = new Matrix3D(50, 0, 0, 0
                                                             , 0, 50, 0, 0
                                                             , 0, 0, 50, 0
                                                             , 0, 0, 0, 1);
-        /// <summary>
-        /// The transform matrix
-        /// </summary>
         private readonly Matrix3D _transformMatrix = new Matrix3D(1, 0, 0, 400
                                                                 , 0, 1, 0, 300
                                                                 , 0, 0, 1, 0
@@ -84,6 +68,32 @@ namespace RayTracer.ViewModel
             {
                 _sceneImage = value;
                 OnPropertyChanged("SceneImage");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the image of the scene from the first surface perspective.
+        /// </summary>
+        /// <remarks>Shows the trimming curves</remarks>
+        public Bitmap FirstSurfaceImage
+        {
+            get { return _firstSurfaceImage; }
+            set
+            {
+                _firstSurfaceImage = value;
+                OnPropertyChanged("FirstSurfaceImage");
+            }
+        }
+        /// <summary>
+        /// Gets or sets the image of the scene from the second surface perspective.
+        /// </summary>
+        /// <remarks>Shows the trimming curves</remarks>
+        public Bitmap SecondSurfaceImage
+        {
+            get { return _secondSurfaceImage; }
+            set
+            {
+                _secondSurfaceImage = value;
+                OnPropertyChanged("SecondSurfaceImage");
             }
         }
         /// <summary>
@@ -132,11 +142,14 @@ namespace RayTracer.ViewModel
         public const int BezierSegmentPoints = 3;
         public static int Width = 800;
         public static int Height = 600;
+        public static double Epsilon = 1.0e-7;
         #endregion Public Properties
         #region .ctor
         private SceneManager()
         {
             SceneImage = new Bitmap(Width, Height);
+            FirstSurfaceImage = new Bitmap(Width, Height);
+            SecondSurfaceImage = new Bitmap(Width, Height);
         }
         #endregion .ctor
         #region Public Methods

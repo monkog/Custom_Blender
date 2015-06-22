@@ -46,15 +46,6 @@ namespace RayTracer.Helpers
                                 , Math.Min(Math.Max(color.B + value.B, 0), 255));
         }
         /// <summary>
-        /// Trims the vector to the screen.
-        /// </summary>
-        /// <param name="vector">The vector.</param>
-        /// <returns>Vector with positions within the screen bounds</returns>
-        public static Vector4 TrimToScreen(this Vector4 vector)
-        {
-            return new Vector4(Math.Min(SceneManager.Width, Math.Max(0, vector.X)), Math.Min(SceneManager.Height, Math.Max(0, vector.Y)), vector.Z, vector.A);
-        }
-        /// <summary>
         /// Performs the Gauss ellimination on the matrix.
         /// </summary>
         /// <param name="a">The matrix.</param>
@@ -132,7 +123,25 @@ namespace RayTracer.Helpers
         //    }
 
         //    return x;
-        //}
+        //}        
+        /// <summary>
+        /// Gets the bezier point.
+        /// </summary>
+        /// <param name="v">The v.</param>
+        /// <returns>Bezier point: [B_3_0, B_3_1, B_3_2, B_3_3]</returns>
+        public static Vector4 GetBezierPoint(this double v)
+        {
+            return new Vector4(Math.Pow((1.0 - v), 3), 3 * v * Math.Pow((1.0 - v), 2), 3 * v * v * (1.0 - v), Math.Pow(v, 3));
+        }
+        /// <summary>
+        /// Gets the bezier derivative point.
+        /// </summary>
+        /// <param name="v">The v.</param>
+        /// <returns>Bezier point: [B_3_0', B_3_1', B_3_2', B_3_3']</returns>
+        public static Vector4 GetBezierDerivativePoint(this double v)
+        {
+            return new Vector4(-3 * Math.Pow((1.0 - v), 2), (9 * v * v) - (12 * v) + 3, 3 * v * (2.0 - 3 * v), 3 * Math.Pow(v, 2));
+        }
         public static void FindMaxMinCoords(this PointEx[,] points, out double minX, out double minY, out double maxX, out double maxY)
         {
             maxX = double.MinValue;
@@ -171,9 +180,35 @@ namespace RayTracer.Helpers
                 return 0;
             }
 
-            double a = knots[i + n] - knots[i] != 0 ? (ti - knots[i]) / (knots[i + n] - knots[i]) : 0;
-            double b = knots[i + n + 1] - knots[i + 1] != 0 ? (knots[i + n + 1] - ti) / (knots[i + n + 1] - knots[i + 1]) : 0;
-            return a * knots.GetNFunctionValue(i, n - 1, ti) + b * knots.GetNFunctionValue(i + 1, n - 1, ti);
+            double a = (knots[i + n] - knots[i] != 0) ? (ti - knots[i]) / (knots[i + n] - knots[i]) : 0;
+            double b = (knots[i + n + 1] - knots[i + 1] != 0) ? (knots[i + n + 1] - ti) / (knots[i + n + 1] - knots[i + 1]) : 0;
+            return (a * knots.GetNFunctionValue(i, n - 1, ti)) + (b * knots.GetNFunctionValue(i + 1, n - 1, ti));
+        }
+        /// <summary>
+        /// Gets the value of the N function derivative.<para/>
+        /// |\  | n<para/>
+        /// | \ |   (ti)<para/>
+        /// |  \| i
+        /// </summary>
+        /// <param name="knots">The knots array for evaluating N.</param>
+        /// <param name="i">The i.</param>
+        /// <param name="n">The n.</param>
+        /// <param name="ti">The ti.</param>
+        /// <returns></returns>
+        public static double GetNFunctionDerivativeValue(this double[] knots, int i, int n, double ti)
+        {
+            if (n < 0)
+                return 0;
+            if (n == 0)
+            {
+                if (ti >= knots[i] && ti < knots[i + 1])
+                    return 1;
+                return 0;
+            }
+
+            double a = (knots[i + n] - knots[i] != 0) ? n / (knots[i + n] - knots[i]) : 0;
+            double b = (knots[i + n + 1] - knots[i + 1] != 0) ? n / (knots[i + n + 1] - knots[i + 1]) : 0;
+            return (a * knots.GetNFunctionValue(i, n - 1, ti)) + (b * knots.GetNFunctionValue(i + 1, n - 1, ti));
         }
         /// <summary>
         /// Calculates the N matrix for n degree polynomials.

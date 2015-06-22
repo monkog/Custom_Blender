@@ -14,8 +14,6 @@ namespace RayTracer.Model.Shapes
         #region Protected Properties
         protected double Width { get; private set; }
         protected double Height { get; private set; }
-        protected int HorizontalPatches { get; private set; }
-        protected int VerticalPatches { get; private set; }
         protected Continuity Continuity { get; set; }
         #endregion Protected Properties
         #region Public Properties
@@ -33,6 +31,14 @@ namespace RayTracer.Model.Shapes
         /// The point with a lower coordinate is the first point in the array
         /// </summary>
         public List<PointEx> CommonPoints;
+        /// <summary>
+        /// Gets the number of horizontal patches.
+        /// </summary>
+        public int HorizontalPatches { get; private set; }
+        /// <summary>
+        /// Gets the number of vertical patches.
+        /// </summary>
+        public int VerticalPatches { get; private set; }
         #endregion Public Properties
         #region Constructors
         protected BezierPatch(double x, double y, double z, string name, bool isCylinder, double width, double height
@@ -161,6 +167,7 @@ namespace RayTracer.Model.Shapes
                 SetPlaneEdges();
             }
         }
+        protected abstract Vector4[,] GetPatchMatrix(int i, int j);
         #endregion Protected Methods
         #region Public Methods
         public override void SaveControlPoints(StringBuilder stringBuilder)
@@ -201,6 +208,15 @@ namespace RayTracer.Model.Shapes
             if (CommonPoints.Count == 2)
                 CommonPoints.Sort(SortingFunction);
         }
+        /// <summary>
+        /// Calculates the patch point depending on the points calculated from u and v.
+        /// </summary>
+        /// <param name="i">Horizontal patch index</param>
+        /// <param name="j">Vertical patch index</param>
+        /// <param name="u">Horizontal parametrization</param>
+        /// <param name="v">Vertical parametrization</param>
+        /// <returns>Point on screen from the patch</returns>
+        public abstract Vector4 CalculatePatchPoint(int i, int j, double u, double v);
         #endregion Public Methods
     }
 }

@@ -162,10 +162,6 @@ namespace RayTracer.ViewModel
         /// </summary>
         public KeyboardEventManager KeyboardManager { get { return KeyboardEventManager.Instance; } }
         /// <summary>
-        /// Gets the camera manager.
-        /// </summary>
-        public CameraManager CameraManager { get { return CameraManager.Instance; } }
-        /// <summary>
         /// Gets the scene manager.
         /// </summary>
         public SceneManager SceneManager { get { return SceneManager.Instance; } }
@@ -635,6 +631,24 @@ namespace RayTracer.ViewModel
             patch.PropertyChanged += (sender, e) => { if (e.PropertyName == "DisplayEdges")Render(); };
             PatchManager.GregoryPatches.Add(patch);
 
+            Render();
+        }
+
+        private ICommand _trimSurfaceCommand;
+        public ICommand TrimSurfaceCommand { get { return _trimSurfaceCommand ?? (_trimSurfaceCommand = new DelegateCommand(TrimSurfaceExecuted)); } }
+        /// <summary>
+        /// Trimms the surfaces.
+        /// </summary>
+        private void TrimSurfaceExecuted()
+        {
+            if (PatchManager.SelectedItems.Count() != 2)
+            {
+                MessageBox.Show("Please select two surfaces to trim");
+                return;
+            }
+            var curve = new TrimmingCurve(0, 0, 0, "Trimming Curve(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.SelectedItems.ToList());
+            CurveManager.TrimmingCurves.Add(curve);
+            
             Render();
         }
 

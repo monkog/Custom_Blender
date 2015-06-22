@@ -84,5 +84,16 @@ namespace RayTracer.Helpers
                                 , vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33 + vector.A * matrix.OffsetZ
                                 , vector.X * matrix.M14 + vector.Y * matrix.M24 + vector.Z * matrix.M34 + vector.A * matrix.M44);
         }
+
+        public static Vector4 operator *(Vector4 vector, double[,] matrix)
+        {
+            if (matrix.GetLength(0) != 4 || matrix.GetLength(1) != 4)
+                throw new Exception("Matrix dimensions should be 4x4");
+
+            return new Vector4(vector.X * matrix[0, 0] + vector.Y * matrix[0, 1] + vector.Z * matrix[0, 2] + vector.A * matrix[0, 3]
+                                , vector.X * matrix[1, 0] + vector.Y * matrix[1, 1] + vector.Z * matrix[1, 2] + vector.A * matrix[1, 3]
+                                , vector.X * matrix[2, 0] + vector.Y * matrix[2, 1] + vector.Z * matrix[2, 2] + vector.A * matrix[2, 3]
+                                , vector.X * matrix[3, 0] + vector.Y * matrix[3, 1] + vector.Z * matrix[3, 2] + vector.A * matrix[3, 3]);
+        }
     }
 }

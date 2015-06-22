@@ -107,6 +107,7 @@
             <MenuItem Header="Select All Points" Command="{Binding SelectAllCommand}"/>
             <MenuItem Header="Merge Points" Command="{Binding MergePointsCommand}"/>
             <MenuItem Header="Fill in surface" Command="{Binding FillInSurfaceCommand}"/>
+            <MenuItem Header="Trim Surface" Command="{Binding TrimSurfaceCommand}"/>
         </Menu>
         <Canvas Grid.Column="0" ClipToBounds="True">
             <i:Interaction.Behaviors>
@@ -171,137 +172,147 @@
                 </GroupBox>
             </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Column="1" Margin="20">
-            <StackPanel Orientation="Horizontal">
-                <GroupBox Margin="20" Header="Torus">
-                    <StackPanel>
-                        <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="r: "/>
-                            <TextBox Width="100" Text="{Binding SmallR, Source={x:Static viewModel:MeshManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="R: "/>
-                            <TextBox Width="100" Text="{Binding BigR, Source={x:Static viewModel:MeshManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="L: "/>
-                            <TextBox Width="100" Text="{Binding L, Source={x:Static viewModel:MeshManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="V: "/>
-                            <TextBox Width="100" Text="{Binding V, Source={x:Static viewModel:MeshManager.Instance}}"/>
-                        </StackPanel>
-                        <CheckBox Content="Stereoscopic view" Margin="20, 2" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox Margin="20" Header="Ellipsoide" Visibility="Collapsed">
-                    <StackPanel>
-                        <Button Content="Add Ellipsoide" Command="{Binding AddEllipsoideCommand}" Margin="20"/>
-                        <StackPanel Orientation="Horizontal" Margin="20">
-                            <TextBlock Text="a: "/>
-                            <TextBox Width="100" Text="{Binding A}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20">
-                            <TextBlock Text="b: "/>
-                            <TextBox Width="100" Text="{Binding B}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20">
-                            <TextBlock Text="c: "/>
-                            <TextBox Width="100" Text="{Binding C}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20">
-                            <TextBlock Text="m: "/>
-                            <TextBox Width="100" Text="{Binding M, Source={x:Static viewModel:SceneManager.Instance}}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox Margin="20" Header="Bezier Patch">
-                    <StackPanel>
-                        <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchCommand}" Margin="20"/>
-                        <CheckBox Margin="20, 0" Content="Is Cylinder" IsChecked="{Binding IsCylinder, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        <StackPanel Margin="20, 0" Orientation="Horizontal">
-                            <RadioButton Content="C0" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
+        <TabControl Grid.Column="1">
+            <TabItem Header="Scene">
+                <StackPanel Margin="20">
+                    <StackPanel Orientation="Horizontal">
+                        <GroupBox Margin="20" Header="Torus">
+                            <StackPanel>
+                                <Button Width="100" Margin="20" Height="25" Content="Add torus" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding AddTorusCommand}"/>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="r: "/>
+                                    <TextBox Width="100" Text="{Binding SmallR, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="R: "/>
+                                    <TextBox Width="100" Text="{Binding BigR, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="L: "/>
+                                    <TextBox Width="100" Text="{Binding L, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="V: "/>
+                                    <TextBox Width="100" Text="{Binding V, Source={x:Static viewModel:MeshManager.Instance}}"/>
+                                </StackPanel>
+                                <CheckBox Content="Stereoscopic view" Margin="20, 2" IsChecked="{Binding IsStereoscopic, Source={x:Static viewModel:SceneManager.Instance}}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Margin="20" Header="Ellipsoide" Visibility="Collapsed">
+                            <StackPanel>
+                                <Button Content="Add Ellipsoide" Command="{Binding AddEllipsoideCommand}" Margin="20"/>
+                                <StackPanel Orientation="Horizontal" Margin="20">
+                                    <TextBlock Text="a: "/>
+                                    <TextBox Width="100" Text="{Binding A}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20">
+                                    <TextBlock Text="b: "/>
+                                    <TextBox Width="100" Text="{Binding B}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20">
+                                    <TextBlock Text="c: "/>
+                                    <TextBox Width="100" Text="{Binding C}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20">
+                                    <TextBlock Text="m: "/>
+                                    <TextBox Width="100" Text="{Binding M, Source={x:Static viewModel:SceneManager.Instance}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Margin="20" Header="Bezier Patch">
+                            <StackPanel>
+                                <Button Content="Add Bezier Patch" Command="{Binding AddBezierPatchCommand}" Margin="20"/>
+                                <CheckBox Margin="20, 0" Content="Is Cylinder" IsChecked="{Binding IsCylinder, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                <StackPanel Margin="20, 0" Orientation="Horizontal">
+                                    <RadioButton Content="C0" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
                                 , Converter={StaticResource RadioButtonConverter}, ConverterParameter={x:Static shapes:Continuity.C0}}"/>
-                            <RadioButton Margin="20, 0" Content="C2" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
+                                    <RadioButton Margin="20, 0" Content="C2" IsChecked="{Binding PatchContinuity, Source={x:Static viewModel:PatchManager.Instance}
                                 , Converter={StaticResource RadioButtonConverter}, ConverterParameter={x:Static shapes:Continuity.C2}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Horizontal Patches: "/>
-                            <TextBox Width="50" Text="{Binding HorizontalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Vertical Patches: "/>
-                            <TextBox Width="50" Text="{Binding VerticalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Width/Radius: "/>
-                            <TextBox Width="50" Text="{Binding PatchWidth, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Height: "/>
-                            <TextBox Width="50" Text="{Binding PatchHeight, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Horizontal Patch Divisions: "/>
-                            <TextBox Width="50" Text="{Binding HorizontalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="20, 2">
-                            <TextBlock Text="Vertical Patch Divisions: "/>
-                            <TextBox Width="50" Text="{Binding VerticalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
-                        </StackPanel>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Horizontal Patches: "/>
+                                    <TextBox Width="50" Text="{Binding HorizontalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Vertical Patches: "/>
+                                    <TextBox Width="50" Text="{Binding VerticalPatches, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Width/Radius: "/>
+                                    <TextBox Width="50" Text="{Binding PatchWidth, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Height: "/>
+                                    <TextBox Width="50" Text="{Binding PatchHeight, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Horizontal Patch Divisions: "/>
+                                    <TextBox Width="50" Text="{Binding HorizontalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20, 2">
+                                    <TextBlock Text="Vertical Patch Divisions: "/>
+                                    <TextBox Width="50" Text="{Binding VerticalPatchDivisions, Source={x:Static viewModel:PatchManager.Instance}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
-                </GroupBox>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel>
-                    <GroupBox Header="Points">
-                        <ListView Width="200" Height="400" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
-                            <ListView.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    <MenuItem Header="Create Bézier curve C2 with points"  Command="{Binding Path=DataContext.CreateBezierCurveC2WithPoints, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                </ContextMenu>
-                            </ListView.Resources>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsSelected}"/>
-                                        <TextBox Text="{Binding Name}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
-                    </GroupBox>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel>
+                            <GroupBox Header="Points">
+                                <ListView Width="200" Height="400" ItemsSource="{Binding Points, Source={x:Static viewModel:PointManager.Instance}}" SelectionMode="Multiple">
+                                    <ListView.Resources>
+                                        <ContextMenu x:Key="ItemContextMenu">
+                                            <MenuItem Header="Add point to Bézier curve" Command="{Binding Path=DataContext.AddPointToBezierCurve, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                            <MenuItem Header="Create Bézier curve C0" Command="{Binding Path=DataContext.CreateBezierCurveC0, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                            <MenuItem Header="Create Bézier curve C2"  Command="{Binding Path=DataContext.CreateBezierCurveC2, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                            <MenuItem Header="Create Bézier curve C2 with points"  Command="{Binding Path=DataContext.CreateBezierCurveC2WithPoints, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+                                        </ContextMenu>
+                                    </ListView.Resources>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox IsChecked="{Binding IsSelected}"/>
+                                                <TextBox Text="{Binding Name}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListViewItem}" >
+                                            <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                            </GroupBox>
+                        </StackPanel>
+                        <TabControl Height="500">
+                            <TabItem Header="Meshes">
+                                <ListView ItemsSource="{Binding Meshes, Source={x:Static viewModel:MeshManager.Instance}}" SelectionMode="Single">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </TabItem>
+                            <TabItem Header="Curves">
+                                <ListView ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single"/>
+                            </TabItem>
+                            <TabItem Header="Patches">
+                                <ListView ItemsSource="{Binding Patches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
+                            </TabItem>
+                            <TabItem Header="Gregory Patches">
+                                <ListView ItemsSource="{Binding GregoryPatches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
+                            </TabItem>
+                        </TabControl>
+                    </StackPanel>
                 </StackPanel>
-                <TabControl Height="500">
-                    <TabItem Header="Meshes">
-                        <ListView ItemsSource="{Binding Meshes, Source={x:Static viewModel:MeshManager.Instance}}" SelectionMode="Single">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding Name}"/>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </TabItem>
-                    <TabItem Header="Curves">
-                        <ListView ItemsSource="{Binding Curves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single"/>
-                    </TabItem>
-                    <TabItem Header="Patches">
-                        <ListView ItemsSource="{Binding Patches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
-                    </TabItem>
-                    <TabItem Header="Gregory Patches">
-                        <ListView ItemsSource="{Binding GregoryPatches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
-                    </TabItem>
-                </TabControl>
-            </StackPanel>
-        </StackPanel>
+            </TabItem>
+            <TabItem Header="Trimming windows">
+                <StackPanel>
+                    <Image Source="{Binding FirstSurfaceImage, Source={x:Static viewModel:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="540" Height="405"/>
+                    <Image Source="{Binding SecondSurfaceImage, Source={x:Static viewModel:SceneManager.Instance}, Converter={StaticResource ResourceKey=BitmapToBitmapImageConverter}}" Width="540" Height="405" Margin="0, 10, 0, 0"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
