@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
 using RayTracer.Helpers;
 using RayTracer.Helpers.EventCommand;
 
@@ -115,8 +116,8 @@ namespace RayTracer.ViewModel
             if (CaptureNewtonStartPoint)
             {
                 CaptureNewtonStartPoint = false;
-                CurveManager.Instance.CalculateTrimmingCurve(_mouseCurrentPosition);
-            }
+                CurveManager.Instance.TrimmingCurves.First().StartPoint = _mouseCurrentPosition;
+            }                         
         }
 
         private ActionCommand<MouseButtonEventArgs> _mouseUpCommand;

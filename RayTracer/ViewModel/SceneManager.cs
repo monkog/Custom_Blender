@@ -154,17 +154,16 @@ namespace RayTracer.ViewModel
         #endregion .ctor
         #region Public Methods
         /// <summary>
-        /// Draws the curve point on the bitmap.
+        /// Draws the point on the bitmap.
         /// </summary>
         /// <param name="bmp">The bitmap.</param>
         /// <param name="g">The g.</param>
         /// <param name="point">The point.</param>
         /// <param name="thickness">The thickness of the point.</param>
-        public static void DrawCurvePoint(Bitmap bmp, Graphics g, Vector4 point, int thickness)
+        public static void DrawPoint(Bitmap bmp, Graphics g, Vector4 point, int thickness, Color color)
         {
             if (Instance.IsStereoscopic)
             {
-                Color color;
                 var p = Instance.TransformMatrix * Instance.ScaleMatrix *
                         Transformations.StereographicLeftViewMatrix(20, 400) * point;
                 if (double.IsNaN(p.X) || double.IsNaN(p.Y) || !(p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height))
@@ -186,8 +185,8 @@ namespace RayTracer.ViewModel
                         point;
                 if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height)
                     return;
-                Color color = bmp.GetPixel((int)p.X, (int)p.Y);
-                g.FillRectangle(new SolidBrush(color.CombinedColor(Color.DarkCyan)), (int)p.X, (int)p.Y, thickness, thickness);
+                Color c = bmp.GetPixel((int)p.X, (int)p.Y);
+                g.FillRectangle(new SolidBrush(color.CombinedColor(color)), (int)p.X, (int)p.Y, thickness, thickness);
             }
         }
         /// <summary>
@@ -278,6 +277,7 @@ namespace RayTracer.ViewModel
             PatchManager.Instance.Patches.Clear();
             PatchManager.Instance.GregoryPatches.Clear();
             CurveManager.Instance.Curves.Clear();
+            CurveManager.Instance.TrimmingCurves.Clear();
         }
         /// <summary>
         /// Draws the normal vector of the surface in the given point.

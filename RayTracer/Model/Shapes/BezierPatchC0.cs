@@ -58,7 +58,7 @@ namespace RayTracer.Model.Shapes
                         pointY = v.GetBezierPoint();
 
                     var point = CalculatePatchPoint(matX, matY, matZ, pointX, pointY);
-                    SceneManager.DrawCurvePoint(bmp, g, point, Thickness);
+                    SceneManager.DrawPoint(bmp, g, point, Thickness, Color);
                 }
             }
         }

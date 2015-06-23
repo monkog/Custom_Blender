@@ -57,7 +57,7 @@ namespace RayTracer.Model.Shapes
                 var point = GetCurvePoint(curve, t);
                 if (point == null) continue;
 
-               SceneManager.DrawCurvePoint(bmp, g, point, Thickness);
+                SceneManager.DrawPoint(bmp, g, point, Thickness, Color);
             }
         }
         private Vector4 Casteljeu(List<Vector4> points, double t)

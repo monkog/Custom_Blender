@@ -55,7 +55,7 @@ namespace RayTracer.Model.Shapes
                     else uArray = InitializeNArray(2 + v, _knots);
 
                     Vector4 value = CalculatePatchValue(points, uArray, vArray);
-                    SceneManager.DrawCurvePoint(bmp, g, value, Thickness);
+                    SceneManager.DrawPoint(bmp, g, value, Thickness, Color);
                 }
             }
         }

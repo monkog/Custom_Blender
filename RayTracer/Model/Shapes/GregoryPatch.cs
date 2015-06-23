@@ -302,7 +302,7 @@ namespace RayTracer.Model.Shapes
                     else v = new Vector4(Math.Pow((1.0 - currentPoint), 3), 3 * currentPoint * Math.Pow((1.0 - currentPoint), 2), 3 * currentPoint * currentPoint * (1.0 - currentPoint), Math.Pow(currentPoint, 3));
 
                     var point = CalculatePointInGregoryPatch(u, v, currentStep, currentPoint, points, innerPoints);
-                    SceneManager.DrawCurvePoint(bmp, g, point, Thickness);
+                    SceneManager.DrawPoint(bmp, g, point, Thickness, Color);
                 }
             }
         }

@@ -242,6 +242,9 @@ namespace RayTracer.ViewModel
             foreach (var mesh in MeshManager.Meshes)
                 mesh.Draw();
 
+            foreach (var curve in CurveManager.TrimmingCurves)
+                curve.Draw();
+
             Cursor3D.Instance.Draw();
         }
         /// <summary>
@@ -369,6 +372,9 @@ namespace RayTracer.ViewModel
                 foreach (var patch in PatchManager.Patches)
                     foreach (var vertex in patch.Vertices.Where(v => v.IsSelected))
                         vertex.ModelTransform = matrix * vertex.ModelTransform;
+
+            foreach (var curve in CurveManager.TrimmingCurves)
+                curve.ModelTransform = matrix * curve.ModelTransform;
         }
         private PointEx FindInterpolationPoint(List<PointEx> points)
         {
@@ -647,9 +653,8 @@ namespace RayTracer.ViewModel
                 return;
             }
             var curve = new TrimmingCurve(0, 0, 0, "Trimming Curve(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.SelectedItems.ToList());
+            curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "StartPoint")Render(); };
             CurveManager.TrimmingCurves.Add(curve);
-            
-            Render();
         }
 
         private ActionCommand<KeyEventArgs> _keyDeleteCommand;
