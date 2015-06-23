@@ -14,8 +14,10 @@ namespace RayTracer.Model.Shapes
     {
         #region Private Members
         private Point _startPoint;
-        Bitmap _firstSurfaceImage;
-        Bitmap _secondSurfaceImage;
+        private Bitmap _firstSurfaceImage;
+        private Bitmap _secondSurfaceImage;
+        private const int MaxTries = 100;
+        private List<Vector4> _curvePoints;
         #endregion Private Members
         #region Public Properties
         public override string Type
@@ -50,10 +52,11 @@ namespace RayTracer.Model.Shapes
         {
             _firstSurfaceImage = SceneManager.Instance.FirstSurfaceImage;
             _secondSurfaceImage = SceneManager.Instance.SecondSurfaceImage;
+            _curvePoints = new List<Vector4>();
             MouseEventManager.Instance.CaptureNewtonStartPoint = true;
             BezierPatches = new[] { patches.ElementAt(0), patches.ElementAt(1) };
 
-            Color = Color.Pink;
+            Color = Color.DeepPink;
         }
         #endregion Constructors
         #region Private Methods
@@ -66,9 +69,29 @@ namespace RayTracer.Model.Shapes
             var q = BezierPatches[1];
             int i, j, k, l;
             i = j = k = l = 0;
+            Vector4 uvst = null, uvst1 = null;
+            int currentTry = 0;
 
-            var uvst = CalculateParametrization(pos, p, i, j, q, k, l);
-            var uvst1 = CalculateParametrization(new Vector4(pos.X +0.01, pos.Y + 0.01, pos.Z, pos.A), p, i, j, q, k, l);
+            do
+            {
+                bool calculate = true;
+                for (int pX = 0; pX < p.HorizontalPatches && calculate; pX++)
+                    for (int pY = 0; pY < p.VerticalPatches && calculate; pY++)
+                        for (int qX = 0; qX < q.HorizontalPatches && calculate; qX++)
+                            for (int qY = 0; qY < q.VerticalPatches && calculate; qY++)
+                            {
+                                uvst = CalculateParametrization(pos, p, pY, pX, q, qY, qX);
+                                uvst1 = CalculateParametrization(new Vector4(pos.X + 0.01, pos.Y + 0.01, pos.Z, pos.A), p, pY, pX, q, qY, qX);
+                                if (uvst == null || uvst1 == null) continue;
+
+                                if (uvst.X <= 1 && uvst.X >= 0 && uvst.Y <= 1 && uvst.Y >= 0 && uvst.Z <= 1 && uvst.Z >= 0 && uvst.A <= 1 && uvst.A >= 0
+                                    && uvst1.X <= 1 && uvst1.X >= 0 && uvst1.Y <= 1 && uvst1.Y >= 0 && uvst1.Z <= 1 && uvst1.Z >= 0 && uvst1.A <= 1 && uvst1.A >= 0)
+                                {
+                                    j = pX; i = pY; l = qX; k = qY;
+                                    calculate = false;
+                                }
+                            }
+            } while (currentTry < MaxTries && (uvst == null || uvst1 == null));
 
             if (uvst == null || uvst1 == null) return;
 
@@ -79,19 +102,31 @@ namespace RayTracer.Model.Shapes
 
             var pointL = pointR1;
             var pointL1 = pointR;
+            int iL = i, iR = i, jL = j, jR = j, kL = k, kR = k, lL = l, lR = l;
 
             for (int w = 0; w < 1000; w++)
             {
-                CalculateWholeCurve(bmp, g, gf, gs, ref pointR, ref pointR1, p, i, j, q, k, l);
-                CalculateWholeCurve(bmp, g, gf, gs, ref pointL, ref pointL1, p, i, j, q, k, l);
+                CalculateWholeCurve(bmp, g, gf, gs, ref pointR, ref pointR1, p, ref iR, ref jR, q, ref kR, ref lR);
+                CalculateWholeCurve(bmp, g, gf, gs, ref pointL, ref pointL1, p, ref iL, ref jL, q, ref kL, ref lL);
             }
         }
-        private void CalculateWholeCurve(Bitmap bmp, Graphics g, Graphics gf, Graphics gs, ref Vector4 point, ref Vector4 point1, BezierPatch p, int i, int j, BezierPatch q, int k, int l)
+        private void CalculateWholeCurve(Bitmap bmp, Graphics g, Graphics gf, Graphics gs, ref Vector4 point, ref Vector4 point1, BezierPatch p, ref int i, ref int j, BezierPatch q, ref int k, ref int l)
         {
+            if (i < 0 || i >= p.VerticalPatches || j < 0 || j >= p.HorizontalPatches || k < 0 || k >= q.VerticalPatches || l < 0 || l >= q.HorizontalPatches) return;
+
             var nextPoint = point1 * 2 - point;
             var uvst = CalculateParametrization(nextPoint, p, i, j, q, k, l);
 
-            if (uvst == null || uvst.X > 1 || uvst.X < 0 || uvst.Y > 1 || uvst.Y < 0 || uvst.Z > 1 || uvst.Z < 0 || uvst.A > 1 || uvst.A < 0) return;
+            if (uvst == null) return;
+            if (uvst.X > 1 + SceneManager.Epsilon) { i++; uvst = new Vector4(uvst.X - 1, uvst.Y, uvst.Z, uvst.A); }
+            if (uvst.X < -SceneManager.Epsilon) { i--; uvst = new Vector4(uvst.X + 1, uvst.Y, uvst.Z, uvst.A); }
+            if (uvst.Y > 1 + SceneManager.Epsilon) { j++; uvst = new Vector4(uvst.X, uvst.Y - 1, uvst.Z, uvst.A); }
+            if (uvst.Y < -SceneManager.Epsilon) { j--; uvst = new Vector4(uvst.X, uvst.Y + 1, uvst.Z, uvst.A); }
+            if (uvst.Z > 1 + SceneManager.Epsilon) { k++; uvst = new Vector4(uvst.X, uvst.Y, uvst.Z - 1, uvst.A); }
+            if (uvst.Z < -SceneManager.Epsilon) { k--; uvst = new Vector4(uvst.X, uvst.Y, uvst.Z + 1, uvst.A); }
+            if (uvst.A > 1 + SceneManager.Epsilon) { l++; uvst = new Vector4(uvst.X, uvst.Y, uvst.Z, uvst.A - 1); }
+            if (uvst.A < -SceneManager.Epsilon) { l--; uvst = new Vector4(uvst.X, uvst.Y, uvst.Z, uvst.A + 1); }
+            if (i < 0 || i >= p.VerticalPatches || j < 0 || j >= p.HorizontalPatches || k < 0 || k >= q.VerticalPatches || l < 0 || l >= q.HorizontalPatches) return;
 
             var pt = p.CalculatePatchPoint(i, j, uvst.X, uvst.Y);
             SceneManager.DrawPoint(bmp, g, pt, Thickness, Color);
@@ -165,11 +200,11 @@ namespace RayTracer.Model.Shapes
                 var vMinus = p.CalculatePatchPoint(i, j, x.X, x.Y - epsilon);
                 var uvPoint = p.CalculatePatchPoint(i, j, x.X, x.Y);
 
-                var sPlus = q.CalculatePatchPoint(i, j, x.Z + epsilon, x.A);
-                var sMinus = q.CalculatePatchPoint(i, j, x.Z - epsilon, x.A);
-                var tPlus = q.CalculatePatchPoint(i, j, x.Z, x.A + epsilon);
-                var tMinus = q.CalculatePatchPoint(i, j, x.Z, x.A - epsilon);
-                var stPoint = q.CalculatePatchPoint(i, j, x.Z, x.A);
+                var sPlus = q.CalculatePatchPoint(k, l, x.Z + epsilon, x.A);
+                var sMinus = q.CalculatePatchPoint(k, l, x.Z - epsilon, x.A);
+                var tPlus = q.CalculatePatchPoint(k, l, x.Z, x.A + epsilon);
+                var tMinus = q.CalculatePatchPoint(k, l, x.Z, x.A - epsilon);
+                var stPoint = q.CalculatePatchPoint(k, l, x.Z, x.A);
 
                 var col0 = new Vector4((uPlus - uMinus).X / (2 * epsilon), (uPlus - uMinus).Y / (2 * epsilon), (uPlus - uMinus).Z / (2 * epsilon), 1);
                 var col1 = new Vector4((vPlus - vMinus).X / (2 * epsilon), (vPlus - vMinus).Y / (2 * epsilon), (vPlus - vMinus).Z / (2 * epsilon), 1);
