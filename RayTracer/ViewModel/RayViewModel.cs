@@ -27,6 +27,7 @@ namespace RayTracer.ViewModel
         private int _xSlider;
         private int _ySlider;
         private int _zSlider;
+        private bool _selectPointsForTrimming;
         #endregion Private Members
         #region Public Properties
         /// <summary>
@@ -195,6 +196,7 @@ namespace RayTracer.ViewModel
         /// </summary>
         public RayViewModel()
         {
+            _selectPointsForTrimming = true;
             MeshManager.SmallR = 0.1;
             MeshManager.BigR = 0.2;
             MeshManager.L = 20;
@@ -374,7 +376,12 @@ namespace RayTracer.ViewModel
                         vertex.ModelTransform = matrix * vertex.ModelTransform;
 
             foreach (var curve in CurveManager.TrimmingCurves)
-                curve.ModelTransform = matrix * curve.ModelTransform;
+                for (int i = curve.CurvePoints.Count - 1; i >=0; i--)
+                {
+                    var point = curve.CurvePoints[i];
+                    curve.CurvePoints.RemoveAt(i);
+                    curve.CurvePoints.Insert(i, matrix * point);
+                }
         }
         private PointEx FindInterpolationPoint(List<PointEx> points)
         {
@@ -652,9 +659,17 @@ namespace RayTracer.ViewModel
                 MessageBox.Show("Please select two surfaces to trim");
                 return;
             }
-            var curve = new TrimmingCurve(0, 0, 0, "Trimming Curve(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.SelectedItems.ToList());
-            curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "StartPoint")Render(); };
-            CurveManager.TrimmingCurves.Add(curve);
+            if (_selectPointsForTrimming)
+            {
+                var curve = new TrimmingCurve(0, 0, 0, "Trimming Curve(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.SelectedItems.ToList());
+                curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "StartPoint")Render(); };
+                CurveManager.TrimmingCurves.Add(curve);
+                _selectPointsForTrimming = false;
+                MouseManager.CaptureNewtonStartPoint = true;
+                return;
+            }
+            _selectPointsForTrimming = true;
+            CurveManager.TrimmingCurves.Last().TrimCurve();
         }
 
         private ActionCommand<KeyEventArgs> _keyDeleteCommand;

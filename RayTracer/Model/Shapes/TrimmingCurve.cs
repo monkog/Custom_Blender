@@ -13,10 +13,11 @@ namespace RayTracer.Model.Shapes
     public class TrimmingCurve : ModelBase
     {
         #region Private Members
-        private Point _startPoint;
+        private List<Point> _startPoints;
         private Bitmap _firstSurfaceImage;
         private Bitmap _secondSurfaceImage;
-        private const int MaxTries = 100;
+        private const int MaxTries = 10;
+        const double NextPointDifference = 0.01;
         private List<Vector4> _curvePoints;
         #endregion Private Members
         #region Public Properties
@@ -33,18 +34,22 @@ namespace RayTracer.Model.Shapes
         /// </summary>
         public BezierPatch[] BezierPatches { get; private set; }
         /// <summary>
-        /// Gets or sets the start point for the Newton's method.
+        /// Gets or sets the start points for the Newton's method.
         /// </summary>
-        public Point StartPoint
+        public List<Point> StartPoints
         {
-            get { return _startPoint; }
+            get { return _startPoints; }
             set
             {
-                if (_startPoint == value) return;
-                _startPoint = value;
-                OnPropertyChanged("StartPoint");
+                if (_startPoints == value) return;
+                _startPoints = value;
+                OnPropertyChanged("StartPoints");
             }
         }
+        /// <summary>
+        /// Gets the curve points.
+        /// </summary>
+        public List<Vector4> CurvePoints { get { return _curvePoints; } }
         #endregion Public Properties
         #region Constructors
         public TrimmingCurve(double x, double y, double z, string name, List<BezierPatch> patches)
@@ -53,8 +58,8 @@ namespace RayTracer.Model.Shapes
             _firstSurfaceImage = SceneManager.Instance.FirstSurfaceImage;
             _secondSurfaceImage = SceneManager.Instance.SecondSurfaceImage;
             _curvePoints = new List<Vector4>();
-            MouseEventManager.Instance.CaptureNewtonStartPoint = true;
             BezierPatches = new[] { patches.ElementAt(0), patches.ElementAt(1) };
+            _startPoints = new List<Point>();
 
             Color = Color.DeepPink;
         }
@@ -70,9 +75,8 @@ namespace RayTracer.Model.Shapes
             int i, j, k, l;
             i = j = k = l = 0;
             Vector4 uvst = null, uvst1 = null;
-            int currentTry = 0;
 
-            do
+            for (int iteration = 0; iteration < MaxTries; iteration++)
             {
                 bool calculate = true;
                 for (int pX = 0; pX < p.HorizontalPatches && calculate; pX++)
@@ -81,7 +85,7 @@ namespace RayTracer.Model.Shapes
                             for (int qY = 0; qY < q.VerticalPatches && calculate; qY++)
                             {
                                 uvst = CalculateParametrization(pos, p, pY, pX, q, qY, qX);
-                                uvst1 = CalculateParametrization(new Vector4(pos.X + 0.01, pos.Y + 0.01, pos.Z, pos.A), p, pY, pX, q, qY, qX);
+                                uvst1 = CalculateParametrization(new Vector4(pos.X + NextPointDifference, pos.Y + NextPointDifference, pos.Z, pos.A), p, pY, pX, q, qY, qX);
                                 if (uvst == null || uvst1 == null) continue;
 
                                 if (uvst.X <= 1 && uvst.X >= 0 && uvst.Y <= 1 && uvst.Y >= 0 && uvst.Z <= 1 && uvst.Z >= 0 && uvst.A <= 1 && uvst.A >= 0
@@ -91,14 +95,15 @@ namespace RayTracer.Model.Shapes
                                     calculate = false;
                                 }
                             }
-            } while (currentTry < MaxTries && (uvst == null || uvst1 == null));
+                if (uvst == null || uvst1 == null) pos = new Vector4(pos.X + SceneManager.Epsilon, pos.Y + SceneManager.Epsilon, pos.Z, pos.A);
+            }
 
             if (uvst == null || uvst1 == null) return;
 
             var pointR = p.CalculatePatchPoint(i, j, uvst.X, uvst.Y);
-            SceneManager.DrawPoint(bmp, g, pointR, Thickness, Color);
+            _curvePoints.Add(pointR);
             var pointR1 = p.CalculatePatchPoint(i, j, uvst1.X, uvst1.Y);
-            SceneManager.DrawPoint(bmp, g, pointR1, Thickness, Color);
+            _curvePoints.Add(pointR1);
 
             var pointL = pointR1;
             var pointL1 = pointR;
@@ -114,8 +119,13 @@ namespace RayTracer.Model.Shapes
         {
             if (i < 0 || i >= p.VerticalPatches || j < 0 || j >= p.HorizontalPatches || k < 0 || k >= q.VerticalPatches || l < 0 || l >= q.HorizontalPatches) return;
 
-            var nextPoint = point1 * 2 - point;
-            var uvst = CalculateParametrization(nextPoint, p, i, j, q, k, l);
+            Vector4 uvst = null, nextPoint = null;
+            var step = point1 - point;
+            for (int iteration = 0; iteration < MaxTries && uvst == null; iteration++)
+            {
+                nextPoint = point1 + (step * (iteration + 1));
+                uvst = CalculateParametrization(nextPoint, p, i, j, q, k, l);
+            }
 
             if (uvst == null) return;
             if (uvst.X > 1 + SceneManager.Epsilon) { i++; uvst = new Vector4(uvst.X - 1, uvst.Y, uvst.Z, uvst.A); }
@@ -129,7 +139,7 @@ namespace RayTracer.Model.Shapes
             if (i < 0 || i >= p.VerticalPatches || j < 0 || j >= p.HorizontalPatches || k < 0 || k >= q.VerticalPatches || l < 0 || l >= q.HorizontalPatches) return;
 
             var pt = p.CalculatePatchPoint(i, j, uvst.X, uvst.Y);
-            SceneManager.DrawPoint(bmp, g, pt, Thickness, Color);
+            _curvePoints.Add(pt);
 
             var fPt = new Vector4(uvst.X, uvst.Y, 0, 1);
             SceneManager.DrawPoint(_firstSurfaceImage, gf, fPt, Thickness, Color);
@@ -237,19 +247,32 @@ namespace RayTracer.Model.Shapes
             Bitmap bmp = SceneManager.Instance.SceneImage;
             using (Graphics g = Graphics.FromImage(bmp))
             {
+                foreach (var point in _curvePoints)
+                    SceneManager.DrawPoint(bmp, g, point, Thickness, Color);
+            }
+            SceneManager.Instance.SceneImage = bmp;
+        }
+        public bool TrimCurve()
+        {
+            Bitmap bmp = SceneManager.Instance.SceneImage;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
                 using (Graphics gf = Graphics.FromImage(_firstSurfaceImage))
                 {
                     gf.Clear(Color.Black);
                     using (Graphics gs = Graphics.FromImage(_secondSurfaceImage))
                     {
                         gs.Clear(Color.Black);
-                        CalculateTrimmingCurve(StartPoint, bmp, g, gf, gs);
+                        foreach (var point in StartPoints)
+                            CalculateTrimmingCurve(point, bmp, g, gf, gs);
                     }
                 }
             }
             SceneManager.Instance.FirstSurfaceImage = _firstSurfaceImage;
             SceneManager.Instance.SecondSurfaceImage = _secondSurfaceImage;
             SceneManager.Instance.SceneImage = bmp;
+            Draw();
+            return true;
         }
         #endregion Public Methods
     }

@@ -84,7 +84,6 @@ namespace RayTracer.ViewModel
         private MouseEventManager()
         {
             _isMouseDown = false;
-            CaptureNewtonStartPoint = false;
         }
         #endregion .ctor
         #region Commands
@@ -114,10 +113,7 @@ namespace RayTracer.ViewModel
             }
 
             if (CaptureNewtonStartPoint)
-            {
-                CaptureNewtonStartPoint = false;
-                CurveManager.Instance.TrimmingCurves.First().StartPoint = _mouseCurrentPosition;
-            }                         
+                CurveManager.Instance.TrimmingCurves.First().StartPoints.Add(_mouseCurrentPosition);
         }
 
         private ActionCommand<MouseButtonEventArgs> _mouseUpCommand;
