@@ -186,7 +186,52 @@ namespace RayTracer.ViewModel
                 if (double.IsNaN(p.X) || double.IsNaN(p.Y) || p.X < 0 || p.X >= bmp.Width || p.Y < 0 || p.Y >= bmp.Height)
                     return;
                 Color c = bmp.GetPixel((int)p.X, (int)p.Y);
-                g.FillRectangle(new SolidBrush(color.CombinedColor(color)), (int)p.X, (int)p.Y, thickness, thickness);
+                g.FillRectangle(new SolidBrush(color), (int)p.X, (int)p.Y, thickness, thickness);
+            }
+        }
+        /// <summary>
+        /// Draws the line on the bitmap.
+        /// </summary>
+        /// <param name="bmp">The bitmap.</param>
+        /// <param name="g">The g.</param>
+        /// <param name="point1">The start point.</param>
+        /// <param name="point2">The end point.</param>
+        /// <param name="thickness">The thickness of the point.</param>
+        public static void DrawLine(Bitmap bmp, Graphics g, Vector4 point1, Vector4 point2, int thickness, Color color)
+        {
+            if (Instance.IsStereoscopic)
+            {
+                var p1 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.StereographicLeftViewMatrix(20, 400) * point1;
+                var p2 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.StereographicLeftViewMatrix(20, 400) * point2;
+                if (double.IsNaN(p1.X) || double.IsNaN(p1.Y) || (p1.X < 0 || p1.X >= bmp.Width || p1.Y < 0 || p1.Y >= bmp.Height)
+                    || double.IsNaN(p2.X) || double.IsNaN(p2.Y) || (p2.X < 0 || p2.X >= bmp.Width || p2.Y < 0 || p2.Y >= bmp.Height))
+                    return;
+                color = bmp.GetPixel((int)p1.X, (int)p1.Y);
+                g.DrawLine(new Pen(new SolidBrush(color.CombinedColor(Color.Red))), (float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y);
+
+                p1 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                    Transformations.StereographicRightViewMatrix(20, 400) * point1;
+                p2 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.StereographicRightViewMatrix(20, 400) * point2;
+                if (double.IsNaN(p1.X) || double.IsNaN(p1.Y) || (p1.X < 0 || p1.X >= bmp.Width || p1.Y < 0 || p1.Y >= bmp.Height)
+                    || double.IsNaN(p2.X) || double.IsNaN(p2.Y) || (p2.X < 0 || p2.X >= bmp.Width || p2.Y < 0 || p2.Y >= bmp.Height))
+                    return;
+                color = bmp.GetPixel((int)p1.X, (int)p1.Y);
+                g.DrawLine(new Pen(new SolidBrush(color.CombinedColor(Color.Red))), (float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y);
+            }
+            else
+            {
+                var p1 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.ViewMatrix(400) * point1;
+                var p2 = Instance.TransformMatrix * Instance.ScaleMatrix *
+                        Transformations.ViewMatrix(400) * point2;
+                if (double.IsNaN(p1.X) || double.IsNaN(p1.Y) || (p1.X < 0 || p1.X >= bmp.Width || p1.Y < 0 || p1.Y >= bmp.Height)
+                    || double.IsNaN(p2.X) || double.IsNaN(p2.Y) || (p2.X < 0 || p2.X >= bmp.Width || p2.Y < 0 || p2.Y >= bmp.Height))
+                    return;
+                var c = bmp.GetPixel((int)p1.X, (int)p1.Y);
+                g.DrawLine(new Pen(new SolidBrush(color/*.CombinedColor(c)*/)), (float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y);
             }
         }
         /// <summary>

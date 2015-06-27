@@ -215,8 +215,10 @@ namespace RayTracer.Model.Shapes
         /// <param name="j">Vertical patch index</param>
         /// <param name="u">Horizontal parametrization</param>
         /// <param name="v">Vertical parametrization</param>
+        /// <param name="uDerivative">Should this be a dP/du</param>
+        /// <param name="vDerivative">Should this be a dP/dv</param>
         /// <returns>Point on screen from the patch</returns>
-        public abstract Vector4 CalculatePatchPoint(int i, int j, double u, double v);
+        public abstract Vector4 CalculatePatchPoint(int i, int j, double u, double v, bool uDerivative = false, bool vDerivative = false);
         #endregion Public Methods
     }
 }

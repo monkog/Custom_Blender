@@ -111,10 +111,10 @@ namespace RayTracer.Model.Shapes
             }
             SceneManager.Instance.SceneImage = bmp;
         }
-        public override Vector4 CalculatePatchPoint(int i, int j, double u, double v)
+        public override Vector4 CalculatePatchPoint(int i, int j, double u, double v, bool uDerivative = false, bool vDerivative = false)
         {
-            var pointX = u.GetBezierPoint();
-            var pointY = v.GetBezierPoint();
+            var pointX = uDerivative ? u.GetBezierDerivativePoint() : u.GetBezierPoint();
+            var pointY = vDerivative ? v.GetBezierDerivativePoint() : v.GetBezierPoint();
 
             var matrix = GetPatchMatrix(i, j);
 

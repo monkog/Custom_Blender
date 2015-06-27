@@ -83,6 +83,15 @@
                 <TextBox Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type shapes:TrimmingCurve}">
+            <StackPanel>
+                <TextBox Text="{Binding Name}"/>
+                <TextBox Text="Patches:"/>
+                <TextBox Text="{Binding BezierPatches[0].Name}"/>
+                <TextBox Text="{Binding BezierPatches[1].Name}"/>
+                <Button Content="Calculate" Command="{Binding CalculateCommand}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=KeyUpCommand, Source={x:Static viewModel:KeyboardEventManager.Instance}}" Key="NumPad8"/>
@@ -302,6 +311,9 @@
                             </TabItem>
                             <TabItem Header="Gregory Patches">
                                 <ListView ItemsSource="{Binding GregoryPatches, Source={x:Static viewModel:PatchManager.Instance}}" SelectionMode="Single"/>
+                            </TabItem>
+                            <TabItem Header="Trimming Curves">
+                                <ListView ItemsSource="{Binding TrimmingCurves, Source={x:Static viewModel:CurveManager.Instance}}" SelectionMode="Single"/>
                             </TabItem>
                         </TabControl>
                     </StackPanel>

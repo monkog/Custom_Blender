@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Media.Media3D;
 using RayTracer.Helpers;
 using RayTracer.ViewModel;
 
@@ -69,11 +68,11 @@ namespace RayTracer.Model.Shapes
 
             return new Vector4(point.X, point.Y, point.Z, 1);
         }
-        private double[] InitializeNArray(double u, double[] knots)
+        private double[] InitializeNArray(double u, double[] knots, bool isDerivative = false)
         {
             var n = new double[4];
             for (int i = 0; i < SceneManager.BezierSegmentPoints + 1; i++)
-                n[i] = knots.GetNFunctionValue(i, SceneManager.BezierSegmentPoints, u);
+                n[i] = isDerivative ? knots.GetNFunctionDerivativeValue(i, SceneManager.BezierSegmentPoints, u) : knots.GetNFunctionValue(i, SceneManager.BezierSegmentPoints, u);
             return n;
         }
         #endregion Private Methods
@@ -114,10 +113,10 @@ namespace RayTracer.Model.Shapes
             }
             SceneManager.Instance.SceneImage = bmp;
         }
-        public override Vector4 CalculatePatchPoint(int i, int j, double u, double v)
+        public override Vector4 CalculatePatchPoint(int i, int j, double u, double v, bool uDerivative = false, bool vDerivative = false)
         {
-            var uArray = InitializeNArray(2 + u, _knots);
-            var vArray = InitializeNArray(2 + v, _knots);
+            var uArray = InitializeNArray(2 + u, _knots, uDerivative);
+            var vArray = InitializeNArray(2 + v, _knots, vDerivative);
 
             var points = GetPatchMatrix(i, j);
 

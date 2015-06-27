@@ -669,6 +669,7 @@ namespace RayTracer.ViewModel
                 return;
             }
             _selectPointsForTrimming = true;
+            MouseManager.CaptureNewtonStartPoint = false;
             CurveManager.TrimmingCurves.Last().TrimCurve();
         }
 
