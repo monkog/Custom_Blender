@@ -205,8 +205,8 @@ namespace RayTracer.ViewModel
             B = 6;
             C = 8;
             SceneManager.M = 4;
-            PatchManager.HorizontalPatches = 1;
-            PatchManager.VerticalPatches = 1;
+            PatchManager.HorizontalPatches = 3;
+            PatchManager.VerticalPatches = 3;
             PatchManager.PatchHeight = 3;
             PatchManager.PatchWidth = 3;
             PatchManager.HorizontalPatchDivisions = 4;
@@ -376,7 +376,7 @@ namespace RayTracer.ViewModel
                         vertex.ModelTransform = matrix * vertex.ModelTransform;
 
             foreach (var curve in CurveManager.TrimmingCurves)
-                for (int i = curve.CurvePoints.Count - 1; i >=0; i--)
+                for (int i = curve.CurvePoints.Count - 1; i >= 0; i--)
                 {
                     var point = curve.CurvePoints[i];
                     curve.CurvePoints.RemoveAt(i);
@@ -450,6 +450,7 @@ namespace RayTracer.ViewModel
         private void ClearSceneExecuted()
         {
             SceneManager.RemoveAllObjects();
+            XSlider = YSlider = ZSlider = 0;
             Render();
         }
 
