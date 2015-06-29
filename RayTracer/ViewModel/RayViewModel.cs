@@ -663,7 +663,7 @@ namespace RayTracer.ViewModel
             if (_selectPointsForTrimming)
             {
                 var curve = new TrimmingCurve(0, 0, 0, "Trimming Curve(" + 0 + ", " + 0 + ", " + 0 + ")", PatchManager.SelectedItems.ToList());
-                curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "StartPoint")Render(); };
+                curve.PropertyChanged += (sender, args) => { if (args.PropertyName == "StartPoints")Render(); };
                 CurveManager.TrimmingCurves.Add(curve);
                 _selectPointsForTrimming = false;
                 MouseManager.CaptureNewtonStartPoint = true;
