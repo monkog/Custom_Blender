@@ -19,7 +19,6 @@ namespace RayTracer.Model.Shapes
         private readonly Bitmap _firstSurfaceImage;
         private readonly Bitmap _secondSurfaceImage;
         private const int MaxTries = 10;
-        const double NextPointDifference = 0.01;
         private readonly List<Vector4> _curvePoints;
         private readonly List<Vector4> _firstCurvePoints;
         private readonly List<Vector4> _secondCurvePoints;
@@ -71,7 +70,7 @@ namespace RayTracer.Model.Shapes
             var p = BezierPatches[0];
             var q = BezierPatches[1];
             int i = 0, j = 0, k = 0, l = 0;
-            Vector4 uvst = null, uvst1 = null;
+            Vector4 uvst = null;
 
             for (int iteration = 0; iteration < MaxTries; iteration++)
             {
@@ -82,22 +81,19 @@ namespace RayTracer.Model.Shapes
                             for (int qY = 0; qY < q.VerticalPatches && calculate; qY++)
                             {
                                 uvst = CalculateParametrization(pos, p, pY, pX, q, qY, qX);
-                                uvst1 = CalculateParametrization(new Vector4(pos.X + NextPointDifference, pos.Y + NextPointDifference, pos.Z, pos.A), p, pY, pX, q, qY, qX);
-                                if (uvst == null || uvst1 == null) continue;
+                                if (uvst == null) continue;
 
-                                if (uvst.X <= 1 && uvst.X >= 0 && uvst.Y <= 1 && uvst.Y >= 0 && uvst.Z <= 1 && uvst.Z >= 0 && uvst.A <= 1 && uvst.A >= 0
-                                    && uvst1.X <= 1 && uvst1.X >= 0 && uvst1.Y <= 1 && uvst1.Y >= 0 && uvst1.Z <= 1 && uvst1.Z >= 0 && uvst1.A <= 1 && uvst1.A >= 0)
+                                if (uvst.X <= 1 && uvst.X >= 0 && uvst.Y <= 1 && uvst.Y >= 0 && uvst.Z <= 1 && uvst.Z >= 0 && uvst.A <= 1 && uvst.A >= 0)
                                 {
                                     j = pX; i = pY; l = qX; k = qY;
                                     calculate = false;
                                 }
                             }
-                if (uvst == null || uvst1 == null) pos = new Vector4(pos.X + SceneManager.Epsilon, pos.Y + SceneManager.Epsilon, pos.Z, pos.A);
+                if (uvst == null) pos = new Vector4(pos.X + SceneManager.Epsilon, pos.Y + SceneManager.Epsilon, pos.Z, pos.A);
             }
-            if (uvst == null || uvst1 == null) return false;
+            if (uvst == null) return false;
 
             _curvePoints.Add(p.CalculatePatchPoint(i, j, uvst.X, uvst.Y));
-            _curvePoints.Add(p.CalculatePatchPoint(i, j, uvst1.X, uvst1.Y));
 
             var pointL = new Vector4(uvst.X, uvst.Y, uvst.Z, uvst.A);
             var pointR = pointL;
@@ -121,8 +117,10 @@ namespace RayTracer.Model.Shapes
 
             if (uvst == null)
             {
-                if (double.IsNaN(nextPoint.X) || double.IsNaN(nextPoint.Y) || double.IsNaN(nextPoint.Z) || double.IsNaN(nextPoint.A)) return false;
+                if (nextPoint == null || double.IsNaN(nextPoint.X) || double.IsNaN(nextPoint.Y) || double.IsNaN(nextPoint.Z) || double.IsNaN(nextPoint.A)) return false;
                 point = nextPoint;
+                // Why sometimes nextPoint == point??
+                // Check the condition when x,y,z,a gets way to big, why does this happen?
                 return true;
             }
 
@@ -137,13 +135,6 @@ namespace RayTracer.Model.Shapes
             if (i < 0 || i >= p.VerticalPatches || j < 0 || j >= p.HorizontalPatches || k < 0 || k >= q.VerticalPatches || l < 0 || l >= q.HorizontalPatches) return false;
 
             _curvePoints.Add(p.CalculatePatchPoint(i, j, uvst.X, uvst.Y));
-            //var po = SceneManager.Instance.TransformMatrix * SceneManager.Instance.ScaleMatrix * Transformations.ViewMatrix(400) * p.CalculatePatchPoint(i, j, uvst.X, uvst.Y);
-            //g.DrawRectangle(new Pen(new SolidBrush(Color)), new Rectangle((int)po.X, (int)po.Y, 2, 2));
-
-            //var fPt = new Vector4(uvst.X + i, uvst.Y + j, 0, 1);
-            //SceneManager.DrawPoint(_firstSurfaceImage, gf, fPt, Thickness, Color);
-            //var sPt = new Vector4(uvst.Z + k, uvst.A + l, 0, 1);
-            //SceneManager.DrawPoint(_secondSurfaceImage, gs, sPt, Thickness, Color);
             _firstCurvePoints.Add(new Vector4(uvst.X + i, uvst.Y + j, 0, 1));
             _secondCurvePoints.Add(new Vector4(uvst.Z + k, uvst.A + l, 0, 1));
 
@@ -293,6 +284,7 @@ namespace RayTracer.Model.Shapes
                 TrimCurve();
                 OnPropertyChanged("StartPoints");
             }
+            StartPoints.Clear();
         }
         #endregion Commands
     }

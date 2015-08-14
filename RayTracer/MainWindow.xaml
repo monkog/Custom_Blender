@@ -10,15 +10,13 @@
         xmlns:eventCommand="clr-namespace:RayTracer.Helpers.EventCommand"
         xmlns:model="clr-namespace:RayTracer.Model"
         xmlns:shapes="clr-namespace:RayTracer.Model.Shapes"
-        Title="Torus" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
+        Title="3D Modeler" WindowState="Maximized" d:DesignWidth="1600" d:DesignHeight="900">
     <d:Window.DataContext>
         <viewModel:RayViewModel />
     </d:Window.DataContext>
     <Window.Resources>
         <converters:RadioButtonConverter x:Key="RadioButtonConverter"/>
-        <converters:ReducedValueConverter x:Key="ReducedValueConverter"/>
         <converters:BitmapToBitmapImageConverter x:Key="BitmapToBitmapImageConverter"/>
-        <converters:DebugConverter x:Key="DebugConverter"/>
         <DataTemplate DataType="{x:Type shapes:BezierCurveC0}">
             <StackPanel>
                 <CheckBox IsChecked="{Binding IsSelected}" Content="Select"/>
@@ -107,7 +105,7 @@
             <ColumnDefinition Width="900"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Menu>
+        <Menu Height="20" VerticalAlignment="Top">
             <MenuItem Header="Save Scene" Command="{Binding SaveSceneCommand}"/>
             <MenuItem Header="Load Scene" Command="{Binding LoadSceneCommand}"/>
             <MenuItem Header="Add Mesh From File" Command="{Binding AddMeshFromFileCommand}"/>
